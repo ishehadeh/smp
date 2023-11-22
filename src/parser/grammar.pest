@@ -1,8 +1,8 @@
-number = { ASCII_DIGIT+ }
+number = @{ ASCII_DIGIT+ }
 
-infix_op    = { "+" | "-" | "/" | "*" }
-atomic_expr = { number | ("(" ~ expr ~ ")") }
-expr        = { atomic_expr ~ infix_op ~ atomic_expr }
+infix_op    =  { "+" | "-" | "/" | "*" }
+atomic_expr = _{ number | ("(" ~ expr ~ ")") }
+expr        =  { atomic_expr ~ infix_op ~ atomic_expr }
 
 WHITESPACE = _{ " " }
 
