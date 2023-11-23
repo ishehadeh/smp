@@ -20,7 +20,7 @@ pub enum Node {
     },
 }
 
-pub fn pair_to_op<'i>(pair: Pair<'i, Rule>) -> InfixOp {
+pub fn pair_to_op(pair: Pair<'_, Rule>) -> InfixOp {
     match pair.as_str() {
         "+" => InfixOp::Add,
         "-" => InfixOp::Sub,
@@ -30,7 +30,7 @@ pub fn pair_to_op<'i>(pair: Pair<'i, Rule>) -> InfixOp {
     }
 }
 
-pub fn pair_to_ast<'i>(pair: Pair<'i, Rule>) -> Node {
+pub fn pair_to_ast(pair: Pair<'_, Rule>) -> Node {
     match pair.as_rule() {
         Rule::expr => {
             let mut children = pair.into_inner();

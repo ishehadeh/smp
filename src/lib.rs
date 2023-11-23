@@ -1,3 +1,4 @@
+pub mod ir;
 pub mod parser;
 
 pub fn greeting() -> &'static str {
