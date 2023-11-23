@@ -1,11 +1,10 @@
 number = @{ ASCII_DIGIT+ }
+ident  = @{ (ASCII_ALPHA | "_") ~ ("_" | ASCII_DIGIT | ASCII_ALPHA)* }
 
 infix_op    =  { "+" | "-" | "/" | "*" }
-atomic_expr = _{ number | ("(" ~ expr ~ ")") }
+atomic_expr = _{ number | ident | ("(" ~ expr ~ ")") }
 expr        =  { atomic_expr ~ infix_op ~ atomic_expr }
 
 WHITESPACE = _{ " " }
 
-// We can't have SOI and EOI on expr directly, because it is used
-// recursively (e.g. with parentheses)
 program = _{ SOI ~ expr ~ EOI }
