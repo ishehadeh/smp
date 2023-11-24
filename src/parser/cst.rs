@@ -6,6 +6,10 @@ use pest::{error::Error, iterators::Pairs, Parser};
 #[grammar = "src/parser/grammar.pest"]
 pub struct CstParser;
 
-pub fn cst_parse<'i>(input: &'i str) -> Result<Pairs<'i, Rule>, Error<Rule>> {
+// clippy complains the the pest error type is too large to return without boxing it.
+// We don't have control of that though, since pest::Parser::parse returns the unboxed error.
+#[allow(clippy::result_large_err)]
+pub fn cst_parse(input: &str) -> Result<Pairs<'_, Rule>, Error<Rule>> {
+    // clippy: disable
     CstParser::parse(Rule::program, input)
 }

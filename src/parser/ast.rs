@@ -39,7 +39,7 @@ pub fn pair_to_ast(pair: Pair<'_, Rule>) -> Node {
             let rhs = Box::new(pair_to_ast(children.next().unwrap()));
             Node::Expr { lhs, op, rhs }
         }
-        Rule::number => Node::Number(i32::from_str_radix(pair.as_str(), 10).unwrap()),
+        Rule::number => Node::Number(pair.as_str().parse::<i32>().unwrap()),
         Rule::ident => Node::Ident(pair.as_str().to_owned()),
         Rule::program | Rule::atomic_expr => pair_to_ast(pair.into_inner().next().unwrap()),
         Rule::infix_op | Rule::EOI => unreachable!(),
@@ -55,7 +55,7 @@ mod test {
     fn str_to_ast(s: &str) -> Node {
         cst_parse(s)
             .expect("failed to parse")
-            .nth(0)
+            .next()
             .map(|x| pair_to_ast(x))
             .unwrap()
     }

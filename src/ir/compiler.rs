@@ -7,12 +7,15 @@ pub struct Compiler {
     ops: Vec<Op>,
 }
 
+#[derive(Clone, Debug)]
+pub enum CompileError {}
+
 impl Compiler {
     pub fn new() -> Compiler {
         Compiler::default()
     }
 
-    pub fn add_node(&mut self, node: &ast::Node) -> Result<(), ()> {
+    pub fn add_node(&mut self, node: &ast::Node) -> Result<(), CompileError> {
         match node {
             ast::Node::Ident(_) => unimplemented!(),
             ast::Node::Number(x) => self.ops.push(Op::Push(*x)),
