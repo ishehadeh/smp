@@ -3,13 +3,26 @@
 ## Tools
 
 - [lalrpop](https://github.com/lalrpop/lalrpop) LR(1) parser generator
-    + error recovery
-    + close(ish)ly related to parsing layed out by aho
-    + good documentation
-    + a few languages already implemented using it
+    + PRO: error recovery
+    + PRO: close(ish)ly related to parsing layed out by aho
+    + PRO: a few languages already implemented using it
+    - CON: ugly language
+    
 
 - [pest](https://pest.rs/) PEG parser generator
-    + fantastic tooling
-    + (supposed) very fast
-    + grammars are prettier (to me at least)
+    + PRO: fantastic tooling
+    + PRO: (supposed) very fast
+    + PRO: grammars are prettier (to me at least)
+    - CON: couldn't find similar programming languages implemented in pest
+    - CON: precedence handled seperatedly after parsing
+    - CON: no error recovery? (I can't find anything about it)
 
+### Results
+
+lalrpop seems like its been used in more projects similar to mine which will be useful for examples.
+Furthermore, it gives me some peace of mind that it supports the features I'll need as my language grows.
+
+I enjoy Pest's polish, especially when it comes to tooling.
+But, I can't find any references about error recovery, which is important in long program files. 
+It also is a PEG parser, which the Compilers book doesn't cover.
+I'm sure I could find another resource on working with this type of parser, but it would be easier to use a parser generator that is covered by the book.
