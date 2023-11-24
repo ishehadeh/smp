@@ -13,6 +13,7 @@ pub enum InfixOp {
 pub enum Node {
     Number(i32),
     Ident(String),
+    Error,
     Expr {
         lhs: Box<Node>,
         op: InfixOp,
@@ -43,7 +44,7 @@ pub fn pair_to_ast(pair: Pair<'_, Rule>) -> Node {
         Rule::ident => Node::Ident(pair.as_str().to_owned()),
         Rule::program | Rule::atomic_expr => pair_to_ast(pair.into_inner().next().unwrap()),
 
-        Rule::err_no_explicit_grouping => panic!("no explicit grouping"),
+        Rule::err_no_explicit_grouping => Node::Error,
         Rule::infix_op | Rule::EOI => unreachable!(),
         Rule::WHITESPACE => unreachable!(),
     }

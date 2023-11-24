@@ -18,6 +18,7 @@ impl Compiler {
     pub fn add_node(&mut self, node: &ast::Node) -> Result<(), CompileError> {
         match node {
             ast::Node::Ident(_) => unimplemented!(),
+            ast::Node::Error => panic!("error in ast!"),
             ast::Node::Number(x) => self.ops.push(Op::Push(*x)),
             ast::Node::Expr { lhs, op, rhs } => {
                 let _ = self.add_node(lhs);

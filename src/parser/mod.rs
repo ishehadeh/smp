@@ -1,24 +1,58 @@
+use lalrpop_util::{lexer::Token, ErrorRecovery};
+
 pub mod ast;
 pub mod cst;
 
 pub mod lalrpop_grammar;
 
+pub type LalrpopError<'input> = ErrorRecovery<usize, Token<'input>, &'static str>;
+
 #[cfg(test)]
 mod test {
+    use lalrpop_util::lexer::Token;
+
     use crate::parser::ast::InfixOp;
 
     use super::ast::Node;
-    use super::lalrpop_grammar;
-    fn str_to_ast(s: &str) -> Node {
-        lalrpop_grammar::ExprParser::new().parse(s).unwrap()
+    use super::{lalrpop_grammar, LalrpopError};
+    fn str_to_ast<'i>(s: &'i str) -> (Vec<LalrpopError<'i>>, Node) {
+        let mut errors: Vec<LalrpopError<'i>> = Vec::new();
+        let ast = lalrpop_grammar::ExprParser::new()
+            .parse(&mut errors, s)
+            .unwrap();
+        (errors, ast)
     }
 
     #[test]
-    fn test_lalrpop_simple() {
+    fn lalrpop_simple() {
+        let (_, ast) = str_to_ast("1 + 1");
         assert_eq!(
-            str_to_ast("1 + 1"),
+            ast,
             Node::Expr {
                 lhs: Box::new(Node::Number(1)),
+                op: InfixOp::Add,
+                rhs: Box::new(Node::Number(1))
+            }
+        );
+    }
+
+    #[test]
+    fn lalrpop_simple_error() {
+        let (errors, ast) = str_to_ast("1 + 1 + 1");
+        matches!(
+            errors[..],
+            [LalrpopError {
+                error: lalrpop_util::ParseError::UnrecognizedToken {
+                    token: (5, Token(5, _), 7),
+                    expected: _
+                },
+                dropped_tokens: _
+            }]
+        );
+        assert_eq!(
+            ast,
+            Node::Expr {
+                lhs: Box::new(Node::Error),
                 op: InfixOp::Add,
                 rhs: Box::new(Node::Number(1))
             }
