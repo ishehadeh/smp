@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::parser::{LalrpopError, ast::{Node, InfixOp}};
+use crate::parser::{ast::{Node, LalrpopError, InfixOp}};
 
 grammar<'err>(errors: &'err mut Vec<LalrpopError<'input>>);
 

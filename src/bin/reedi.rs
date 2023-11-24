@@ -11,17 +11,21 @@ struct Args {
 
 use reed::{
     ir::{compiler, vm::Vm},
-    parser::{ast, cst},
+    parser::ast::parse,
 };
 
 fn main() {
     let args = Args::parse();
 
-    let cst_root = cst::cst_parse(&args.program)
-        .expect("failed to parse into cst")
-        .next()
-        .unwrap();
-    let ast_root = ast::pair_to_ast(cst_root);
+    let mut recovered_errors = Vec::new();
+    let ast_root = parse(&args.program, &mut recovered_errors).expect("failed to compile");
+    if recovered_errors.len() > 0 {
+        for err in recovered_errors {
+            println!("{:#?}", err);
+        }
+        panic!("errors occured during compile");
+    }
+
     let mut compiler = compiler::Compiler::new();
     compiler.add_node(&ast_root).expect("failed to compile");
 

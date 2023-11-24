@@ -1,6 +1,5 @@
-use super::cst::Rule;
-use pest::iterators::Pair;
-
+use super::grammar::ExprParser;
+use lalrpop_util::{lexer::Token, ErrorRecovery, ParseError};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InfixOp {
     Add,
@@ -26,46 +25,30 @@ pub enum Node {
     },
 }
 
-pub fn pair_to_op(pair: Pair<'_, Rule>) -> InfixOp {
-    match pair.as_str() {
-        "+" => InfixOp::Add,
-        "-" => InfixOp::Sub,
-        "*" => InfixOp::Mul,
-        "/" => InfixOp::Div,
-        _ => panic!("Unexpected operaterator {:?}", pair.as_str()),
-    }
-}
+pub type LalrpopError<'input> = ErrorRecovery<usize, Token<'input>, &'static str>;
 
-pub fn pair_to_ast(pair: Pair<'_, Rule>) -> Node {
-    match pair.as_rule() {
-        Rule::expr => {
-            let mut children = pair.into_inner();
-            let lhs = Box::new(pair_to_ast(children.next().unwrap()));
-            let op = pair_to_op(children.next().unwrap());
-            let rhs = Box::new(pair_to_ast(children.next().unwrap()));
-            Node::Expr { lhs, op, rhs }
-        }
-        Rule::number => Node::Number(pair.as_str().parse::<i32>().unwrap()),
-        Rule::ident => Node::Ident(pair.as_str().to_owned()),
-        Rule::program | Rule::atomic_expr => pair_to_ast(pair.into_inner().next().unwrap()),
-
-        Rule::err_no_explicit_grouping => Node::Error,
-        Rule::infix_op | Rule::EOI => unreachable!(),
-        Rule::WHITESPACE => unreachable!(),
-    }
+pub fn parse<'i>(
+    s: &'i str,
+    recovered_errors: &mut Vec<LalrpopError<'i>>,
+) -> Result<Node, ParseError<usize, Token<'i>, &'static str>> {
+    ExprParser::new().parse(recovered_errors, s)
 }
 
 #[cfg(test)]
 mod test {
-    use crate::parser::ast::{pair_to_ast, InfixOp, Node};
-    use crate::parser::cst::cst_parse;
+    use crate::parser::ast::{parse, InfixOp, Node};
+
+    use super::LalrpopError;
+
+    fn str_to_ast_and_errors(s: &str) -> (Node, Vec<LalrpopError<'_>>) {
+        let mut recovered = vec![];
+        let ast = parse(s, &mut recovered).expect("failed to parse");
+        (ast, recovered)
+    }
 
     fn str_to_ast(s: &str) -> Node {
-        cst_parse(s)
-            .expect("failed to parse")
-            .next()
-            .map(|x| pair_to_ast(x))
-            .unwrap()
+        let (ast, _) = str_to_ast_and_errors(s);
+        ast
     }
 
     #[test]
@@ -112,6 +95,24 @@ mod test {
                         rhs: Box::new(Node::Ident("_1".to_owned()))
                     })
                 })
+            }
+        );
+    }
+
+    #[test]
+    fn lalrpop_simple_error() {
+        let (ast, errors) = str_to_ast_and_errors("1 + 1 + 1");
+        assert!(matches!(errors[..], []), "errors = {:#?}", errors);
+        assert_eq!(
+            ast,
+            Node::Expr {
+                lhs: Box::new(Node::Number(1)),
+                op: InfixOp::Add,
+                rhs: Box::new(Node::Repaired(Box::new(Node::Expr {
+                    lhs: Box::new(Node::Number(1)),
+                    op: InfixOp::Add,
+                    rhs: Box::new(Node::Number(1))
+                })))
             }
         );
     }

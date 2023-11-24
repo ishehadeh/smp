@@ -3,19 +3,20 @@ pub mod vm;
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        ir::vm::Op,
-        parser::{ast, cst},
-    };
+    use crate::{ir::vm::Op, parser::ast::parse};
 
     use super::{compiler, vm};
 
     fn compile(s: &str) -> Vec<vm::Op> {
-        let cst_root = cst::cst_parse(s)
-            .expect("failed to parse into cst")
-            .next()
-            .unwrap();
-        let ast_root = ast::pair_to_ast(cst_root);
+        let mut recovered_errors = Vec::new();
+        let ast_root = parse(s, &mut recovered_errors).expect("failed to compile");
+        if recovered_errors.len() > 0 {
+            for err in recovered_errors {
+                println!("{:#?}", err);
+            }
+            panic!("errors occured during compile");
+        }
+
         let mut compiler = compiler::Compiler::new();
         compiler.add_node(&ast_root).expect("failed to compile");
         compiler.into_program()
