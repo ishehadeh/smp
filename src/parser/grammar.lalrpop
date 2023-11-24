@@ -12,8 +12,10 @@ pub Expr: Node = {
 
 
 pub ErrNoExplicitGrouping: Node = {
-    // TODO: tailed error message
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => Node::Error, 
+    // TODO: detailed error message
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => Node::Repaired(Box::new(Node::Expr {
+        lhs: Box::new(lhs), op, rhs:Box::new(rhs),
+    })),
     AtomicExpr,
 };
 

@@ -43,7 +43,11 @@ mod test {
             Node::Expr {
                 lhs: Box::new(Node::Number(1)),
                 op: InfixOp::Add,
-                rhs: Box::new(Node::Error)
+                rhs: Box::new(Node::Repaired(Box::new(Node::Expr {
+                    lhs: Box::new(Node::Number(1)),
+                    op: InfixOp::Add,
+                    rhs: Box::new(Node::Number(1))
+                })))
             }
         );
     }
