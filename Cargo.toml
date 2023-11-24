@@ -9,6 +9,10 @@ edition = "2021"
 pest = "2.7.5"
 pest_derive = "2.7.5"
 clap = { version = "4.4.8", features= ["derive"], optional = true }
+lalrpop-util = {version = "0.20.0", features = ["lexer", "unicode"] }
+
+[build-dependencies]
+lalrpop = "0.20.0"
 
 [features]
 cli = ["clap"]

@@ -1,0 +1,27 @@
+use std::str::FromStr;
+use crate::parser::ast::{Node, InfixOp};
+
+grammar;
+
+pub Expr: Node = {
+    <e:AtomicExpr> => e,
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:AtomicExpr> => Node::Expr {
+        lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
+    }
+};
+
+pub AtomicExpr: Node = {
+    <n:Number> => n,
+    <i:Ident> => i,
+    "(" <e:Expr> ")" => e,
+};
+
+pub InfixOp: InfixOp = {
+    "+" => InfixOp::Add,
+    "-" => InfixOp::Sub,
+    "*" => InfixOp::Mul,
+    "/" => InfixOp::Div,
+}
+
+pub Number: Node = <s:r"[0-9]+"> => Node::Number(i32::from_str(s).unwrap());
+pub Ident: Node = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Node::Ident(s.to_string());
