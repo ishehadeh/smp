@@ -8,3 +8,11 @@ edition = "2021"
 [dependencies]
 pest = "2.7.5"
 pest_derive = "2.7.5"
+clap = { version = "4.4.8", features= ["derive"], optional = true }
+
+[features]
+cli = ["clap"]
+
+[[bin]]
+name = "reedi"
+required-features = ["cli"]
