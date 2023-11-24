@@ -9,8 +9,6 @@ pub type LalrpopError<'input> = ErrorRecovery<usize, Token<'input>, &'static str
 
 #[cfg(test)]
 mod test {
-    use lalrpop_util::lexer::Token;
-
     use crate::parser::ast::InfixOp;
 
     use super::ast::Node;
@@ -39,22 +37,13 @@ mod test {
     #[test]
     fn lalrpop_simple_error() {
         let (errors, ast) = str_to_ast("1 + 1 + 1");
-        matches!(
-            errors[..],
-            [LalrpopError {
-                error: lalrpop_util::ParseError::UnrecognizedToken {
-                    token: (5, Token(5, _), 7),
-                    expected: _
-                },
-                dropped_tokens: _
-            }]
-        );
+        assert!(matches!(errors[..], []), "errors = {:#?}", errors);
         assert_eq!(
             ast,
             Node::Expr {
-                lhs: Box::new(Node::Error),
+                lhs: Box::new(Node::Number(1)),
                 op: InfixOp::Add,
-                rhs: Box::new(Node::Number(1))
+                rhs: Box::new(Node::Error)
             }
         );
     }

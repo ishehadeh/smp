@@ -4,10 +4,17 @@ use crate::parser::{LalrpopError, ast::{Node, InfixOp}};
 grammar<'err>(errors: &'err mut Vec<LalrpopError<'input>>);
 
 pub Expr: Node = {
-    <e:AtomicExpr> => e,
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:AtomicExpr> => Node::Expr {
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitGrouping> => Node::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
-    }
+    },
+    AtomicExpr
+};
+
+
+pub ErrNoExplicitGrouping: Node = {
+    // TODO: tailed error message
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => Node::Error, 
+    AtomicExpr,
 };
 
 pub AtomicExpr: Node = {
