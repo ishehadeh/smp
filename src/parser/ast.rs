@@ -42,6 +42,8 @@ pub fn pair_to_ast(pair: Pair<'_, Rule>) -> Node {
         Rule::number => Node::Number(pair.as_str().parse::<i32>().unwrap()),
         Rule::ident => Node::Ident(pair.as_str().to_owned()),
         Rule::program | Rule::atomic_expr => pair_to_ast(pair.into_inner().next().unwrap()),
+
+        Rule::err_no_explicit_grouping => panic!("no explicit grouping"),
         Rule::infix_op | Rule::EOI => unreachable!(),
         Rule::WHITESPACE => unreachable!(),
     }
