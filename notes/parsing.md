@@ -35,5 +35,5 @@ These are fairly complete examples that have (pretty) active development by a nu
 I feel pretty same that they're a decent reference.
 - [Gluon](https://github.com/gluon-lang/gluon/blob/main/parser/src/grammar.lalrpop)
 - [lalrpop](https://github.com/lalrpop/lalrpop/blob/master/lalrpop/src/parser/lrgrammar.lalrpop)
-- [RustPython](https://github.com/RustPython/RustPython/blob/main/compiler/parser/python.lalrpop)
+- [RustPython](https://github.com/RustPython/Parser/blob/main/parser/src/python.lalrpop)
 - [Nickel](https://github.com/tweag/nickel/blob/master/core/src/parser/grammar.lalrpop)
