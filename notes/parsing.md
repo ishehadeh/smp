@@ -38,3 +38,17 @@ I feel pretty same that they're a decent reference.
 - [RustPython](https://github.com/RustPython/Parser/blob/main/parser/src/python.lalrpop)
 - [Nickel](https://github.com/tweag/nickel/blob/master/core/src/parser/grammar.lalrpop)
 - [frawk](https://github.com/ezrosent/frawk/blob/master/src/parsing/syntax.lalrpop)
+
+### Error Handling
+
+*Compilers* lays out a few error handling techniques, however it doesn't go into much detail.
+I've collected a few resources here that go into more depth about implementing resiliant parsing.
+I'm particularly interested in this topic because I want to be able to reuse the parser for tooling.
+In particular, being able to create a language server using the core of the compiler itself would be nice.
+- [matklad, Resilient LL Parsing Tutorial](https://matklad.github.io/2023/05/21/resilient-ll-parsing-tutorial.html)
+
+
+
+## TODOs
+
+- [ ] TODO: look into AST representations with through Roslyn, SwiftSyntax, rowan and IntelliJ. (matklad)
