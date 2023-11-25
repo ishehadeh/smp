@@ -98,4 +98,10 @@ pub enum ParseErrorKind {
         "implicit operator precedence is disallowed, please use explicit grouping in expressions."
     )]
     NoExplicitExprGrouping,
+
+    #[error(
+        "invalid infix operator (got '{}', expected: ['+', '-', '*', '/'])",
+        op
+    )]
+    BadInfixOp { op: String },
 }

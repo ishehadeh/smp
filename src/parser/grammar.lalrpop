@@ -16,7 +16,7 @@ pub Expr: Ast = {
     <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
     },
-    AtomicExpr
+    ErrBadInfixOp
 };
 
 
@@ -27,8 +27,19 @@ pub ErrNoExplicitExprGrouping: Ast = {
             lhs: Box::new(lhs), op, rhs:Box::new(rhs),
         }))
     },
-    AtomicExpr,
+    ErrBadInfixOp,
 };
+
+// match things that look like they could be infix ops in between expressions for better error handling
+pub ErrBadInfixOp: Ast = {
+    <lhs:AtomicExpr> <op: r"[\\~!@#$%^&`]|([\*\+\-/\\]{2})"> <rhs:AtomicExpr> => {
+        Ast::Repaired(Box::new(Ast::Expr {
+            // TODO proper missing infix op
+            lhs: Box::new(lhs), op: InfixOp::Add, rhs:Box::new(rhs),
+        }))
+    },
+    AtomicExpr,
+}
 
 pub AtomicExpr: Ast = {
     <n:Number> => n,
