@@ -11,7 +11,7 @@ struct Args {
 
 use reed::{
     ir::{compiler, vm::Vm},
-    parser::ast::parse,
+    parser::parse,
 };
 
 fn main() {

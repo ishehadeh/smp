@@ -1,6 +1,6 @@
-use crate::parser::ast::{parse, InfixOp, Node};
+use crate::parser::{parse, Ast, InfixOp};
 
-fn must_parse(s: &str) -> Node {
+fn must_parse(s: &str) -> Ast {
     parse(s).into_result().expect("failed to parse")
 }
 
@@ -8,10 +8,10 @@ fn must_parse(s: &str) -> Node {
 fn simple_expr() {
     assert_eq!(
         must_parse("1 + 1"),
-        Node::Expr {
-            lhs: Box::new(Node::Number(1)),
+        Ast::Expr {
+            lhs: Box::new(Ast::Number(1)),
             op: InfixOp::Add,
-            rhs: Box::new(Node::Number(1))
+            rhs: Box::new(Ast::Number(1))
         }
     );
 }
@@ -20,10 +20,10 @@ fn simple_expr() {
 fn simple_expr_ident() {
     assert_eq!(
         must_parse("1 + abc"),
-        Node::Expr {
-            lhs: Box::new(Node::Number(1)),
+        Ast::Expr {
+            lhs: Box::new(Ast::Number(1)),
             op: InfixOp::Add,
-            rhs: Box::new(Node::Ident("abc".to_owned()))
+            rhs: Box::new(Ast::Ident("abc".to_owned()))
         }
     );
 }
@@ -32,20 +32,20 @@ fn simple_expr_ident() {
 fn parens_expr() {
     assert_eq!(
         must_parse("(1 + abc) * (10 / (5 * _1))"),
-        Node::Expr {
-            lhs: Box::new(Node::Expr {
-                lhs: Box::new(Node::Number(1)),
+        Ast::Expr {
+            lhs: Box::new(Ast::Expr {
+                lhs: Box::new(Ast::Number(1)),
                 op: InfixOp::Add,
-                rhs: Box::new(Node::Ident("abc".to_owned()))
+                rhs: Box::new(Ast::Ident("abc".to_owned()))
             }),
             op: InfixOp::Mul,
-            rhs: Box::new(Node::Expr {
-                lhs: Box::new(Node::Number(10)),
+            rhs: Box::new(Ast::Expr {
+                lhs: Box::new(Ast::Number(10)),
                 op: InfixOp::Div,
-                rhs: Box::new(Node::Expr {
-                    lhs: Box::new(Node::Number(5)),
+                rhs: Box::new(Ast::Expr {
+                    lhs: Box::new(Ast::Number(5)),
                     op: InfixOp::Mul,
-                    rhs: Box::new(Node::Ident("_1".to_owned()))
+                    rhs: Box::new(Ast::Ident("_1".to_owned()))
                 })
             })
         }
@@ -58,13 +58,13 @@ fn lalrpop_simple_error() {
     assert!(matches!(res.errors[..], []), "errors = {:#?}", res.errors);
     assert_eq!(
         res.ast,
-        Node::Expr {
-            lhs: Box::new(Node::Number(1)),
+        Ast::Expr {
+            lhs: Box::new(Ast::Number(1)),
             op: InfixOp::Add,
-            rhs: Box::new(Node::Repaired(Box::new(Node::Expr {
-                lhs: Box::new(Node::Number(1)),
+            rhs: Box::new(Ast::Repaired(Box::new(Ast::Expr {
+                lhs: Box::new(Ast::Number(1)),
                 op: InfixOp::Add,
-                rhs: Box::new(Node::Number(1))
+                rhs: Box::new(Ast::Number(1))
             })))
         }
     );

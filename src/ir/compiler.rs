@@ -1,4 +1,4 @@
-use crate::parser::ast;
+use crate::parser::{Ast, InfixOp};
 
 use super::vm::Op;
 
@@ -15,19 +15,19 @@ impl Compiler {
         Compiler::default()
     }
 
-    pub fn add_node(&mut self, node: &ast::Node) -> Result<(), CompileError> {
+    pub fn add_node(&mut self, node: &Ast) -> Result<(), CompileError> {
         match node {
-            ast::Node::Ident(_) => unimplemented!(),
-            ast::Node::Repaired(_) | ast::Node::Error => panic!("error in ast!"),
-            ast::Node::Number(x) => self.ops.push(Op::Push(*x)),
-            ast::Node::Expr { lhs, op, rhs } => {
+            Ast::Ident(_) => unimplemented!(),
+            Ast::Repaired(_) | Ast::Error => panic!("error in ast!"),
+            Ast::Number(x) => self.ops.push(Op::Push(*x)),
+            Ast::Expr { lhs, op, rhs } => {
                 let _ = self.add_node(lhs);
                 let _ = self.add_node(rhs);
                 match op {
-                    ast::InfixOp::Add => self.ops.push(Op::Add),
-                    ast::InfixOp::Sub => self.ops.push(Op::Sub),
-                    ast::InfixOp::Mul => self.ops.push(Op::Mul),
-                    ast::InfixOp::Div => self.ops.push(Op::Div),
+                    InfixOp::Add => self.ops.push(Op::Add),
+                    InfixOp::Sub => self.ops.push(Op::Sub),
+                    InfixOp::Mul => self.ops.push(Op::Mul),
+                    InfixOp::Div => self.ops.push(Op::Div),
                 }
             }
         }

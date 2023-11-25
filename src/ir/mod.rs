@@ -3,7 +3,7 @@ pub mod vm;
 
 #[cfg(test)]
 mod test {
-    use crate::{ir::vm::Op, parser::ast::parse};
+    use crate::{ir::vm::Op, parser::parse};
 
     use super::{compiler, vm};
 

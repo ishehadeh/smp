@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::parser::{ParseError, ast::{Node, InfixOp}};
+use crate::parser::{ParseError, Ast, InfixOp};
 use lalrpop_util::ErrorRecovery;
 
 
@@ -12,32 +12,32 @@ extern {
     type Error = ParseError;
 }
 
-pub Expr: Node = {
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Node::Expr {
+pub Expr: Ast = {
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
     },
     AtomicExpr
 };
 
 
-pub ErrNoExplicitExprGrouping: Node = {
+pub ErrNoExplicitExprGrouping: Ast = {
     // TODO: detailed error message
     <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => {
-        Node::Repaired(Box::new(Node::Expr {
+        Ast::Repaired(Box::new(Ast::Expr {
             lhs: Box::new(lhs), op, rhs:Box::new(rhs),
         }))
     },
     AtomicExpr,
 };
 
-pub AtomicExpr: Node = {
+pub AtomicExpr: Ast = {
     <n:Number> => n,
     <i:Ident> => i,
     "(" <e:Expr> ")" => e,
 
     // error recovery handler
     // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
-    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Node::Error },
+    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Error },
 };
 
 pub InfixOp: InfixOp = {
@@ -47,5 +47,5 @@ pub InfixOp: InfixOp = {
     "/" => InfixOp::Div,
 }
 
-pub Number: Node = <s:r"[0-9]+"> => Node::Number(i32::from_str(s).unwrap());
-pub Ident: Node = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Node::Ident(s.to_string());
+pub Number: Ast = <s:r"[0-9]+"> => Ast::Number(i32::from_str(s).unwrap());
+pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
