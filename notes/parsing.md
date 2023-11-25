@@ -37,3 +37,4 @@ I feel pretty same that they're a decent reference.
 - [lalrpop](https://github.com/lalrpop/lalrpop/blob/master/lalrpop/src/parser/lrgrammar.lalrpop)
 - [RustPython](https://github.com/RustPython/Parser/blob/main/parser/src/python.lalrpop)
 - [Nickel](https://github.com/tweag/nickel/blob/master/core/src/parser/grammar.lalrpop)
+- [frawk](https://github.com/ezrosent/frawk/blob/master/src/parsing/syntax.lalrpop)
