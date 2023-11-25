@@ -26,3 +26,14 @@ I enjoy Pest's polish, especially when it comes to tooling.
 But, I can't find any references about error recovery, which is important in long program files. 
 It also is a PEG parser, which the Compilers book doesn't cover.
 I'm sure I could find another resource on working with this type of parser, but it would be easier to use a parser generator that is covered by the book.
+
+## References
+
+### lalrpop Examples
+
+These are fairly complete examples that have (pretty) active development by a number of contributors.
+I feel pretty same that they're a decent reference.
+- [Gluon](https://github.com/gluon-lang/gluon/blob/main/parser/src/grammar.lalrpop)
+- [lalrpop](https://github.com/lalrpop/lalrpop/blob/master/lalrpop/src/parser/lrgrammar.lalrpop)
+- [RustPython](https://github.com/RustPython/RustPython/blob/main/compiler/parser/python.lalrpop)
+- [Nickel](https://github.com/tweag/nickel/blob/master/core/src/parser/grammar.lalrpop)
