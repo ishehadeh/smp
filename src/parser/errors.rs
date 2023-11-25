@@ -1,10 +1,8 @@
 ///
-use lalrpop_util::{lexer::Token, ErrorRecovery, ParseError as LalrpopError};
+use lalrpop_util::{lexer::Token, ParseError as LalrpopError};
 use thiserror::Error;
 
 use crate::span::SourceSpan;
-
-pub type LalrpopErrorRecovery<'input> = ErrorRecovery<usize, Token<'input>, ParseError>;
 
 #[derive(Clone, Debug)]
 pub struct ParseError {
