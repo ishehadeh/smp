@@ -1,5 +1,5 @@
-use super::grammar::ExprParser;
-use lalrpop_util::{lexer::Token, ErrorRecovery, ParseError};
+use super::{grammar::ExprParser, ParseError};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InfixOp {
     Add,
@@ -25,36 +25,70 @@ pub enum Node {
     },
 }
 
-pub type LalrpopError<'input> = ErrorRecovery<usize, Token<'input>, &'static str>;
+pub struct ParseResult {
+    pub ast: Node,
+    pub errors: Vec<ParseError>,
+}
 
-pub fn parse<'i>(
-    s: &'i str,
-    recovered_errors: &mut Vec<LalrpopError<'i>>,
-) -> Result<Node, ParseError<usize, Token<'i>, &'static str>> {
-    ExprParser::new().parse(recovered_errors, s)
+impl ParseResult {
+    pub fn new<T: Into<Vec<ParseError>>>(ast: Node, errors: T) -> ParseResult {
+        ParseResult {
+            ast,
+            errors: errors.into(),
+        }
+    }
+
+    pub fn is_ok(&self) -> bool {
+        return self.errors.len() == 0;
+    }
+    pub fn is_err(&self) -> bool {
+        return !self.is_ok();
+    }
+
+    pub fn into_result(self) -> Result<Node, Vec<ParseError>> {
+        if self.is_err() {
+            Err(self.errors)
+        } else {
+            Ok(self.ast)
+        }
+    }
+
+    pub fn into_option(self) -> Option<Node> {
+        self.into_result().ok()
+    }
+}
+
+pub fn parse(s: &str) -> ParseResult {
+    let mut recovered_errors = Vec::new();
+    let result = ExprParser::new().parse(&mut recovered_errors, s);
+
+    let mut errors: Vec<_> = recovered_errors
+        .into_iter()
+        .map(|e| ParseError::from(e.error))
+        .collect();
+    let ast = match result {
+        Ok(v) => v,
+        Err(e) => {
+            errors.push(ParseError::from(e));
+            Node::Error
+        }
+    };
+
+    ParseResult::new(ast, errors)
 }
 
 #[cfg(test)]
 mod test {
     use crate::parser::ast::{parse, InfixOp, Node};
 
-    use super::LalrpopError;
-
-    fn str_to_ast_and_errors(s: &str) -> (Node, Vec<LalrpopError<'_>>) {
-        let mut recovered = vec![];
-        let ast = parse(s, &mut recovered).expect("failed to parse");
-        (ast, recovered)
-    }
-
-    fn str_to_ast(s: &str) -> Node {
-        let (ast, _) = str_to_ast_and_errors(s);
-        ast
+    fn must_parse(s: &str) -> Node {
+        parse(s).into_result().expect("failed to parse")
     }
 
     #[test]
     fn simple_expr() {
         assert_eq!(
-            str_to_ast("1 + 1"),
+            must_parse("1 + 1"),
             Node::Expr {
                 lhs: Box::new(Node::Number(1)),
                 op: InfixOp::Add,
@@ -66,7 +100,7 @@ mod test {
     #[test]
     fn simple_expr_ident() {
         assert_eq!(
-            str_to_ast("1 + abc"),
+            must_parse("1 + abc"),
             Node::Expr {
                 lhs: Box::new(Node::Number(1)),
                 op: InfixOp::Add,
@@ -78,7 +112,7 @@ mod test {
     #[test]
     fn parens_expr() {
         assert_eq!(
-            str_to_ast("(1 + abc) * (10 / (5 * _1))"),
+            must_parse("(1 + abc) * (10 / (5 * _1))"),
             Node::Expr {
                 lhs: Box::new(Node::Expr {
                     lhs: Box::new(Node::Number(1)),
@@ -101,10 +135,10 @@ mod test {
 
     #[test]
     fn lalrpop_simple_error() {
-        let (ast, errors) = str_to_ast_and_errors("1 + 1 + 1");
-        assert!(matches!(errors[..], []), "errors = {:#?}", errors);
+        let res = parse("1 + 1 + 1");
+        assert!(matches!(res.errors[..], []), "errors = {:#?}", res.errors);
         assert_eq!(
-            ast,
+            res.ast,
             Node::Expr {
                 lhs: Box::new(Node::Number(1)),
                 op: InfixOp::Add,

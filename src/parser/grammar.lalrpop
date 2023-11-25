@@ -1,21 +1,32 @@
 use std::str::FromStr;
-use crate::parser::{ast::{Node, LalrpopError, InfixOp}};
+use crate::parser::{ParseError, ast::{Node, InfixOp}};
+use lalrpop_util::ErrorRecovery;
 
-grammar<'err>(errors: &'err mut Vec<LalrpopError<'input>>);
+
+grammar<'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token<'input>, ParseError>>);
+
+extern {
+    // Set the error type for the parse result.
+    // NOTE: this is only for fatal errors,
+    //       recovered errors are passed back through a parameter to the grammar. 
+    type Error = ParseError;
+}
 
 pub Expr: Node = {
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitGrouping> => Node::Expr {
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Node::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
     },
     AtomicExpr
 };
 
 
-pub ErrNoExplicitGrouping: Node = {
+pub ErrNoExplicitExprGrouping: Node = {
     // TODO: detailed error message
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => Node::Repaired(Box::new(Node::Expr {
-        lhs: Box::new(lhs), op, rhs:Box::new(rhs),
-    })),
+    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => {
+        Node::Repaired(Box::new(Node::Expr {
+            lhs: Box::new(lhs), op, rhs:Box::new(rhs),
+        }))
+    },
     AtomicExpr,
 };
 
@@ -23,7 +34,10 @@ pub AtomicExpr: Node = {
     <n:Number> => n,
     <i:Ident> => i,
     "(" <e:Expr> ")" => e,
-    ! => { errors.push(<>); Node::Error },
+
+    // error recovery handler
+    // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
+    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Node::Error },
 };
 
 pub InfixOp: InfixOp = {

@@ -8,17 +8,9 @@ mod test {
     use super::{compiler, vm};
 
     fn compile(s: &str) -> Vec<vm::Op> {
-        let mut recovered_errors = Vec::new();
-        let ast_root = parse(s, &mut recovered_errors).expect("failed to compile");
-        if recovered_errors.len() > 0 {
-            for err in recovered_errors {
-                println!("{:#?}", err);
-            }
-            panic!("errors occured during compile");
-        }
-
+        let ast = parse(s).into_result().expect("failed to compile");
         let mut compiler = compiler::Compiler::new();
-        compiler.add_node(&ast_root).expect("failed to compile");
+        compiler.add_node(&ast).expect("failed to compile");
         compiler.into_program()
     }
 

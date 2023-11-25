@@ -470,6 +470,7 @@ dependencies = [
  "clap",
  "lalrpop",
  "lalrpop-util",
+ "thiserror",
 ]
 
 [[package]]

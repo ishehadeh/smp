@@ -17,14 +17,9 @@ use reed::{
 fn main() {
     let args = Args::parse();
 
-    let mut recovered_errors = Vec::new();
-    let ast_root = parse(&args.program, &mut recovered_errors).expect("failed to compile");
-    if recovered_errors.len() > 0 {
-        for err in recovered_errors {
-            println!("{:#?}", err);
-        }
-        panic!("errors occured during compile");
-    }
+    let ast_root = parse(&args.program)
+        .into_result()
+        .expect("failed to compile");
 
     let mut compiler = compiler::Compiler::new();
     compiler.add_node(&ast_root).expect("failed to compile");
