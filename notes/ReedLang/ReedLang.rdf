@@ -1,0 +1,200 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:link="http://purl.org/rss/1.0/modules/link/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:vcard="http://nwalsh.com/rdf/vCard#"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/">
+    <bib:Article rdf:about="#item_4">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+           <bib:Journal></bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Wagner</foaf:surname>
+                        <foaf:givenName>Tim</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Graham</foaf:surname>
+                        <foaf:givenName>S.L.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_5"/>
+        <link:link rdf:resource="#item_6"/>
+        <dc:subject>topic:error-handling</dc:subject>
+        <dc:subject>topic:programming-languages</dc:subject>
+        <dc:title>History-Sensitive Error Recovery</dc:title>
+        <dcterms:abstract>We present a novel approach to incremental recovery from lexical and syntactic errors in an interactive software development environment. Unlike existing techniques, we utilize the history of changes to the program to discover the natural correlation between user modifications and errors detected during incremental lexical and syntactic analysis. Our technique is non-correcting---the analysis refuses to incorporate invalid modifications, while still permitting correct changes to be applied. Errors are presented to the user simply by highlighting the invalid changes. The approach is automated---no user action is required to detect or recover from errors. Multiple textual and structural edits, arbitrary timing of incremental analysis, multiple errors per analysis, and nested errors are supported. Historybased error recovery is language independent and is compatible with the best known methods for incremental lexing and parsing, adding neither time nor space overhead to those algorithms. Effective integration with the environment's history services ensures that other tools can efficiently discover regions of the program (un)affected by errors, and that any transformations of the program required to isolate or present errors are themselves efficiently reversible operations. Keywords--- Error recovery, software development environments, incremental parsing, incremental lexing, development log, program presentation I.</dcterms:abstract>
+        <dc:date>2000-08-21</dc:date>
+        <z:libraryCatalog>ResearchGate</z:libraryCatalog>
+    </bib:Article>
+    <z:Attachment rdf:about="#item_5">
+        <z:itemType>attachment</z:itemType>
+        <rdf:resource rdf:resource="files/5/Wagner and Graham - 2000 - History-Sensitive Error Recovery.pdf"/>
+        <dc:title>Full Text PDF</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.researchgate.net/profile/Sl-Graham/publication/2378401_History-Sensitive_Error_Recovery/links/004635294e13ec9ef1000000/History-Sensitive-Error-Recovery.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-11-28 19:22:35</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>application/pdf</link:type>
+    </z:Attachment>
+    <z:Attachment rdf:about="#item_6">
+        <z:itemType>attachment</z:itemType>
+        <dc:title>ResearchGate Link</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.researchgate.net/publication/2378401_History-Sensitive_Error_Recovery</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-11-28 19:22:34</dcterms:dateSubmitted>
+        <z:linkMode>3</z:linkMode>
+    </z:Attachment>
+    <bib:Document rdf:about="https://smallcultfollowing.com/babysteps/blog/2015/09/14/lalrpop/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Matsakis</foaf:surname>
+                        <foaf:givenName>Niko</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_942"/>
+        <dc:subject>rust</dc:subject>
+        <dc:subject>topic:parser-generators</dc:subject>
+        <dc:subject>topic:programming-languages</dc:subject>
+        <dc:title>LALRPOP · baby steps</dc:title>
+        <dcterms:abstract>Announcement post for LALRPOP</dcterms:abstract>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://smallcultfollowing.com/babysteps/blog/2015/09/14/lalrpop/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-12-23 22:03:35</dcterms:dateSubmitted>
+    </bib:Document>
+    <z:Attachment rdf:about="#item_942">
+        <z:itemType>attachment</z:itemType>
+        <rdf:resource rdf:resource="files/942/lalrpop.html"/>
+        <dc:title>LALRPOP · baby steps</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://smallcultfollowing.com/babysteps/blog/2015/09/14/lalrpop/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-12-23 22:03:40</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Document rdf:about="https://cs.lmu.edu/~ray/notes/syntaxdesign/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Toal</foaf:surname>
+                        <foaf:givenName>Ray</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <link:link rdf:resource="#item_955"/>
+        <dc:subject>topic:programming-languages</dc:subject>
+        <dc:subject>topic:syntax</dc:subject>
+        <dc:title>Syntax Design</dc:title>
+        <dcterms:abstract>One of the most recognizable features of a languages is its syntax. What are some of the things about syntax that matter? What questions might you ask if you were creating a syntax for your own language?</dcterms:abstract>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://cs.lmu.edu/~ray/notes/syntaxdesign/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-12-25 10:49:39</dcterms:dateSubmitted>
+    </bib:Document>
+    <z:Attachment rdf:about="#item_955">
+        <z:itemType>attachment</z:itemType>
+        <rdf:resource rdf:resource="files/955/syntaxdesign.html"/>
+        <dc:title>Syntax Design</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://cs.lmu.edu/~ray/notes/syntaxdesign/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2023-12-25 10:49:45</dcterms:dateSubmitted>
+        <z:linkMode>1</z:linkMode>
+        <link:type>text/html</link:type>
+    </z:Attachment>
+    <bib:Book rdf:about="urn:isbn:978-0-321-48681-3%20978-0-321-49169-5">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Boston Munich</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>Pearson Addison-Wesley</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:editors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Aho</foaf:surname>
+                        <foaf:givenName>Alfred V.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lam</foaf:surname>
+                        <foaf:givenName>Monica S.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sethi</foaf:surname>
+                        <foaf:givenName>Ravi</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ullman</foaf:surname>
+                        <foaf:givenName>Jeffrey D.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:editors>
+        <dcterms:isReferencedBy rdf:resource="#item_960"/>
+        <dc:subject>topic:programming-languages</dc:subject>
+        <dc:title>Compilers: principles, techniques, &amp; tools</dc:title>
+        <dc:date>2007</dc:date>
+        <z:language>eng</z:language>
+        <z:shortTitle>Compilers</z:shortTitle>
+        <z:libraryCatalog>K10plus ISBN</z:libraryCatalog>
+        <dc:identifier>ISBN 978-0-321-48681-3 978-0-321-49169-5</dc:identifier>
+        <prism:edition>2. ed., Pearson internat. ed</prism:edition>
+        <z:numPages>1009</z:numPages>
+    </bib:Book>
+    <bib:Memo rdf:about="#item_960">
+        <rdf:value>Literaturangaben Rev. ed. of: Compilers, principles, techniques, and tools / Alfred V. Aho, Ravi Sethi, Jeffrey D. Ullman. 1986</rdf:value>
+    </bib:Memo>
+</rdf:RDF>
