@@ -15,6 +15,8 @@ Type variables may be one of two __Kinds__:
 This is a useful concept, because it allows all versions of a polymorphic entity to share a single implementation.
 For example:
 
+<!-- TODO: Ask Simon / research more about existential vs universally quantified types... -->
+
 ```c
 // In this imaginary C-like language we declare an existentially quantified struct over T, which is a type of kind Boxed
 struct pair<T: Boxed> {
