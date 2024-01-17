@@ -16,6 +16,7 @@ This is a useful concept, because it allows all versions of a polymorphic entity
 For example:
 
 <!-- TODO: Ask Simon / research more about existential vs universally quantified types... -->
+<!-- TODO: Re-read section 4.4, I don't *completely* understand it, but I think the "no withness changes" solution makes the most sense -->
 
 ```c
 // In this imaginary C-like language we declare an existentially quantified struct over T, which is a type of kind Boxed
