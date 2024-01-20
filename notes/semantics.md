@@ -101,6 +101,10 @@ ex2.b = 3 //not ok
 ```
 
 
+## Linearity
+
+i.e. Use-once variables.
+
 ## References
 
 "Reference" types are an opaque reference to a location in memory.
