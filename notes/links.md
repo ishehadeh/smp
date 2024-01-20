@@ -26,7 +26,6 @@ This is mostly a list of hobby systems programming languages. I hope to add more
 - [The Hare programming language](https://harelang.org/)
 - [Home ⚡ Zig Programming Language](https://ziglang.org/)
 - [GitHub - SerenityOS/jakt: The Jakt Programming Language](https://github.com/SerenityOS/jakt)
-- [GitHub - google/rune: Rune is a programming language developed to test ideas for improving security and efficiency.](https://github.com/google/rune)
 - [Hylo | The Hylo Programming Language](https://www.hylo-lang.org/)
 - [The Austral Programming Language](https://austral-lang.org/)
 - [Yaksha Programming Language](https://yakshalang.github.io/)
