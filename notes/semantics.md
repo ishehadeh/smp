@@ -96,9 +96,16 @@ test.b = 3 // not ok
 readonly ex2: test;
 ex2.a = 2 // not ok
 ex2.b = 3 //not ok
-
-
-
 ```
+
+
+## References
+
+"Reference" types are an opaque reference to a location in memory.
+Unlike C pointers, references are *Non-nullable*, *Non-numeric* types.
+
+References can be cast to integer types in order to do arithmetic on them.
+
+## Bibliography
 
 [^1]: Grossman, Dan. “Quantified Types in an Imperative Language.” ACM Transactions on Programming Languages and Systems 28, no. 3 (May 2006): 429–75. https://doi.org/10.1145/1133651.1133653.
