@@ -49,6 +49,13 @@ pair_impl swap_impl(pair_impl pair) {
 
 Examples and concepts adapted from[^1]
 
+
+## Feature: Layouts & Types
+
+- **Layout**: A Layout (or storage type) is the literal encoding of data in memory and on disk. (TODO: this could also be called a *shape*? or just *encoding*)
+- **Types**: A type is a restriction on the possible values of a variable.
+
+
 ## Citations
 
 [^1]: Grossman, Dan. “Quantified Types in an Imperative Language.” ACM Transactions on Programming Languages and Systems 28, no. 3 (May 2006): 429–75. https://doi.org/10.1145/1133651.1133653.
