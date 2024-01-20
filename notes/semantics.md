@@ -33,7 +33,7 @@ pair<T> swap<T>(pair: pair<T>) {
 
 Because `T` is boxed (i.e. `uintptr_t`), this program could always be reduced to the following, no matter what T is.
 
-```C
+```c
 struct pair_impl {
     uintptr_t a;
     uintptr_t b;
@@ -55,7 +55,26 @@ Examples and concepts adapted from[^1]
 - **Layout**: A Layout (or storage type) is the literal encoding of data in memory and on disk. (TODO: this could also be called a *shape*? or just *encoding*)
 - **Types**: A type is a restriction on the possible values of a variable.
 
+Control the actual bits values are compiled into is an important feature for a low-level language.
 
+> Exmaple: say your writing to memory-mapped IO ports, the location and physical representation are important
+> ```c
+>   // the layout for writing to an 8-bit 
+>   struct my_mmio {
+>       bit_t flag_a;  
+>       bit_t flag_b;  
+>       bit_t flag_c;  
+>       bit_t flag_d;  
+>       uint4_t value;  
+>   }
+>   
+>   static volatile struct my_mmio* MY_MMIO = 0xDEADBEEF
+> ```
+
+Rarely, though do the higher-level **Types** align perfectly with these values.
+For example, each of `flag_` struct members above would make much more sense as a boolean, not a single bit value.
+But, it doesn't necessarily make sense for a boolean to always be stored in a single bit.
+Often, it'll be stored in a register, or it could be packed into a byte.
 ## Citations
 
 [^1]: Grossman, Dan. “Quantified Types in an Imperative Language.” ACM Transactions on Programming Languages and Systems 28, no. 3 (May 2006): 429–75. https://doi.org/10.1145/1133651.1133653.
