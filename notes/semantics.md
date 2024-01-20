@@ -75,6 +75,30 @@ Rarely, though do the higher-level **Types** align perfectly with these values.
 For example, each of `flag_` struct members above would make much more sense as a boolean, not a single bit value.
 But, it doesn't necessarily make sense for a boolean to always be stored in a single bit.
 Often, it'll be stored in a register, or it could be packed into a byte.
-## Citations
+
+I hope to implement integer range tracking, while allowing the specific encoding of an integer to be specificed separately.
+
+## Immutability
+
+
+Struct members and variables can be marked as immutable. An immutable value disallows any assignment to the value or any interior values
+
+```c
+struct test {
+    variable a: int;
+    readonly b: int;
+};
+
+variable ex1: test;
+test.a = 2 // ok
+test.b = 3 // not ok
+
+readonly ex2: test;
+ex2.a = 2 // not ok
+ex2.b = 3 //not ok
+
+
+
+```
 
 [^1]: Grossman, Dan. “Quantified Types in an Imperative Language.” ACM Transactions on Programming Languages and Systems 28, no. 3 (May 2006): 429–75. https://doi.org/10.1145/1133651.1133653.
