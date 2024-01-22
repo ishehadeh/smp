@@ -1,0 +1,9 @@
+
+
+3.1i : Complex
+
+5.500 : Decimal
+
+1.23f : Float32
+
+1 : Integer(0, 100)
