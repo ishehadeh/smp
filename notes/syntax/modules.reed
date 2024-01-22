@@ -1,0 +1,14 @@
+type Test = {
+    func init() {
+        // ...
+
+        Foo:bar()
+        // these are equivalent
+        Foo_bar();
+    }
+
+    func
+}
+
+// construct an instance of test and export it
+export default: Test = { }
