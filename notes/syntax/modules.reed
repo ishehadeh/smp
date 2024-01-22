@@ -12,3 +12,13 @@ type Test = {
 
 // construct an instance of test and export it
 export default: Test = { }
+
+// Alternative
+//---------------------
+
+
+export default {
+    func init() {
+
+    }
+}

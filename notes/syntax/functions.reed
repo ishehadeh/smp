@@ -1,0 +1,10 @@
+
+
+func foo() {
+
+}
+
+
+func add[T: Boxed](a: T, b: T): A {
+    a + b // blocks take the value of the last statement, if it doesn't end in a semicolon
+}
