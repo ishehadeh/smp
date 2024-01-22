@@ -1,8 +1,9 @@
 
 
-3.1i : Complex
+3.1i : Complex[Decimal(...) | Integer(...)]
 
-5.500 : Decimal
+// decimal: min, max and decimal places
+5.500d : Decimal(1, 10, 3)
 
 1.23f : Float32
 
