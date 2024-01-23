@@ -1,0 +1,27 @@
+
+
+func printInt(num int): unit requires IO {
+    // ...
+}
+
+
+func main(): requires IO {
+    with IO {
+        printInt(1)
+    }
+}
+
+
+/// .............
+// austral style
+
+func IO_printInt(io: Ref[IO], num int): unit {
+    // ...
+}
+
+func main() {
+    let io = IO.grant();
+    printInt(ref(io), 1);
+    // OR with proposed syntax sugar:
+    io.printInt(1)
+}

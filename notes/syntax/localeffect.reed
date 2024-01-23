@@ -1,0 +1,25 @@
+
+type 
+type Fallible[T: Boxed, E: Boxed] = { kind: Success, value: T } | { kind: Error, error: E };
+
+<TODO: kw> Fallible[T, E] {
+    handler error(E);
+
+    func unwrap(Fallible[T] f): T {
+        match f {
+            { kind: Success, value } => return T;
+            { kind: Error, error } => error(E)
+        }
+    }
+}
+
+func main() {
+    Fallible {
+        fallible1();
+        fallible2();
+    } using error(error: E) {
+        if (<error is non-fatal>) {
+            continue <error value>;
+        }
+    }
+}

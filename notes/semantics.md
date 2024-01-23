@@ -126,6 +126,20 @@ Unlike C pointers, references are *Non-nullable*, *Non-numeric* types.
 
 References can be cast to integer types in order to do arithmetic on them.
 
+## Stupid Monads; Intelligent Goto
+
+```txt
+
+type Error[T: Boxed] = // ...
+
+func unwrap[T](e: Error[T])
+
+func error(): unit {
+
+}
+
+```
+
 ## Bibliography
 
 [^1]: Grossman, Dan. “Quantified Types in an Imperative Language.” ACM Transactions on Programming Languages and Systems 28, no. 3 (May 2006): 429–75. https://doi.org/10.1145/1133651.1133653.
