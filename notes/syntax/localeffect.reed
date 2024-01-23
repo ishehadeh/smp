@@ -5,6 +5,7 @@ type Fallible[T: Boxed, E: Boxed] = { kind: Success, value: T } | { kind: Error,
 <TODO: kw> Fallible[T, E] {
     handler error(E);
 
+    // this would always be inlined, so that the handler jump could be local
     func unwrap(Fallible[T] f): T {
         match f {
             { kind: Success, value } => return T;
@@ -15,8 +16,9 @@ type Fallible[T: Boxed, E: Boxed] = { kind: Success, value: T } | { kind: Error,
 
 func main() {
     Fallible {
-        fallible1();
-        fallible2();
+        let res1: T = fallible1();
+        let res2: T = fallible2();
+
     } using error(error: E) {
         if (<error is non-fatal>) {
             continue <error value>;
