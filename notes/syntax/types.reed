@@ -1,10 +1,3 @@
-# Syntax
-
-
-## Examples
-
-```
-
 type Hello = {
     variable member1: type;
     readonly member2: type;
@@ -20,9 +13,6 @@ type HelloExt = {
     variable secret_member: type = abc
 }
 
-// integer range type, that is distinct from <0 .. 5>
-type Test = new <0 .. 5>;
-
 func hello() {
     variable member: type = value;
     variable h: HelloExt = {...}
@@ -34,5 +24,3 @@ func hello() {
     const a: Test = Test 3;
     variable b: <0 .. 3> = a    // illegal
 }
-
-```
