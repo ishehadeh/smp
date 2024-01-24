@@ -18,16 +18,69 @@ type Fallible[T: Boxed, E: Boxed] = { kind: Success, value: T } | { kind: Error,
     }
 }
 
-func main() {
-    Fallible {
-        let res1: T = fallible1();
-        let res2: T = fallible2();
+func fallible1(): Fallible[Integer, MyNonFatalError];
+func fallible2(): Fallible[Integer, MyFatalError];
 
+func main() {
+    let res: Integeer = Fallible {
+        let res1: T = fallible1();
+        fallible2(res1)
     } using error(error: MyNonFatalError) {
-        continue <error value>;
+        // I *think* this could be implemented efficiently, since these "effects"
+        // are local-only, we
+        // 1) know what registers *could* be used when this handler is called
+        // 2) don't have to save a stack position
+        // 3) don't need to worry about any of that if there isn't a continue statement in the block
+        // 3a) i.e. all that state saving could be at the top of this error block, not before its called
+        //          so, it wouldn't need to
+        // 4) these could also be inlined, if they're small enough
+
+        // note: we need to statically ensure all continuation points are expecting the type of <error value>
+        resume <error value>;
     } using error(error: MyFatalError) {
         print("oh no!");
         exit(1);
     }
+}
+
+// lowers to:
+func main() {
+    var res: Integer;
+
+    var error_MyNonFatalError_param: MyNonFatalError;
+    var error_MyNonFatalError_result: Integer;
+
+    var error_MyFatalError_param: MyFatalError;
+    
+    var res1: Integer
+
+    var _call1Result = fallible1()
+    if _call1Result.kind == Error {
+        error_MyNonFatalError_param = _call1Result.error;
+        goto error_MyNonFatalError;
+        continuation0:
+            res1 = error_MyNonFatalError_result
+    } else {
+        res1 = _call1Result.value;
+    }
+
+    var _call2Result = fallible2()
+    if _call2Result.kind == Error {
+        error_MyFatalError_param = _call2Result.error;
+        goto error_MyNonFatalError;
+    } else {
+        res = _call2Result.value;
+    }
+
+    return;
+
+
+    error_MyNonFatalError: // not a real symbol, local jump
+        error_MyNonFatalError_result = res1;
+        goto continuation0;
+
+    error_MyFatalError: // not a real symbol, local jump
+        print("oh no!");
+        exit(1)
 }
 
