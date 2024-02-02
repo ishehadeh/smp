@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::parser::{ParseError, Ast, InfixOp};
+use crate::parser::{ParseError, Ast, TypeInstance, InfixOp};
 use lalrpop_util::ErrorRecovery;
 
 
@@ -11,6 +11,26 @@ extern {
     //       recovered errors are passed back through a parameter to the grammar. 
     type Error = ParseError;
 }
+
+pub TypeInstance: TypeInstance = {
+    <name: IdentChars> => TypeInstance {
+        name: name.to_string(),
+        parameters: (),
+    }
+}
+
+pub DefParams: () = { "(" ")" => () };
+
+pub DefFunction: Ast = {
+    "func" <name:IdentChars> <params:DefParams> ":" <typ:TypeInstance> => {
+        Ast::DefFunction {
+            name: name.to_string(),
+            params: (),
+            return_type: typ,
+            body: vec![]
+        }
+    }
+};
 
 pub Expr: Ast = {
     <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
@@ -58,5 +78,9 @@ pub InfixOp: InfixOp = {
     "/" => InfixOp::Div,
 }
 
+pub IdentChars = r"[a-zA-Z_][a-zA-Z_0-9]*";
+
 pub Number: Ast = <s:r"[0-9]+"> => Ast::Number(i32::from_str(s).unwrap());
 pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
+
+pub Program: Ast = DefFunction;

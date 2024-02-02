@@ -29,7 +29,8 @@ impl Compiler {
                     InfixOp::Mul => self.ops.push(Op::Mul),
                     InfixOp::Div => self.ops.push(Op::Div),
                 }
-            }
+            },
+            Ast::DefFunction { name, params, return_type, body } => todo!()
         }
 
         Ok(())

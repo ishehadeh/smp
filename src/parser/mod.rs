@@ -46,7 +46,7 @@ impl ParseResult {
 
 pub fn parse(s: &str) -> ParseResult {
     let mut recovered_errors = Vec::new();
-    let result = grammar::ExprParser::new().parse(&mut recovered_errors, s);
+    let result = grammar::ProgramParser::new().parse(&mut recovered_errors, s);
 
     let mut errors: Vec<_> = recovered_errors
         .into_iter()
