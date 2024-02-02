@@ -12,6 +12,12 @@ pub struct TypeInstance {
     pub parameters: () // TODO        
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Param {
+    pub name: String,
+    pub typ: TypeInstance
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {
@@ -25,7 +31,7 @@ pub enum Ast {
 
     DefFunction{ 
         name: String,
-        params: (),
+        params: Vec<Param>,
         return_type: TypeInstance,
         body: Vec<Ast>,
     },

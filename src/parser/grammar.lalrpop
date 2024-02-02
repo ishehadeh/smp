@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::parser::{ParseError, Ast, TypeInstance, InfixOp};
+use crate::parser::{ParseError, Ast, Param, TypeInstance, InfixOp};
 use lalrpop_util::ErrorRecovery;
 
 
@@ -17,15 +17,36 @@ pub TypeInstance: TypeInstance = {
         name: name.to_string(),
         parameters: (),
     }
-}
+};
 
-pub DefParams: () = { "(" ")" => () };
+/// One ore more items that are separated by a comma.
+/// Source: https://github.com/RustPython/Parser/blob/9ce55aefdeb35e2f706ce0b02d5a2dfe6295fc57/parser/src/python.lalrpop#L1659
+OneOrMore<T>: Vec<T> = {
+    <e:T> => vec![e],
+    <mut v: OneOrMore<T>> "," <e:T> => {
+        v.push(e);
+        v
+    }
+};
+
+
+pub Param: Param = {
+    <name:IdentChars> ":" <typ:TypeInstance> => Param {
+        name: name.to_string(),
+        typ,
+    }
+};
+
+pub DefParams: Vec<Param> = {
+    "(" ")" => vec![],
+    "(" <params: OneOrMore<Param>> ")" => params
+};
 
 pub DefFunction: Ast = {
     "func" <name:IdentChars> <params:DefParams> ":" <typ:TypeInstance> => {
         Ast::DefFunction {
             name: name.to_string(),
-            params: (),
+            params,
             return_type: typ,
             body: vec![]
         }
