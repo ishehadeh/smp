@@ -1,0 +1,12 @@
+
+
+dispatch add {
+    (a: i32, b: i32) => add_i32(a, b),
+    (a: i16, b: i16) => add_i16(a, b)
+}
+
+
+dispatch varargs {
+    (a: i32, options: i32) => f(a, options),
+    (a: i32) => f(a, DEFAULT_OPTIONS)
+}
