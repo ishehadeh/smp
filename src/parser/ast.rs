@@ -17,6 +17,19 @@ pub struct Param {
     pub name: String,
     pub typ: TypeInstance
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StructMember {
+    pub mutable: bool,
+    pub name: String,
+    pub typ: TypeInstance,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AnonType {
+    StructBody {
+        members: Vec<StructMember>,
+    },
+}
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -29,11 +42,16 @@ pub enum Ast {
     /// This is typically used for non-critical errors like 1 + 1 + 1 instead of 1 + (1 + 1)
     Repaired(Box<Ast>),
 
-    DefFunction{ 
+    DefFunction { 
         name: String,
         params: Vec<Param>,
         return_type: TypeInstance,
         body: Vec<Ast>,
+    },
+
+    DefType {
+        name: String,
+        typ: AnonType,
     },
 
     Expr {

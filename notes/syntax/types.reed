@@ -1,13 +1,13 @@
 type Hello = {
-    variable member1: type;
-    readonly member2: type;
-    constant abc: type = 1 + 1;
+    member1: type;
+    mut member2: type;
+    abc: type = 1 + 1;
 };
 
 // Hello is a subtype of HelloExt
 type HelloExt = {
-    varaible member1: type;
-    readonly member2: type;
+    let rw member1: type;
+    let mut member2: type;
     constant abc: type = 1 + 1;
 
     variable secret_member: type = abc

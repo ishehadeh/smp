@@ -30,7 +30,8 @@ impl Compiler {
                     InfixOp::Div => self.ops.push(Op::Div),
                 }
             },
-            Ast::DefFunction { name, params, return_type, body } => todo!()
+            Ast::DefFunction { name, params, return_type, body } => todo!(),
+            Ast::DefType { name, typ } => todo!()
         }
 
         Ok(())
