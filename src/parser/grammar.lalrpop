@@ -43,12 +43,12 @@ pub DefParams: Vec<Param> = {
 };
 
 pub DefFunction: Ast = {
-    "func" <name:IdentChars> <params:DefParams> ":" <typ:TypeInstance> => {
+    "func" <name:IdentChars> <params:DefParams> ":" <typ:TypeInstance> <block: Block> => {
         Ast::DefFunction {
             name: name.to_string(),
             params,
             return_type: typ,
-            body: vec![]
+            body: Box::new(block)
         }
     }
 };
@@ -96,6 +96,31 @@ pub Expr: Ast = {
     ErrBadInfixOp
 };
 
+
+pub StmtLet: Ast = {
+    "let " <name:IdentChars> ":" <typ:TypeInstance> "=" <value:Expr> => Ast::StmtLet {
+        name: name.to_string(),
+        return_type: typ,
+        value: Box::new(value),
+    }
+}
+
+pub Stmt: Ast = {
+    StmtLet
+}
+
+pub StmtList: Vec<Ast> = {
+    <e:Stmt> => vec![e],
+    <mut v: StmtList> ";" <e:Stmt> => {
+        v.push(e);
+        v
+    }
+}
+
+pub Block: Ast = {
+    "{" "}" => Ast::Block { statements: vec![]  },
+    "{" <statements: StmtList> "}" => Ast::Block { statements },
+}
 
 pub ErrNoExplicitExprGrouping: Ast = {
     // TODO: detailed error message

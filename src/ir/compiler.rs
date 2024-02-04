@@ -31,7 +31,9 @@ impl Compiler {
                 }
             },
             Ast::DefFunction { name, params, return_type, body } => todo!(),
-            Ast::DefType { name, typ } => todo!()
+            Ast::DefType { name, typ } => todo!(),
+            Ast::Block { statements: _ } => todo!(),
+            Ast::StmtLet { name, return_type, value } => todo!(),
         }
 
         Ok(())

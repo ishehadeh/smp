@@ -32,10 +32,12 @@ pub enum AnonType {
 }
 
 
+// TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {
     Number(i32),
     Ident(String),
+    // TODO: remove this
     Error,
 
     /// A repaired node is one where an error occured but parsing was still able to be completed
@@ -46,7 +48,17 @@ pub enum Ast {
         name: String,
         params: Vec<Param>,
         return_type: TypeInstance,
-        body: Vec<Ast>,
+        body: Box<Ast>,
+    },
+
+    Block {
+        statements: Vec<Ast>,
+    },
+
+    StmtLet {
+        name: String,
+        return_type: TypeInstance,
+        value: Box<Ast>,
     },
 
     DefType {
