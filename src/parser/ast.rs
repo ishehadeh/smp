@@ -6,29 +6,33 @@ pub enum InfixOp {
     Mul,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypeInstance {
-    pub name: String,
-    pub parameters: () // TODO        
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Param {
     pub name: String,
-    pub typ: TypeInstance
+    pub typ: AnonType
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructMember {
     pub mutable: bool,
     pub name: String,
-    pub typ: TypeInstance,
+    pub typ: AnonType,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AnonType {
+    TypeReference {
+        name: String,
+        parameters: (),
+    },
     StructBody {
         members: Vec<StructMember>,
     },
+    IntegerRange {
+        /// TODO: figure out how to represent these rust
+        inclusive_low: String,
+        inclusive_high: String,
+    }
 }
 
 
@@ -47,7 +51,7 @@ pub enum Ast {
     DefFunction { 
         name: String,
         params: Vec<Param>,
-        return_type: TypeInstance,
+        return_type: AnonType,
         body: Box<Ast>,
     },
 
@@ -73,7 +77,7 @@ pub enum Ast {
 
     StmtLet {
         name: String,
-        return_type: TypeInstance,
+        return_type: AnonType,
         value: Box<Ast>,
     },
 

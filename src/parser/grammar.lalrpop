@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::parser::{ParseError, Ast, Param, TypeInstance, StructMember, AnonType, InfixOp};
+use crate::parser::{ParseError, Ast, Param, AnonType, StructMember, InfixOp};
 use lalrpop_util::ErrorRecovery;
 
 
@@ -12,8 +12,8 @@ extern {
     type Error = ParseError;
 }
 
-pub TypeInstance: TypeInstance = {
-    <name: IdentChars> => TypeInstance {
+pub TypeReference: AnonType = {
+    <name: IdentChars> => AnonType::TypeReference {
         name: name.to_string(),
         parameters: (),
     }
@@ -31,7 +31,7 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <name:IdentChars> ":" <typ:TypeInstance> => Param {
+    <name:IdentChars> ":" <typ:AnonType> => Param {
         name: name.to_string(),
         typ,
     }
@@ -43,7 +43,7 @@ pub DefParams: Vec<Param> = {
 };
 
 pub DefFunction: Ast = {
-    "func" <name:IdentChars> <params:DefParams> ":" <typ:TypeInstance> <block: Block> => {
+    "func" <name:IdentChars> <params:DefParams> ":" <typ:AnonType> <block: Block> => {
         Ast::DefFunction {
             name: name.to_string(),
             params,
@@ -54,7 +54,7 @@ pub DefFunction: Ast = {
 };
 
 pub DefStructMember: StructMember = {
-    "mut " <name:IdentChars> ":" <typ:TypeInstance> => {
+    "mut " <name:IdentChars> ":" <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
@@ -62,12 +62,19 @@ pub DefStructMember: StructMember = {
         }
     },
 
-    <name:IdentChars> ":" <typ:TypeInstance> => {
+    <name:IdentChars> ":" <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
             mutable: false,
         }
+    },
+}
+
+pub TypeIntegerRange: AnonType = {
+    "int" <lo:DecChars> "to" <hi:DecChars> => AnonType::IntegerRange {
+        inclusive_low: lo.to_string(),
+        inclusive_high: hi.to_string(),
     },
 }
 
@@ -78,6 +85,12 @@ pub StructBody: AnonType = {
             members
         }
     }
+}
+
+pub AnonType: AnonType = {
+    StructBody,
+    TypeIntegerRange,
+    TypeReference,
 }
 
 pub DefType: Ast = {
@@ -98,7 +111,7 @@ pub Expr: Ast = {
 
 
 pub StmtLet: Ast = {
-    "let " <name:IdentChars> ":" <typ:TypeInstance> "=" <value:Expr> => Ast::StmtLet {
+    "let " <name:IdentChars> ":" <typ:AnonType> "=" <value:Expr> => Ast::StmtLet {
         name: name.to_string(),
         return_type: typ,
         value: Box::new(value),
@@ -163,8 +176,9 @@ pub InfixOp: InfixOp = {
 }
 
 pub IdentChars = r"[a-zA-Z_][a-zA-Z_0-9]*";
+pub DecChars = r"[+-]?[0-9]+";
 
-pub Number: Ast = <s:r"[0-9]+"> => Ast::Number(i32::from_str(s).unwrap());
+pub Number: Ast = <s:DecChars> => Ast::Number(i32::from_str(s).unwrap());
 pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
 
 pub Program: Ast = { DefFunction, DefType };

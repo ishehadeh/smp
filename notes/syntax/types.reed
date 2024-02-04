@@ -13,6 +13,8 @@ type HelloExt = {
     variable secret_member: type = abc
 }
 
+type RangeInt = int 0 to 5
+
 func hello() {
     variable member: type = value;
     variable h: HelloExt = {...}
