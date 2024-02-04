@@ -28,6 +28,8 @@ impl Compiler {
                     InfixOp::Sub => self.ops.push(Op::Sub),
                     InfixOp::Mul => self.ops.push(Op::Mul),
                     InfixOp::Div => self.ops.push(Op::Div),
+                    InfixOp::CmpNotEqual => todo!(),
+                    InfixOp::CmpEqual => todo!(),
                 }
             },
             Ast::DefFunction { name, params, return_type, body } => todo!(),
@@ -35,6 +37,8 @@ impl Compiler {
             Ast::Block { statements: _, returns: _ } => todo!(),
             Ast::StmtLet { name, return_type, value } => todo!(),
             Ast::Program { definitions } => todo!(),
+            Ast::StmtIf { condition, body, else_ } => todo!(),
+            Ast::ExprCall { function_name, paramaters } => todo!(),
         }
 
         Ok(())

@@ -4,6 +4,8 @@ pub enum InfixOp {
     Sub,
     Div,
     Mul,
+    CmpNotEqual,
+    CmpEqual,
 }
 
 
@@ -73,6 +75,17 @@ pub enum Ast {
         /// ```
         returns: bool,
         statements: Vec<Ast>,
+    },
+
+    StmtIf {
+        condition: Box<Ast>,
+        body: Box<Ast>,
+        else_: Option<Box<Ast>>,
+    },
+
+    ExprCall {
+        function_name: String,
+        paramaters: Vec<Ast>,
     },
 
     StmtLet {
