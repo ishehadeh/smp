@@ -34,6 +34,7 @@ impl Compiler {
             Ast::DefType { name, typ } => todo!(),
             Ast::Block { statements: _, returns: _ } => todo!(),
             Ast::StmtLet { name, return_type, value } => todo!(),
+            Ast::Program { definitions } => todo!(),
         }
 
         Ok(())

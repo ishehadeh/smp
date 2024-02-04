@@ -181,4 +181,20 @@ pub DecChars = r"[+-]?[0-9]+";
 pub Number: Ast = <s:DecChars> => Ast::Number(i32::from_str(s).unwrap());
 pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
 
-pub Program: Ast = { DefFunction, DefType };
+TopLevel: Ast = { DefFunction, DefType };
+TopLevelList: Vec<Ast> = {
+    <e:TopLevel> => vec![e],
+    <mut v: TopLevelList> <e:TopLevel> => {
+        v.push(e);
+        v
+    }
+}
+
+
+pub Program: Ast = {
+    <definitions:TopLevelList> => {
+        Ast::Program {
+            definitions
+        }
+    }
+};

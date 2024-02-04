@@ -91,4 +91,8 @@ pub enum Ast {
         op: InfixOp,
         rhs: Box<Ast>,
     },
+
+    Program {
+        definitions: Vec<Ast>,
+    }
 }
