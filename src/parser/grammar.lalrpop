@@ -94,7 +94,7 @@ pub AnonType: AnonType = {
 }
 
 pub DefType: Ast = {
-    "type" <name:IdentChars> "=" <typ:StructBody> => {
+    "type" <name:IdentChars> "=" <typ:AnonType> ";" => {
         Ast::DefType {
             name: name.to_string(),
             typ,
