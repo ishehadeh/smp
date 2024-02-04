@@ -52,6 +52,22 @@ pub enum Ast {
     },
 
     Block {
+        /// Indicates that the value of the final value in `statements` should be the value of this block.
+        /// For example:
+        /// ```txt
+        /// {
+        ///     1 + 1
+        /// }
+        /// // Evaluates to `2`, `returns = true`
+        /// ```
+        /// 
+        /// ```txt
+        /// {
+        ///     1 + 1;
+        /// }
+        /// // evaluates to `unit`, `returns = false`
+        /// ```
+        returns: bool,
         statements: Vec<Ast>,
     },
 

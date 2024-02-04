@@ -106,7 +106,8 @@ pub StmtLet: Ast = {
 }
 
 pub Stmt: Ast = {
-    StmtLet
+    StmtLet,
+    Expr
 }
 
 pub StmtList: Vec<Ast> = {
@@ -118,8 +119,9 @@ pub StmtList: Vec<Ast> = {
 }
 
 pub Block: Ast = {
-    "{" "}" => Ast::Block { statements: vec![]  },
-    "{" <statements: StmtList> "}" => Ast::Block { statements },
+    "{" "}" => Ast::Block { returns: false, statements: vec![]  },
+    "{" <statements: StmtList> "}" => Ast::Block { returns: true, statements },
+    "{" <statements: StmtList> ";" "}" => Ast::Block { returns: false, statements },
 }
 
 pub ErrNoExplicitExprGrouping: Ast = {

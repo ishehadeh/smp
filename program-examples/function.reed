@@ -1,0 +1,4 @@
+func hello(): void {
+    let a: int = 1;
+    1 + 1
+}
