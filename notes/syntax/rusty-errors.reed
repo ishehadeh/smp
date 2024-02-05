@@ -1,0 +1,32 @@
+
+
+type Result[T: Boxed, E: Boxed] =
+    | { kind: Ok, value: T }
+    | { kind: Err, error: E }
+
+func fail[E: Boxed](e: E): { kind: Result.Err, error: E } {
+    return { kind: Result.Err, error: e }
+}
+
+func success[T: Boxed](v: T): { kind: Result.Err, error: E } {
+    return { kind: Result.Ok, value: v }
+}
+
+
+func can_fail(): Result[int 0 to 64, str] {
+    if (bad()) {
+        return fail("oh no!");
+    } else {
+        return success(5);
+    }
+}
+
+func print_can_fail(): Result[int 0 to 64, str] {
+    // This could get realllly messy without an auto keyword.
+    let result: Result[int 0 to 64, str] = can_fail();
+    if (result.kind == Result.Err) {
+        print(":(");
+    } else {
+        print(":)")
+    }
+}
