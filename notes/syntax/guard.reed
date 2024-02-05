@@ -1,0 +1,5 @@
+
+
+func is_a_neg(a: int -10 to 10): a is int -10 to 0 {
+    return a < 0;
+} 

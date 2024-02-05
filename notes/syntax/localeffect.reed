@@ -1,5 +1,4 @@
 
-type 
 type Fallible[T: Boxed, E: Boxed] = { kind: Success, value: T } | { kind: Error, error: E };
 
 <TODO: kw> Fallible {

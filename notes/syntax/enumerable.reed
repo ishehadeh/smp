@@ -1,0 +1,24 @@
+
+
+// distinct keyword indicates A/B/C should be namespaced
+type SymbolType = distinct A | B | C
+
+// TODO: I think distinct enums should be implicit
+type NotUnique = A | B | C
+type SmallNotUnique = A | B
+
+// Alternative: Guard functions
+type Tagged = distinct
+    | { kind: Tag1 }
+    | { kind: Tag2 }
+    | { kind: Tag3 }
+
+func usage():  {
+    let a: SymbolType = SymbolType.A;
+    let b: SmallNotUnique = B;
+    let c: NotUnique = b; // ok
+
+    c = a // not ok!
+
+    let tagUnion: Tagged = { kind: Tagged.Tag1 }
+}
