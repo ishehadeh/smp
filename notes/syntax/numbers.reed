@@ -1,4 +1,8 @@
+// SETTLED
 
+type MiniInt = int 0 to 10
+
+// ideas..
 
 3.1i : Complex[Decimal(...) | Integer(...)]
 
@@ -6,5 +10,3 @@
 5.500d : Decimal(1, 10, 3)
 
 1.23f : Float32
-
-1 : Integer(0, 100)
