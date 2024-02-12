@@ -139,7 +139,7 @@ pub Expr: Ast = {
 pub StmtLet: Ast = {
     "let " <name:IdentChars> ":" <typ:AnonType> "=" <value:Expr> => Ast::StmtLet {
         name: name.to_string(),
-        return_type: typ,
+        value_type: typ,
         value: Box::new(value),
     }
 }
@@ -208,7 +208,7 @@ pub InfixOp: InfixOp = {
 pub IdentChars = r"[a-zA-Z_][a-zA-Z_0-9]*";
 pub DecChars = r"[+-]?[0-9]+";
 
-pub Number: Ast = <s:DecChars> => Ast::Number(i32::from_str(s).unwrap());
+pub Number: Ast = <s:DecChars> => Ast::Number(u32::from_str(s).unwrap());
 pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
 
 TopLevel: Ast = { DefFunction, DefType };

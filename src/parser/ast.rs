@@ -8,11 +8,10 @@ pub enum InfixOp {
     CmpEqual,
 }
 
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Param {
     pub name: String,
-    pub typ: AnonType
+    pub typ: AnonType,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructMember {
@@ -34,14 +33,13 @@ pub enum AnonType {
         /// TODO: figure out how to represent these rust
         inclusive_low: String,
         inclusive_high: String,
-    }
+    },
 }
-
 
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {
-    Number(i32),
+    Number(u32),
     Ident(String),
     // TODO: remove this
     Error,
@@ -50,7 +48,7 @@ pub enum Ast {
     /// This is typically used for non-critical errors like 1 + 1 + 1 instead of 1 + (1 + 1)
     Repaired(Box<Ast>),
 
-    DefFunction { 
+    DefFunction {
         name: String,
         params: Vec<Param>,
         return_type: AnonType,
@@ -66,7 +64,7 @@ pub enum Ast {
         /// }
         /// // Evaluates to `2`, `returns = true`
         /// ```
-        /// 
+        ///
         /// ```txt
         /// {
         ///     1 + 1;
@@ -90,7 +88,7 @@ pub enum Ast {
 
     StmtLet {
         name: String,
-        return_type: AnonType,
+        value_type: AnonType,
         value: Box<Ast>,
     },
 
@@ -107,5 +105,5 @@ pub enum Ast {
 
     Program {
         definitions: Vec<Ast>,
-    }
+    },
 }

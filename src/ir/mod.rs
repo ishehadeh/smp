@@ -15,7 +15,7 @@ mod test {
     }
 
     // execute the program and get the top value from the stack
-    fn execute(s: &str) -> i32 {
+    fn execute(s: &str) -> u32 {
         let mut vm = vm::Vm::new(compile(s));
         while vm.step() {
             // ...
@@ -26,10 +26,10 @@ mod test {
 
     #[test]
     fn simple_compile() {
-        assert_eq!(compile("1 + 1"), [Op::Push(1), Op::Push(1), Op::Add]);
+        assert_eq!(compile("1 + 1"), [Op::PushI(1), Op::PushI(1), Op::Add]);
         assert_eq!(
             compile("(1 / 100) + 1"),
-            [Op::Push(1), Op::Push(100), Op::Div, Op::Push(1), Op::Add]
+            [Op::PushI(1), Op::PushI(100), Op::Div, Op::PushI(1), Op::Add]
         );
     }
 

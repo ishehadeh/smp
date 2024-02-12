@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 lalrpop-util = {version = "0.20.0", features = ["lexer", "unicode"] }
-thiserror = { version = "1.0.50" }
+thiserror = { version = "1.0.56" }
 
 # cli deps
 clap = { version = "4.4.8", features= ["derive"], optional = true }
