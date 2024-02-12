@@ -41,14 +41,15 @@ impl FrameInfo {
     pub fn compile(&self) -> Vec<Op> {
         let space_needed = self.local_variable_size();
         let mut ops = Vec::new();
-        // save frame pointer in R4
-        ops.push(Op::Push(Register::SP));
-        ops.push(Op::Pop(Register::R4));
+        // save frame
+        ops.push(Op::Push(Register::Sp));
+        ops.push(Op::Pop(Register::Fp));
 
-        ops.push(Op::Push(Register::SP));
+        // shift stack above frame
+        ops.push(Op::Push(Register::Sp));
         ops.push(Op::PushI(space_needed as u32 / 4));
         ops.push(Op::Sub);
-        ops.push(Op::Pop(Register::SP));
+        ops.push(Op::Pop(Register::Sp));
         ops.extend(&self.operations);
         ops
     }
@@ -188,13 +189,17 @@ impl Compiler {
                     stack_space,
                     typ: _,
                 } = self.alloc_local(name, typ);
+
+                // compute = expr...
                 self.add_node(value).unwrap();
+
+                // copy resulting value from computation in stack frame
                 let frame = self.stackframes.back_mut().expect("no stack frames!");
                 for word in 0..(stack_space / 4) {
-                    frame.operations.push(Op::Pop(Register::R1));
+                    frame.operations.push(Op::Pop(Register::T1));
                     frame.operations.push(Op::St(
-                        Register::R1,
-                        Register::R4,
+                        Register::T1,
+                        Register::Fp,
                         -((offset / 4) as i8 + word as i8),
                     ));
                 }

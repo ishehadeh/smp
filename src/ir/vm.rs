@@ -1,15 +1,80 @@
 use std::{collections::VecDeque, ops::Add};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+// source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
 pub enum Register {
-    /// Instruction Pointer
-    IP,
+    Zero = 0,
+
+    /// Return address
+    Ra,
+
     /// stack pointer
-    SP,
-    R1,
-    R2,
-    R3,
-    R4,
+    Sp,
+
+    /// Global Pointer
+    Gp,
+
+    /// Thread pointer
+    Tp,
+
+    // Temporaries
+    /// Temporary/ alternate link register
+    T0,
+    T1,
+    T2,
+
+    /// Frame pointer
+    Fp,
+
+    /// Return Value or Argument 1
+    A0,
+
+    /// Return or Argument 2
+    A1,
+
+    // args
+    A2,
+    A3,
+    A4,
+    A5,
+    A6,
+    A7,
+
+    ///Saved register
+    S2,
+    S3,
+    S4,
+    S5,
+    S6,
+    S7,
+    S8,
+    S9,
+    S10,
+    S11,
+
+    // Temporaries
+    T3,
+    T4,
+    T5,
+    T6,
+}
+
+impl From<usize> for Register {
+    fn from(x: usize) -> Register {
+        assert!(x < 32);
+
+        use Register::*;
+
+        #[rustfmt::skip]
+        const LOOKUP: [Register; 31] = [
+            Zero, Ra, Sp, Gp, Tp, T0, T1,
+            T2, Fp, A0, A1, A2, A3, A4, A5,
+            A6, A7, S2, S3, S4, S5, S6, S7,
+            S8, S9, S10, S11, T3, T4, T5, T6,
+        ];
+
+        return *LOOKUP.get(x).unwrap();
+    }
 }
 
 /// Intermediate representation
@@ -56,7 +121,10 @@ pub struct Vm {
     /// instruction pointer
     stack: VecDeque<u32>,
     memory: [u32; 1024],
-    registers: [u32; 6],
+    registers: [u32; 32],
+
+    /// Instruction pointer
+    ip: usize,
 }
 
 impl Vm {
@@ -65,29 +133,37 @@ impl Vm {
             program: program.into(),
             stack: VecDeque::new(),
             memory: [0; 1024],
-            registers: [0; 6],
+            registers: [0; 32],
+
+            ip: 0,
         };
-        vm.reg_set(Register::SP, vm.memory.len() as u32 - 1);
+        vm.reg_set(Register::Sp, vm.memory.len() as u32 - 1);
         vm
     }
 
     pub fn dbg_state(&self) {
         const STACK_VIEW_SIZE: u32 = 16;
-        match self.program.get(self.reg_get(Register::IP) as usize - 1) {
+        match self.program.get(self.ip - 1) {
             None => println!("OP <None>"),
             Some(op) => println!("OP {op:?}"),
         };
-        println!(
-            "REG ip={} sp={} r1={} r2={} r3={} r4={}",
-            self.reg_get(Register::IP),
-            self.reg_get(Register::SP),
-            self.reg_get(Register::R1),
-            self.reg_get(Register::R2),
-            self.reg_get(Register::R3),
-            self.reg_get(Register::R4)
-        );
+
+        println!("REGISTERS");
+        for (reg_i, reg_val) in self.registers.iter().enumerate() {
+            if reg_i % 6 == 0 {
+                if reg_i > 0 {
+                    println!()
+                }
+            } else {
+                print!(" ");
+            }
+
+            print!("x{reg_i:02}={reg_val:04}");
+        }
+        println!();
+
         println!("STACK:");
-        let start = self.reg_get(Register::SP);
+        let start = self.reg_get(Register::Sp);
         for offset in 0..STACK_VIEW_SIZE {
             let mem_addr = (start + offset) as usize;
             if mem_addr >= self.memory.len() {
@@ -108,42 +184,31 @@ impl Vm {
         println!()
     }
 
-    fn reg_index(reg: Register) -> usize {
-        match reg {
-            Register::IP => 0,
-            Register::SP => 1,
-            Register::R1 => 2,
-            Register::R2 => 3,
-            Register::R3 => 4,
-            Register::R4 => 5,
-        }
-    }
-
     pub fn reg_set(&mut self, reg: Register, val: u32) {
-        self.registers[Vm::reg_index(reg)] = val;
+        self.registers[reg as usize] = val;
     }
 
     pub fn reg_get(&self, reg: Register) -> u32 {
-        return self.registers[Vm::reg_index(reg)];
+        return self.registers[reg as usize];
     }
 
     pub fn pop(&mut self) -> u32 {
-        let sp = self.reg_get(Register::SP);
+        let sp = self.reg_get(Register::Sp);
         let val = self.memory[sp as usize];
-        self.reg_set(Register::SP, sp + 1);
+        self.reg_set(Register::Sp, sp + 1);
         val
     }
 
     pub fn push(&mut self, val: u32) {
-        let new_sp = self.reg_get(Register::SP) - 1;
-        self.reg_set(Register::SP, new_sp);
+        let new_sp = self.reg_get(Register::Sp) - 1;
+        self.reg_set(Register::Sp, new_sp);
         self.memory[new_sp as usize] = val;
     }
 
     /// Move to the next instruction
     /// Returns false if there are no instructions remaining
     pub fn step(&mut self) -> bool {
-        let op = match self.program.get(self.reg_get(Register::IP) as usize) {
+        let op = match self.program.get(self.ip) {
             None => return false,
             Some(op) => *op,
         };
@@ -192,7 +257,7 @@ impl Vm {
             }
         }
 
-        self.reg_set(Register::IP, self.reg_get(Register::IP) + 1);
+        self.ip += 1;
         true
     }
 }
