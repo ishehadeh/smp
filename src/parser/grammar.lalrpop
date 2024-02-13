@@ -1,19 +1,54 @@
 use std::str::FromStr;
 use crate::parser::{ParseError, Ast, Param, AnonType, StructMember, InfixOp};
 use lalrpop_util::ErrorRecovery;
+use crate::parser::lexer::{
+  Token,
+  Lexer,
+};
 
-
-grammar<'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token<'input>, ParseError>>);
+grammar<'input, 'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token<'input>, ParseError>>);
 
 extern {
     // Set the error type for the parse result.
     // NOTE: this is only for fatal errors,
     //       recovered errors are passed back through a parameter to the grammar. 
     type Error = ParseError;
+    type Location = usize;
+
+    enum Token<'input> {
+        "let" => Token::KeywordLet,
+        "func" => Token::KeywordFunc,
+        "to" => Token::KeywordTo,
+        "int" => Token::KeywordInt,
+        "mut" => Token::KeywordMut,
+        "type" => Token::KeywordType,
+        "if" => Token::KeywordIf,
+        "else" => Token::KeywordElse,
+ 
+        "ident" => Token::Identifier(<&'input str>),
+        "literal-int" => Token::LiteralInteger(<&'input str>),
+
+        "(" => Token::ParenLeft,
+        ")" => Token::ParenRight,
+        "{" => Token::BraceCurlyLeft,
+        "}" => Token::BraceCurlyRight,
+        ";" => Token::Semicolon,
+        ":" => Token::Colon,
+        "," => Token::Comma,
+        "+" => Token::OperatorAdd,
+        "-" => Token::OperatorSub,
+        "*" => Token::OperatorMul,
+        "/" => Token::OperatorDiv,
+        "=" => Token::OperatorAssign,
+        "==" => Token::OperatorCmpEqual,
+        "!=" => Token::OperatorCmpNotEqual,
+
+        // " " => Token::Whitespace(<&'input str>),
+    }
 }
 
 pub TypeReference: AnonType = {
-    <name: IdentChars> => AnonType::TypeReference {
+    <name: "ident"> => AnonType::TypeReference {
         name: name.to_string(),
         parameters: (),
     }
@@ -31,7 +66,7 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <name:IdentChars> ":" <typ:AnonType> => Param {
+    <name:"ident"> ":" <typ:AnonType> => Param {
         name: name.to_string(),
         typ,
     }
@@ -43,7 +78,7 @@ pub DefParams: Vec<Param> = {
 };
 
 pub DefFunction: Ast = {
-    "func" <name:IdentChars> <params:DefParams> ":" <typ:AnonType> <block: Block> => {
+    "func" <name:"ident"> <params:DefParams> ":" <typ:AnonType> <block: Block> => {
         Ast::DefFunction {
             name: name.to_string(),
             params,
@@ -54,7 +89,7 @@ pub DefFunction: Ast = {
 };
 
 pub DefStructMember: StructMember = {
-    "mut " <name:IdentChars> ":" <typ:AnonType> => {
+    "mut" <name:"ident"> ":" <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
@@ -62,7 +97,7 @@ pub DefStructMember: StructMember = {
         }
     },
 
-    <name:IdentChars> ":" <typ:AnonType> => {
+    <name:"ident"> ":" <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
@@ -72,7 +107,7 @@ pub DefStructMember: StructMember = {
 }
 
 pub TypeIntegerRange: AnonType = {
-    "int" <lo:DecChars> "to" <hi:DecChars> => AnonType::IntegerRange {
+    "int" <lo:"literal-int"> "to" <hi:"literal-int"> => AnonType::IntegerRange {
         inclusive_low: lo.to_string(),
         inclusive_high: hi.to_string(),
     },
@@ -94,7 +129,7 @@ pub AnonType: AnonType = {
 }
 
 pub DefType: Ast = {
-    "type" <name:IdentChars> "=" <typ:AnonType> ";" => {
+    "type" <name:"ident"> "=" <typ:AnonType> ";" => {
         Ast::DefType {
             name: name.to_string(),
             typ,
@@ -103,13 +138,13 @@ pub DefType: Ast = {
 }
 
 pub StmtIf: Ast = {
-    "if " <condition:Expr> <body:Block> => Ast::StmtIf {
+    "if" <condition:Expr> <body:Block> => Ast::StmtIf {
         condition: Box::new(condition),
         body: Box::new(body),
         else_: None,
     },
 
-    "if " <condition:Expr> <body:Block> "else" <else_:Block> => Ast::StmtIf {
+    "if" <condition:Expr> <body:Block> "else" <else_:Block> => Ast::StmtIf {
         condition: Box::new(condition),
         body: Box::new(body),
         else_: Some(Box::new(else_)),
@@ -117,12 +152,12 @@ pub StmtIf: Ast = {
 }
 
 pub ExprCall: Ast = {
-    <fname:IdentChars> "(" ")" => Ast::ExprCall {
+    <fname:"ident"> "(" ")" => Ast::ExprCall {
         function_name: fname.to_string(),
         paramaters: vec![]
     },
 
-    <fname:IdentChars> "(" <paramaters:OneOrMore<Expr>> ")" => Ast::ExprCall {
+    <fname:"ident"> "(" <paramaters:OneOrMore<Expr>> ")" => Ast::ExprCall {
         function_name: fname.to_string(),
         paramaters,
     }
@@ -132,12 +167,12 @@ pub Expr: Ast = {
     <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
     },
-    ErrBadInfixOp
+    AtomicExpr
 };
 
 
 pub StmtLet: Ast = {
-    "let " <name:IdentChars> ":" <typ:AnonType> "=" <value:Expr> => Ast::StmtLet {
+    "let" <name:"ident"> ":" <typ:AnonType> "=" <value:Expr> => Ast::StmtLet {
         name: name.to_string(),
         value_type: typ,
         value: Box::new(value),
@@ -171,19 +206,8 @@ pub ErrNoExplicitExprGrouping: Ast = {
             lhs: Box::new(lhs), op, rhs:Box::new(rhs),
         }))
     },
-    ErrBadInfixOp,
-};
-
-// match things that look like they could be infix ops in between expressions for better error handling
-pub ErrBadInfixOp: Ast = {
-    <lhs:AtomicExpr> <op: r"[\\~!@#$%^&`]|([\*\+\-/\\]{2})"> <rhs:AtomicExpr> => {
-        Ast::Repaired(Box::new(Ast::Expr {
-            // TODO proper missing infix op
-            lhs: Box::new(lhs), op: InfixOp::Add, rhs:Box::new(rhs),
-        }))
-    },
     AtomicExpr,
-}
+};
 
 pub AtomicExpr: Ast = {
     <n:Number> => n,
@@ -205,11 +229,8 @@ pub InfixOp: InfixOp = {
     "==" => InfixOp::CmpEqual,
 }
 
-pub IdentChars = r"[a-zA-Z_][a-zA-Z_0-9]*";
-pub DecChars = r"[+-]?[0-9]+";
-
-pub Number: Ast = <s:DecChars> => Ast::Number(u32::from_str(s).unwrap());
-pub Ident: Ast = <s:r"[a-zA-Z_][a-zA-Z_0-9]*"> => Ast::Ident(s.to_string());
+pub Number: Ast = <s:"literal-int"> => Ast::Number(s.parse::<u32>().unwrap());
+pub Ident: Ast = <s:"ident"> => Ast::Ident(s.to_string());
 
 TopLevel: Ast = { DefFunction, DefType };
 TopLevelList: Vec<Ast> = {

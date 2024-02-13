@@ -1,8 +1,8 @@
-///
-use lalrpop_util::{lexer::Token, ParseError as LalrpopError};
-use thiserror::Error;
-
+use super::lexer::Token;
 use crate::span::SourceSpan;
+///
+use lalrpop_util::ParseError as LalrpopError;
+use thiserror::Error;
 
 #[derive(Clone, Debug)]
 pub struct ParseError {
@@ -37,7 +37,7 @@ impl<'i> From<LalrpopError<usize, Token<'i>, ParseError>> for ParseError {
                 start,
                 end,
                 ParseErrorKind::UnexpectedToken {
-                    token: tok.to_string(),
+                    token: format!("{:?}", tok),
                     expected,
                 },
             ),
@@ -47,7 +47,7 @@ impl<'i> From<LalrpopError<usize, Token<'i>, ParseError>> for ParseError {
                 start,
                 end,
                 ParseErrorKind::ExtraToken {
-                    token: tok.to_string(),
+                    token: format!("{:?}", tok),
                 },
             ),
             LalrpopError::User { error } => error,

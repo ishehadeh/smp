@@ -8,6 +8,8 @@ pub use errors::*;
 
 use lalrpop_util::lalrpop_mod;
 
+use self::lexer::Lexer;
+
 #[cfg(test)]
 mod test;
 
@@ -45,8 +47,9 @@ impl ParseResult {
 }
 
 pub fn parse(s: &str) -> ParseResult {
+    let lexer = Lexer::new(s);
     let mut recovered_errors = Vec::new();
-    let result = grammar::ProgramParser::new().parse(&mut recovered_errors, s);
+    let result = grammar::ProgramParser::new().parse(&mut recovered_errors, lexer);
 
     let mut errors: Vec<_> = recovered_errors
         .into_iter()
