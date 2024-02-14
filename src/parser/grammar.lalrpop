@@ -43,7 +43,7 @@ extern {
         "==" => Token::OperatorCmpEqual,
         "!=" => Token::OperatorCmpNotEqual,
 
-        // " " => Token::Whitespace(<&'input str>),
+        " " => Token::Whitespace(<&'input str>),
     }
 }
 
@@ -58,6 +58,7 @@ pub TypeReference: AnonType = {
 /// Source: https://github.com/RustPython/Parser/blob/9ce55aefdeb35e2f706ce0b02d5a2dfe6295fc57/parser/src/python.lalrpop#L1659
 OneOrMore<T>: Vec<T> = {
     <e:T> => vec![e],
+    // This causes issues if I add whitespace around ","
     <mut v: OneOrMore<T>> "," <e:T> => {
         v.push(e);
         v
@@ -66,19 +67,19 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <name:"ident"> ":" <typ:AnonType> => Param {
+    <name:"ident"> " "? ":" " "? <typ:AnonType> => Param {
         name: name.to_string(),
         typ,
     }
 };
 
 pub DefParams: Vec<Param> = {
-    "(" ")" => vec![],
-    "(" <params: OneOrMore<Param>> ")" => params
+    "(" " "? ")" => vec![],
+    "(" " "?<params: OneOrMore<Param>> " "? ")" => params
 };
 
 pub DefFunction: Ast = {
-    "func" <name:"ident"> <params:DefParams> ":" <typ:AnonType> <block: Block> => {
+    "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:AnonType> " "? <block: Block> => {
         Ast::DefFunction {
             name: name.to_string(),
             params,
@@ -89,7 +90,7 @@ pub DefFunction: Ast = {
 };
 
 pub DefStructMember: StructMember = {
-    "mut" <name:"ident"> ":" <typ:AnonType> => {
+    "mut" " " <name:"ident"> " "? ":" " "? <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
@@ -107,15 +108,15 @@ pub DefStructMember: StructMember = {
 }
 
 pub TypeIntegerRange: AnonType = {
-    "int" <lo:"literal-int"> "to" <hi:"literal-int"> => AnonType::IntegerRange {
+    "int" " " <lo:"literal-int"> " " "to" " " <hi:"literal-int"> => AnonType::IntegerRange {
         inclusive_low: lo.to_string(),
         inclusive_high: hi.to_string(),
     },
 }
 
 pub StructBody: AnonType = {
-    "{" "}" => AnonType::StructBody { members: vec![] },
-    "{" <members: OneOrMore<DefStructMember>> "}" => {
+    "{" " "? "}" => AnonType::StructBody { members: vec![] },
+    "{" " "? <members: OneOrMore<DefStructMember>> " "? "}" => {
         AnonType::StructBody {
             members
         }
@@ -129,7 +130,7 @@ pub AnonType: AnonType = {
 }
 
 pub DefType: Ast = {
-    "type" <name:"ident"> "=" <typ:AnonType> ";" => {
+    "type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";" => {
         Ast::DefType {
             name: name.to_string(),
             typ,
@@ -138,13 +139,13 @@ pub DefType: Ast = {
 }
 
 pub StmtIf: Ast = {
-    "if" <condition:Expr> <body:Block> => Ast::StmtIf {
+    "if" " " <condition:Expr> <body:Block> => Ast::StmtIf {
         condition: Box::new(condition),
         body: Box::new(body),
         else_: None,
     },
 
-    "if" <condition:Expr> <body:Block> "else" <else_:Block> => Ast::StmtIf {
+    "if" " " <condition:Expr> <body:Block> "else" " "? <else_:Block> => Ast::StmtIf {
         condition: Box::new(condition),
         body: Box::new(body),
         else_: Some(Box::new(else_)),
@@ -152,19 +153,21 @@ pub StmtIf: Ast = {
 }
 
 pub ExprCall: Ast = {
-    <fname:"ident"> "(" ")" => Ast::ExprCall {
+    // FIXME: how to allow whitespace between fname and ( without adding ambiguity
+    <fname:"ident"> "(" " "? ")" => Ast::ExprCall {
         function_name: fname.to_string(),
         paramaters: vec![]
     },
 
-    <fname:"ident"> "(" <paramaters:OneOrMore<Expr>> ")" => Ast::ExprCall {
+    <fname:"ident"> "(" " "? <paramaters:OneOrMore<Expr>> ")" => Ast::ExprCall {
         function_name: fname.to_string(),
         paramaters,
     }
 }
 
 pub Expr: Ast = {
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
+    // notice only trailing whitespace is used to reduce ambiguities
+    <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
         lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
     },
     AtomicExpr
@@ -172,7 +175,7 @@ pub Expr: Ast = {
 
 
 pub StmtLet: Ast = {
-    "let" <name:"ident"> ":" <typ:AnonType> "=" <value:Expr> => Ast::StmtLet {
+    "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> => Ast::StmtLet {
         name: name.to_string(),
         value_type: typ,
         value: Box::new(value),
@@ -187,21 +190,21 @@ pub Stmt: Ast = {
 
 pub StmtList: Vec<Ast> = {
     <e:Stmt> => vec![e],
-    <mut v: StmtList> ";" <e:Stmt> => {
+    <mut v: StmtList> ";" " "? <e:Stmt> => {
         v.push(e);
         v
     }
 }
 
 pub Block: Ast = {
-    "{" "}" => Ast::Block { returns: false, statements: vec![]  },
-    "{" <statements: StmtList> "}" => Ast::Block { returns: true, statements },
-    "{" <statements: StmtList> ";" "}" => Ast::Block { returns: false, statements },
+    "{" " "? "}" " "? => Ast::Block { returns: false, statements: vec![]  },
+    "{" " "? <statements: StmtList> "}" " "? => Ast::Block { returns: true, statements },
+    "{" " "? <statements: StmtList>  ";" " "? "}" " "? => Ast::Block { returns: false, statements },
 }
 
 pub ErrNoExplicitExprGrouping: Ast = {
     // TODO: detailed error message
-    <lhs:AtomicExpr> <op:InfixOp> <rhs:Expr> => {
+    <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:Expr> => {
         Ast::Repaired(Box::new(Ast::Expr {
             lhs: Box::new(lhs), op, rhs:Box::new(rhs),
         }))
@@ -210,10 +213,10 @@ pub ErrNoExplicitExprGrouping: Ast = {
 };
 
 pub AtomicExpr: Ast = {
-    <n:Number> => n,
-    <i:Ident> => i,
-    <c:ExprCall> => c,
-    "(" <e:Expr> ")" => e,
+    <n:Number> " "? => n,
+    <i:Ident> " "? => i,
+    <c:ExprCall> " "? => c,
+    "(" <e:Expr> ")" " "? => e,
 
     // error recovery handler
     // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
@@ -232,7 +235,11 @@ pub InfixOp: InfixOp = {
 pub Number: Ast = <s:"literal-int"> => Ast::Number(s.parse::<u32>().unwrap());
 pub Ident: Ast = <s:"ident"> => Ast::Ident(s.to_string());
 
-TopLevel: Ast = { DefFunction, DefType };
+TopLevel: Ast = {
+    DefFunction,
+    <a:DefType> " "? => a
+};
+
 TopLevelList: Vec<Ast> = {
     <e:TopLevel> => vec![e],
     <mut v: TopLevelList> <e:TopLevel> => {

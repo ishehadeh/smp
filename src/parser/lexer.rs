@@ -60,8 +60,8 @@ pub enum Token<'input> {
     #[token("/")]
     OperatorDiv,
 
-    #[regex(r"[ \t\n\f]+", logos::skip)]
-    Whitespace,
+    #[regex(r"[ \t\n\f]+", |lex| lex.slice())]
+    Whitespace(&'input str),
 }
 
 // lexer for lalrpop
