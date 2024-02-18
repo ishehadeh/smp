@@ -133,7 +133,6 @@ pub enum Op {
 pub struct Vm {
     program: Vec<Op>,
     /// instruction pointer
-    stack: VecDeque<u32>,
     memory: [u32; 1024],
     registers: [u32; 32],
 
@@ -150,7 +149,6 @@ impl Vm {
     pub fn new<T: Into<Vec<Op>>>(program: T) -> Vm {
         let mut vm = Vm {
             program: program.into(),
-            stack: VecDeque::new(),
             memory: [0; 1024],
             registers: [0; 32],
 
