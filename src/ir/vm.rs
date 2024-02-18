@@ -140,11 +140,6 @@ pub struct Vm {
     ip: usize,
 }
 
-/// decode a two's complement word
-fn twos_decode(x: u32) -> i32 {
-    i32::from_le_bytes(x.to_le_bytes())
-}
-
 impl Vm {
     pub fn new<T: Into<Vec<Op>>>(program: T) -> Vm {
         let mut vm = Vm {
