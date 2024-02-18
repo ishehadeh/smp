@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, ops::Add};
+use std::collections::VecDeque;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
@@ -77,6 +77,15 @@ impl From<usize> for Register {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Cond {
+    Eq,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    Ne,
+}
 /// Intermediate representation
 ///
 ///
@@ -113,6 +122,11 @@ pub enum Op {
 
     StI(u32, Register),
     St(Register, Register, i8),
+
+    // branch to a given offset
+    B(i16),
+    // branch if the two registers fullful Cond
+    Bc(Cond, Register, Register, i16),
 }
 
 #[derive(Debug, Clone)]
@@ -125,6 +139,11 @@ pub struct Vm {
 
     /// Instruction pointer
     ip: usize,
+}
+
+/// decode a two's complement word
+fn twos_decode(x: u32) -> i32 {
+    i32::from_le_bytes(x.to_le_bytes())
 }
 
 impl Vm {
@@ -205,6 +224,14 @@ impl Vm {
         self.memory[new_sp as usize] = val;
     }
 
+    pub fn branch(&mut self, offset: i16) {
+        if offset < 0 {
+            self.ip -= (-offset) as usize
+        } else {
+            self.ip += offset as usize
+        }
+    }
+
     /// Move to the next instruction
     /// Returns false if there are no instructions remaining
     pub fn step(&mut self) -> bool {
@@ -232,6 +259,25 @@ impl Vm {
             Op::St(val, ptr, offset) => {
                 self.memory[(self.reg_get(ptr) as isize + offset as isize) as usize] =
                     self.reg_get(val)
+            }
+
+            // impl branch
+            Op::B(offset) => self.branch(offset),
+
+            Op::Bc(cond, reg1, reg2, offset) => {
+                let val1 = self.reg_get(reg1);
+                let val2 = self.reg_get(reg2);
+                let ok = match cond {
+                    Cond::Eq => val1 == val2,
+                    Cond::Ne => val1 != val2,
+                    Cond::Lt => val1 < val2,
+                    Cond::Le => val1 <= val2,
+                    Cond::Gt => val1 < val2,
+                    Cond::Ge => val1 <= val2,
+                };
+                if ok {
+                    self.branch(offset)
+                }
             }
 
             // Math ops

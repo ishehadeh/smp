@@ -147,10 +147,10 @@ impl Compiler {
                 }
             }
             Ast::DefFunction {
-                name,
-                params,
-                return_type,
-                body,
+                name: _,
+                params: _,
+                return_type: _,
+                body: _,
             } => todo!(),
             Ast::DefType { name, typ } => match typ {
                 AnonType::TypeReference { name, parameters } => todo!(),
