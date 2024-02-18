@@ -142,8 +142,8 @@ impl Compiler {
                     InfixOp::Sub => frame.operations.push(Op::Sub),
                     InfixOp::Mul => frame.operations.push(Op::Mul),
                     InfixOp::Div => frame.operations.push(Op::Div),
-                    InfixOp::CmpNotEqual => todo!(),
-                    InfixOp::CmpEqual => frame.operations.push(Op::Xor),
+                    InfixOp::CmpNotEqual => frame.operations.push(Op::Xor),
+                    InfixOp::CmpEqual => frame.operations.push(Op::Sub),
                 }
             }
             Ast::DefFunction {
@@ -215,7 +215,7 @@ impl Compiler {
                 let branch_index = {
                     let frame = self.stackframes.back_mut().expect("no stack frames!");
                     frame.operations.push(Op::Pop(Register::T1));
-                    frame.operations.push(Op::LdI(Register::T2, 1));
+                    frame.operations.push(Op::LdI(Register::T2, 0));
 
                     // we'll set this later -- save the position
                     frame.operations.push(Op::Nop);
@@ -227,12 +227,8 @@ impl Compiler {
                     let frame = self.stackframes.back_mut().expect("no stack frames!");
                     let offset = frame.operations.len() - branch_index;
                     assert!(offset <= i16::MAX as usize);
-                    frame.operations[branch_index] = Op::Bc(
-                        Cond::Ne,
-                        Register::T1,
-                        Register::T2,
-                        (frame.operations.len() - branch_index) as i16,
-                    );
+                    frame.operations[branch_index] =
+                        Op::Bc(Cond::Ne, Register::T1, Register::T2, offset as i16);
                 }
 
                 if let Some(else_) = else_ {
