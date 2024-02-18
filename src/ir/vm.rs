@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::{arch::x86_64, collections::VecDeque};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
@@ -114,6 +114,8 @@ pub enum Op {
 
     /// Pop the top two values of the stack divide the second value popped by the first value popped, then push the result
     Div,
+
+    Xor,
 
     /// Move an immediate value into a register
     LdI(Register, u32),
@@ -297,6 +299,13 @@ impl Vm {
                 let denom = self.pop();
                 let num = self.pop();
                 self.push(num / denom)
+            }
+
+            // bitwise
+            Op::Xor => {
+                let x = self.pop();
+                let y = self.pop();
+                self.push(x ^ y)
             }
         }
 

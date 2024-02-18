@@ -143,7 +143,7 @@ impl Compiler {
                     InfixOp::Mul => frame.operations.push(Op::Mul),
                     InfixOp::Div => frame.operations.push(Op::Div),
                     InfixOp::CmpNotEqual => todo!(),
-                    InfixOp::CmpEqual => todo!(),
+                    InfixOp::CmpEqual => frame.operations.push(Op::Xor),
                 }
             }
             Ast::DefFunction {
@@ -213,7 +213,7 @@ impl Compiler {
                 self.add_node(&condition)?;
 
                 let branch_index = {
-                    let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                    let frame = self.stackframes.back_mut().expect("no stack frames!");
                     frame.operations.push(Op::Pop(Register::T1));
                     frame.operations.push(Op::LdI(Register::T2, 1));
 
@@ -224,7 +224,7 @@ impl Compiler {
 
                 self.add_node(body)?;
                 {
-                    let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                    let frame = self.stackframes.back_mut().expect("no stack frames!");
                     let offset = frame.operations.len() - branch_index;
                     assert!(offset <= i16::MAX as usize);
                     frame.operations[branch_index] = Op::Bc(
@@ -237,7 +237,7 @@ impl Compiler {
 
                 if let Some(else_) = else_ {
                     let skip_else_ip = {
-                        let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                        let frame = self.stackframes.back_mut().expect("no stack frames!");
                         frame.operations.push(Op::Nop);
                         frame.operations.len() - 1
                     };
@@ -245,10 +245,10 @@ impl Compiler {
                     self.add_node(&else_)?;
 
                     {
-                        let mut frame = self.stackframes.back_mut().expect("no stack frames!");
-                        let offset = frame.operations.len() - branch_index;
+                        let frame = self.stackframes.back_mut().expect("no stack frames!");
+                        let offset = frame.operations.len() - skip_else_ip;
                         assert!(offset <= i16::MAX as usize);
-                        frame.operations[branch_index] = Op::B(offset as i16);
+                        frame.operations[skip_else_ip] = Op::B(offset as i16);
                     }
                 }
             }

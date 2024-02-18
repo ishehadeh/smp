@@ -1,0 +1,7 @@
+func main(): unit {
+    if (1 == 0) {
+        let i: int 1 to 2 = 1
+    } else {
+        let i: int 1 to 2 = 2
+    }
+}
