@@ -1,5 +1,6 @@
 mod ast;
 mod errors;
+mod lexer;
 
 lalrpop_mod!(pub grammar, "/parser/grammar.rs");
 
