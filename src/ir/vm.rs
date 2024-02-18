@@ -92,6 +92,8 @@ pub enum Cond {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Op {
+    Nop,
+
     /// Push a number onto the stack
     PushI(u32),
 
@@ -234,6 +236,8 @@ impl Vm {
         };
 
         match op {
+            Op::Nop => (),
+
             // impl push/pop
             Op::PushI(val) => self.push(val),
             Op::Push(reg) => self.push(self.reg_get(reg)),

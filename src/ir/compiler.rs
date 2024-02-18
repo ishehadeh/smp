@@ -1,4 +1,4 @@
-use super::vm::{Op, Register};
+use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
 use std::collections::{HashMap, VecDeque};
@@ -194,7 +194,7 @@ impl Compiler {
                 self.add_node(value).unwrap();
 
                 // copy resulting value from computation in stack frame
-                let frame = self.stackframes.back_mut().expect("no stack frames!");
+                let frame: &mut FrameInfo = self.stackframes.back_mut().expect("no stack frames!");
                 for word in 0..(stack_space / 4) {
                     frame.operations.push(Op::Pop(Register::T1));
                     frame.operations.push(Op::St(
@@ -209,7 +209,49 @@ impl Compiler {
                 condition,
                 body,
                 else_,
-            } => todo!(),
+            } => {
+                self.add_node(&condition)?;
+
+                let branch_index = {
+                    let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                    frame.operations.push(Op::Pop(Register::T1));
+                    frame.operations.push(Op::LdI(Register::T2, 1));
+
+                    // we'll set this later -- save the position
+                    frame.operations.push(Op::Nop);
+                    frame.operations.len() - 1
+                };
+
+                self.add_node(body)?;
+                {
+                    let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                    let offset = frame.operations.len() - branch_index;
+                    assert!(offset <= i16::MAX as usize);
+                    frame.operations[branch_index] = Op::Bc(
+                        Cond::Ne,
+                        Register::T1,
+                        Register::T2,
+                        (frame.operations.len() - branch_index) as i16,
+                    );
+                }
+
+                if let Some(else_) = else_ {
+                    let skip_else_ip = {
+                        let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                        frame.operations.push(Op::Nop);
+                        frame.operations.len() - 1
+                    };
+
+                    self.add_node(&else_)?;
+
+                    {
+                        let mut frame = self.stackframes.back_mut().expect("no stack frames!");
+                        let offset = frame.operations.len() - branch_index;
+                        assert!(offset <= i16::MAX as usize);
+                        frame.operations[branch_index] = Op::B(offset as i16);
+                    }
+                }
+            }
             Ast::ExprCall {
                 function_name,
                 paramaters,
