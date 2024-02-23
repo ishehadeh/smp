@@ -1,6 +1,7 @@
 pub mod ir;
 pub mod parser;
 pub mod span;
+pub mod typecheck;
 
 pub fn greeting() -> &'static str {
     "Hello, World!"
