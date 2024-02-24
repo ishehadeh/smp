@@ -1,3 +1,8 @@
+use std::{
+    collections::BTreeMap,
+    sync::atomic::{self, AtomicUsize, ATOMIC_USIZE_INIT},
+};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InfixOp {
     Add,
@@ -106,4 +111,56 @@ pub enum Ast {
     Program {
         definitions: Vec<Ast>,
     },
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
+pub struct AstRef {
+    id: usize,
+    syntax_tree_id: usize,
+}
+
+pub struct SyntaxTree {
+    nodes: BTreeMap<AstRef, Ast>,
+    next_ref: usize,
+    syntax_tree_id: usize,
+}
+impl SyntaxTree {
+    pub fn new() -> SyntaxTree {
+        static SYNTAX_TREE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+        let syntax_tree_id = SYNTAX_TREE_ID_COUNTER.fetch_add(1, atomic::Ordering::SeqCst);
+
+        SyntaxTree {
+            nodes: BTreeMap::new(),
+            next_ref: 0,
+            syntax_tree_id,
+        }
+    }
+
+    fn new_ref(&mut self) -> AstRef {
+        let r = AstRef {
+            id: self.next_ref,
+            syntax_tree_id: self.syntax_tree_id,
+        };
+        self.next_ref += 1;
+        r
+    }
+
+    pub fn add(&mut self, node: Ast) -> AstRef {
+        let r = self.new_ref();
+        self.nodes.insert(r, node);
+        r
+    }
+
+    pub fn is_my_ref(&self, r: AstRef) -> bool {
+        r.syntax_tree_id == self.syntax_tree_id
+    }
+
+    pub fn get(&mut self, r: AstRef) -> &Ast {
+        if !self.is_my_ref(r) {
+            // this probably shouldn't panic?
+            panic!("this reference is from a different syntax tree!")
+        }
+
+        self.nodes.get(&r).unwrap()
+    }
 }
