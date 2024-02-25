@@ -1,5 +1,10 @@
 use std::collections::{BTreeSet, HashMap};
 
+use crate::{
+    parser::{Ast, AstRef},
+    util::idvec::IdVec,
+};
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IntegerType {
     // TODO: allow for integers larger than a single pointer
@@ -144,14 +149,82 @@ impl RecordCell {
     }
 }
 
+pub struct AstType {
+    dependecies: Vec<AstRef>,
+    type_info: Option<TypeInfo>,
+}
+
+impl AstType {
+    pub fn new(t: impl Into<Option<TypeInfo>>, deps: impl Into<Vec<AstRef>>) -> AstType {
+        AstType {
+            dependecies: deps.into(),
+            type_info: t.into(),
+        }
+    }
+}
+
+impl From<TypeInfo> for AstType {
+    fn from(type_info: TypeInfo) -> Self {
+        AstType {
+            type_info: Some(type_info),
+            dependecies: Vec::new(),
+        }
+    }
+}
+
+pub enum TypeConstraint {
+    Equivalent(),
+}
+
 #[derive(Default)]
 pub struct TypeEnvironment {
-    types: HashMap<String, TypeInfo>,
+    type_holes: IdVec<TypeConstraint>,
+    ast_types: HashMap<AstRef, AstType>,
 }
 
 impl TypeEnvironment {
     pub fn new() -> TypeEnvironment {
         TypeEnvironment::default()
+    }
+
+    pub fn get_expr_type(&self, expr: &Ast) -> AstType {
+        match expr {
+            Ast::Number(n) => TypeInfo::integer(*n as usize, *n as usize).into(),
+            Ast::Ident(_) => todo!(),
+            Ast::Error => todo!(),
+            Ast::Repaired(_) => todo!(),
+            Ast::DefFunction {
+                name,
+                params,
+                return_type,
+                body,
+            } => todo!(),
+            Ast::Block { returns: false, .. } => TypeInfo::Unit.into(),
+            Ast::Block {
+                returns: true,
+                statements,
+            } => statements
+                .last()
+                .map(|s: &Ast| self.get_expr_type(s))
+                .unwrap_or(TypeInfo::Unit.into()),
+            Ast::StmtIf {
+                condition,
+                body,
+                else_,
+            } => todo!(),
+            Ast::ExprCall {
+                function_name,
+                paramaters,
+            } => todo!(),
+            Ast::StmtLet {
+                name,
+                value_type,
+                value,
+            } => todo!(),
+            Ast::DefType { name, typ } => todo!(),
+            Ast::Expr { lhs, op, rhs } => todo!(),
+            Ast::Program { definitions } => todo!(),
+        }
     }
 }
 

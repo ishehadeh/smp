@@ -124,6 +124,7 @@ pub struct SyntaxTree {
     next_ref: usize,
     syntax_tree_id: usize,
 }
+
 impl SyntaxTree {
     pub fn new() -> SyntaxTree {
         static SYNTAX_TREE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);

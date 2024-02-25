@@ -1,28 +1,8 @@
 use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
+use crate::typecheck::TypeInfo;
 use std::collections::{HashMap, VecDeque};
-
-#[derive(Debug, Clone)]
-pub struct IntegerType {
-    // TODO: allow for integers larger than a single pointer
-    // FIXME: sync these field names with the AST integer range names
-    pub lo: usize,
-    pub hi: usize,
-}
-
-#[derive(Debug, Clone)]
-pub enum TypeInfo {
-    IntegerType(IntegerType),
-}
-
-impl TypeInfo {
-    pub fn get_size(&self) -> usize {
-        match self {
-            &TypeInfo::IntegerType(_) => 4,
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct VariableInfo {
@@ -120,10 +100,10 @@ impl Compiler {
             AnonType::IntegerRange {
                 inclusive_low,
                 inclusive_high,
-            } => self.add_anon_type(TypeInfo::IntegerType(IntegerType {
-                lo: inclusive_low.parse().unwrap(),
-                hi: inclusive_high.parse().unwrap(),
-            })),
+            } => self.add_anon_type(TypeInfo::integer(
+                inclusive_low.parse().unwrap(),
+                inclusive_high.parse().unwrap(),
+            )),
             AnonType::StructBody { members: _ } => todo!(),
         }
     }
@@ -162,10 +142,10 @@ impl Compiler {
                     // TODO: type scopes
                     self.types.insert(
                         name.clone(),
-                        TypeInfo::IntegerType(IntegerType {
-                            lo: inclusive_low.parse().unwrap(),
-                            hi: inclusive_high.parse().unwrap(), // FIXME: these should be parsed with the rest of the AST
-                        }),
+                        TypeInfo::integer(
+                            inclusive_low.parse().unwrap(),
+                            inclusive_high.parse().unwrap(),
+                        ),
                     );
                 }
             },

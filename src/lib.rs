@@ -2,7 +2,7 @@ pub mod ir;
 pub mod parser;
 pub mod span;
 pub mod typecheck;
-
+pub mod util;
 pub fn greeting() -> &'static str {
     "Hello, World!"
 }
