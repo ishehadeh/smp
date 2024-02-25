@@ -1,42 +1,52 @@
-use const_random::const_random;
-use std::{
-    collections::BTreeMap,
-    sync::atomic::{self, AtomicUsize},
-};
+use std::{collections::BTreeMap, sync::atomic::AtomicUsize};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Id<const ContainerId: u64> {
+pub struct Id {
     element_id: usize,
-}
-
-const fn next_id() -> u64 {
-    let id = const_random!(u64);
-    id
+    container_id: usize,
 }
 
 #[derive(Clone)]
-pub struct IdVec<T, const ContainerId: u64 = { next_id() }> {
-    elements: BTreeMap<Id<ContainerId>, T>,
+pub struct IdVec<T> {
+    elements: BTreeMap<Id, T>,
     next_element_id: usize,
+    container_id: usize,
 }
 
-impl<T, const ContainerId: u64> IdVec<T, ContainerId> {
-    pub fn new() -> IdVec<T, ContainerId> {
+impl<T> IdVec<T> {
+    pub fn new() -> IdVec<T> {
         static VEC_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
-        let vec_id = VEC_ID_COUNTER.fetch_add(1, atomic::Ordering::SeqCst);
 
         IdVec {
             elements: BTreeMap::new(),
             next_element_id: 0,
+            container_id: VEC_ID_COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst),
         }
+    }
+
+    fn next_id(&mut self) -> Id {
+        let id = Id {
+            element_id: self.next_element_id,
+            container_id: self.container_id,
+        };
+        self.next_element_id += 1;
+        id
+    }
+
+    pub fn push(&mut self, val: T) -> Id {
+        let id = self.next_id();
+        self.elements.insert(id, val);
+        id
+    }
+
+    pub fn get(&mut self, id: Id) -> &T {
+        assert_eq!(id.container_id, self.container_id);
+        self.elements.get(&id).unwrap()
     }
 }
 
-impl<T, const ContainerId: u64> Default for IdVec<T, ContainerId> {
+impl<T> Default for IdVec<T> {
     fn default() -> Self {
-        Self {
-            elements: Default::default(),
-            next_element_id: Default::default(),
-        }
+        Self::new()
     }
 }
