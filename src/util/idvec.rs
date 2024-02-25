@@ -1,20 +1,60 @@
-use std::{collections::BTreeMap, sync::atomic::AtomicUsize};
+use std::{collections::BTreeMap, hash::Hash, marker::PhantomData, sync::atomic::AtomicUsize};
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Id {
+#[derive(Debug)]
+pub struct Id<Marker> {
     element_id: usize,
     container_id: usize,
+    marker: PhantomData<Marker>,
+}
+
+impl<Marker> Clone for Id<Marker> {
+    fn clone(&self) -> Self {
+        Self {
+            element_id: self.element_id.clone(),
+            container_id: self.container_id.clone(),
+            marker: PhantomData::default(),
+        }
+    }
+}
+
+impl<Marker> Hash for Id<Marker> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.element_id.hash(state);
+        self.container_id.hash(state);
+    }
+}
+
+impl<Marker> Copy for Id<Marker> {}
+
+impl<Marker> PartialEq for Id<Marker> {
+    fn eq(&self, other: &Self) -> bool {
+        self.element_id == other.element_id && self.container_id == other.container_id
+    }
+}
+
+impl<Marker> Eq for Id<Marker> {}
+
+impl<Marker> PartialOrd for Id<Marker> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.container_id.partial_cmp(&other.element_id)
+    }
+}
+
+impl<Marker> Ord for Id<Marker> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.container_id.cmp(&other.element_id)
+    }
 }
 
 #[derive(Clone)]
-pub struct IdVec<T> {
-    elements: BTreeMap<Id, T>,
+pub struct IdVec<T, Marker = T> {
+    elements: BTreeMap<Id<Marker>, T>,
     next_element_id: usize,
     container_id: usize,
 }
 
-impl<T> IdVec<T> {
-    pub fn new() -> IdVec<T> {
+impl<T, Marker> IdVec<T, Marker> {
+    pub fn new() -> IdVec<T, Marker> {
         static VEC_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
         IdVec {
@@ -24,28 +64,29 @@ impl<T> IdVec<T> {
         }
     }
 
-    fn next_id(&mut self) -> Id {
+    fn next_id(&mut self) -> Id<Marker> {
         let id = Id {
             element_id: self.next_element_id,
             container_id: self.container_id,
+            marker: PhantomData::default(),
         };
         self.next_element_id += 1;
         id
     }
 
-    pub fn push(&mut self, val: T) -> Id {
+    pub fn push(&mut self, val: T) -> Id<Marker> {
         let id = self.next_id();
         self.elements.insert(id, val);
         id
     }
 
-    pub fn get(&mut self, id: Id) -> &T {
+    pub fn get(&mut self, id: Id<Marker>) -> &T {
         assert_eq!(id.container_id, self.container_id);
         self.elements.get(&id).unwrap()
     }
 }
 
-impl<T> Default for IdVec<T> {
+impl<T, Marker> Default for IdVec<T, Marker> {
     fn default() -> Self {
         Self::new()
     }
