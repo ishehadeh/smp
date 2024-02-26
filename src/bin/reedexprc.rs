@@ -19,9 +19,9 @@ pub fn main() {
     match result.ast {
         Ast::Program { definitions } => match definitions.get(0).expect("expected function def") {
             Ast::DefFunction {
-                name,
-                params,
-                return_type,
+                name: _,
+                params: _,
+                return_type: _,
                 body,
             } => {
                 compiler.push_frame();

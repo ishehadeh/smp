@@ -1,7 +1,7 @@
 use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
-use crate::typecheck::{ScalarType, TypeInfo};
+use crate::typecheck::TypeInfo;
 use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
@@ -127,8 +127,11 @@ impl Compiler {
                 body: _,
             } => todo!(),
             Ast::DefType { name, typ } => match typ {
-                AnonType::TypeReference { name, parameters } => todo!(),
-                AnonType::StructBody { members } => todo!(),
+                AnonType::TypeReference {
+                    name: _,
+                    parameters: _,
+                } => todo!(),
+                AnonType::StructBody { members: _ } => todo!(),
                 AnonType::IntegerRange {
                     inclusive_low,
                     inclusive_high,
@@ -187,7 +190,7 @@ impl Compiler {
                     ));
                 }
             }
-            Ast::Program { definitions } => todo!(),
+            Ast::Program { definitions: _ } => todo!(),
             Ast::StmtIf {
                 condition,
                 body,
@@ -232,8 +235,8 @@ impl Compiler {
                 }
             }
             Ast::ExprCall {
-                function_name,
-                paramaters,
+                function_name: _,
+                paramaters: _,
             } => todo!(),
         }
 

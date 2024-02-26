@@ -1,5 +1,3 @@
-use std::{arch::x86_64, collections::VecDeque};
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
 pub enum Register {
@@ -205,7 +203,7 @@ impl Vm {
     }
 
     pub fn reg_get(&self, reg: Register) -> u32 {
-        return self.registers[reg as usize];
+        self.registers[reg as usize]
     }
 
     pub fn pop(&mut self) -> u32 {
