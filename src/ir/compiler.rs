@@ -48,7 +48,9 @@ pub struct Compiler {
 }
 
 #[derive(Clone, Debug)]
-pub enum CompileError {}
+pub enum CompileError {
+    TypeError { left: TypeInfo, right: TypeInfo },
+}
 
 impl Compiler {
     pub fn new() -> Compiler {
@@ -157,7 +159,13 @@ impl Compiler {
             } => {
                 let typ = TypeInfo::from_ast(value_type);
                 let val_type = self.expr_type(value);
-                dbg!(val_type.intersect(&typ));
+                // TODO no intersect and unit are different things, intersect should return some kind of None or 0 type.
+                if val_type.intersect(&typ) == TypeInfo::Unit {
+                    return Err(CompileError::TypeError {
+                        left: typ,
+                        right: val_type,
+                    });
+                }
 
                 let &VariableInfo {
                     offset,
