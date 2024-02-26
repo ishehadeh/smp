@@ -208,8 +208,7 @@ impl Compiler {
             } => {
                 let typ = TypeInfo::from_ast(value_type);
                 let val_type = self.expr_type(value)?;
-                // TODO no intersect and unit are different things, intersect should return some kind of None or 0 type.
-                if val_type.intersect(&typ) == TypeInfo::Unit {
+                if !val_type.is_subset(&typ) {
                     return Err(CompileError::TypeError {
                         left: typ,
                         right: val_type,

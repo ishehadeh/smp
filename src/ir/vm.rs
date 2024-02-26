@@ -119,7 +119,7 @@ pub enum Op {
     LdI(Register, u32),
 
     /// Move the value stored at a memory address into a register.
-    /// The address is equal to the value held in the register referenced second argument, and offset by the third argument
+    /// The address is equal to the value held in the register referenced in the second argument, and offset by the third argument
     Ld(Register, Register, i8),
 
     StI(u32, Register),

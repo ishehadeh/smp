@@ -24,6 +24,10 @@ impl IntegerType {
             None
         }
     }
+
+    pub fn is_subset(&self, other: &IntegerType) -> bool {
+        self.lo >= other.lo && self.hi <= other.hi
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -93,7 +97,54 @@ impl TypeInfo {
         }
     }
 
+    pub fn is_subset(&self, other: &TypeInfo) -> bool {
+        match (self, other) {
+            // trivial case
+            (a, b) if a == b => true,
+
+            // unit only matches unit
+            (TypeInfo::Unit, TypeInfo::Unit) => true,
+
+            // integer range intersect
+            (
+                TypeInfo::Scalar(ScalarType::Integer(a)),
+                TypeInfo::Scalar(ScalarType::Integer(b)),
+            ) => a.is_subset(b),
+
+            (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float32)) => true,
+
+            (TypeInfo::Union(union), other) => {
+                for t in &union.types {
+                    if !t.is_subset(other) {
+                        return false;
+                    }
+                }
+                true
+            }
+            (TypeInfo::Record(a), TypeInfo::Record(b)) => {
+                for field in &a.fields {
+                    if !b.fields.contains(field) {
+                        return false;
+                    }
+                }
+                true
+            }
+
+            (me, TypeInfo::Union(union)) => {
+                for t in &union.types {
+                    if me.is_subset(t) {
+                        return true;
+                    }
+                }
+                false
+            }
+            _ => false,
+        }
+    }
+
     pub fn intersect(&self, other: &TypeInfo) -> TypeInfo {
+        // TODO no intersect and unit are different things, intersect should return some kind of None or 0 type.
+
         match (self, other) {
             // trivial case
             (a, b) if a == b => a.clone(),
