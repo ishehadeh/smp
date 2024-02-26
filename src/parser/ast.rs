@@ -166,3 +166,9 @@ impl SyntaxTree {
         self.nodes.get(&r).unwrap()
     }
 }
+
+impl Default for SyntaxTree {
+    fn default() -> Self {
+        Self::new()
+    }
+}

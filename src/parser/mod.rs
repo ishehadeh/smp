@@ -2,7 +2,7 @@ mod ast;
 mod errors;
 mod lexer;
 
-lalrpop_mod!(pub grammar, "/parser/grammar.rs");
+lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
 
 pub use ast::*;
 pub use errors::*;
@@ -28,10 +28,10 @@ impl ParseResult {
     }
 
     pub fn is_ok(&self) -> bool {
-        return self.errors.len() == 0;
+        self.errors.is_empty()
     }
     pub fn is_err(&self) -> bool {
-        return !self.is_ok();
+        !self.is_ok()
     }
 
     pub fn into_result(self) -> Result<Ast, Vec<ParseError>> {

@@ -20,16 +20,17 @@ pub struct FrameInfo {
 impl FrameInfo {
     pub fn compile(&self) -> Vec<Op> {
         let space_needed = self.local_variable_size();
-        let mut ops = Vec::new();
-        // save frame
-        ops.push(Op::Push(Register::Sp));
-        ops.push(Op::Pop(Register::Fp));
+        let mut ops = vec![
+            // save frame
+            Op::Push(Register::Sp),
+            Op::Pop(Register::Fp),
+            // shift stack above frame
+            Op::Push(Register::Sp),
+            Op::PushI(space_needed as u32 / 4),
+            Op::Sub,
+            Op::Pop(Register::Sp),
+        ];
 
-        // shift stack above frame
-        ops.push(Op::Push(Register::Sp));
-        ops.push(Op::PushI(space_needed as u32 / 4));
-        ops.push(Op::Sub);
-        ops.push(Op::Pop(Register::Sp));
         ops.extend(&self.operations);
         ops
     }
@@ -108,8 +109,8 @@ impl Compiler {
             Ast::Repaired(_) | Ast::Error => panic!("error in ast!"),
             Ast::Number(x) => self.frame_mut().operations.push(Op::PushI(*x)),
             Ast::Expr { lhs, op, rhs } => {
-                let _ = self.add_node(lhs)?;
-                let _ = self.add_node(rhs)?;
+                self.add_node(lhs)?;
+                self.add_node(rhs)?;
                 let frame = self.frame_mut();
                 match op {
                     InfixOp::Add => frame.operations.push(Op::Add),
@@ -196,7 +197,7 @@ impl Compiler {
                 body,
                 else_,
             } => {
-                self.add_node(&condition)?;
+                self.add_node(condition)?;
 
                 let branch_index = {
                     let frame = self.stackframes.back_mut().expect("no stack frames!");
@@ -224,7 +225,7 @@ impl Compiler {
                         frame.operations.len() - 1
                     };
 
-                    self.add_node(&else_)?;
+                    self.add_node(else_)?;
 
                     {
                         let frame = self.stackframes.back_mut().expect("no stack frames!");

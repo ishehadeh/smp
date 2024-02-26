@@ -1,10 +1,6 @@
-use std::str::FromStr;
 use crate::parser::{ParseError, Ast, Param, AnonType, StructMember, InfixOp};
 use lalrpop_util::ErrorRecovery;
-use crate::parser::lexer::{
-  Token,
-  Lexer,
-};
+use crate::parser::lexer::Token;
 
 grammar<'input, 'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token<'input>, ParseError>>);
 

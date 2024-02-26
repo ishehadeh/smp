@@ -9,11 +9,7 @@ pub struct Id<Marker> {
 
 impl<Marker> Clone for Id<Marker> {
     fn clone(&self) -> Self {
-        Self {
-            element_id: self.element_id.clone(),
-            container_id: self.container_id.clone(),
-            marker: PhantomData::default(),
-        }
+        *self
     }
 }
 
@@ -36,7 +32,7 @@ impl<Marker> Eq for Id<Marker> {}
 
 impl<Marker> PartialOrd for Id<Marker> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.container_id.partial_cmp(&other.element_id)
+        Some(self.cmp(other))
     }
 }
 
@@ -68,7 +64,7 @@ impl<T, Marker> IdVec<T, Marker> {
         let id = Id {
             element_id: self.next_element_id,
             container_id: self.container_id,
-            marker: PhantomData::default(),
+            marker: PhantomData,
         };
         self.next_element_id += 1;
         id

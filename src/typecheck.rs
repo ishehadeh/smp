@@ -88,7 +88,7 @@ impl TypeInfo {
     }
     pub fn get_size(&self) -> usize {
         match self {
-            TypeInfo::Scalar(ScalarType::Integer(x)) => 4,
+            TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
             _ => todo!(),
         }
     }
@@ -121,7 +121,7 @@ impl TypeInfo {
             (TypeInfo::Record(a), TypeInfo::Record(b)) => {
                 let fields: BTreeSet<RecordCell> =
                     a.fields.intersection(&b.fields).cloned().collect();
-                if fields.len() > 0 {
+                if !fields.is_empty() {
                     TypeInfo::Record(RecordType { fields })
                 } else {
                     TypeInfo::Unit
