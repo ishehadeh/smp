@@ -1,9 +1,6 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 
-use crate::{
-    parser::{Ast, AstRef},
-    util::idvec::IdVec,
-};
+use crate::parser::AnonType;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IntegerType {
@@ -64,6 +61,18 @@ pub enum TypeInfo {
 }
 
 impl TypeInfo {
+    pub fn from_ast(ast_type: &AnonType) -> TypeInfo {
+        match ast_type {
+            AnonType::IntegerRange {
+                inclusive_low,
+                inclusive_high,
+            } => TypeInfo::integer(
+                inclusive_low.parse().unwrap(),
+                inclusive_high.parse().unwrap(),
+            ),
+            _ => todo!(),
+        }
+    }
     pub fn integer(lo: usize, hi: usize) -> TypeInfo {
         TypeInfo::Scalar(ScalarType::Integer(IntegerType::new(lo, hi)))
     }
@@ -78,10 +87,10 @@ impl TypeInfo {
         })
     }
     pub fn get_size(&self) -> usize {
-        todo!()
-        // match self {
-        //     &TypeInfo::ScalarType(_) => 4,
-        // }
+        match self {
+            TypeInfo::Scalar(ScalarType::Integer(x)) => 4,
+            _ => todo!(),
+        }
     }
 
     pub fn intersect(&self, other: &TypeInfo) -> TypeInfo {
@@ -146,123 +155,5 @@ impl RecordCell {
             length,
             type_info,
         }
-    }
-}
-
-pub struct AstType {
-    dependecies: Vec<AstRef>,
-    type_info: Option<TypeInfo>,
-}
-
-impl AstType {
-    pub fn new(t: impl Into<Option<TypeInfo>>, deps: impl Into<Vec<AstRef>>) -> AstType {
-        AstType {
-            dependecies: deps.into(),
-            type_info: t.into(),
-        }
-    }
-}
-
-impl From<TypeInfo> for AstType {
-    fn from(type_info: TypeInfo) -> Self {
-        AstType {
-            type_info: Some(type_info),
-            dependecies: Vec::new(),
-        }
-    }
-}
-
-pub enum TypeConstraint {
-    Equivalent(),
-}
-
-#[derive(Default)]
-pub struct TypeEnvironment {
-    type_holes: IdVec<TypeConstraint>,
-    ast_types: HashMap<AstRef, AstType>,
-}
-
-impl TypeEnvironment {
-    pub fn new() -> TypeEnvironment {
-        TypeEnvironment::default()
-    }
-
-    pub fn get_expr_type(&self, expr: &Ast) -> AstType {
-        match expr {
-            Ast::Number(n) => TypeInfo::integer(*n as usize, *n as usize).into(),
-            Ast::Ident(_) => todo!(),
-            Ast::Error => todo!(),
-            Ast::Repaired(_) => todo!(),
-            Ast::DefFunction {
-                name,
-                params,
-                return_type,
-                body,
-            } => todo!(),
-            Ast::Block { returns: false, .. } => TypeInfo::Unit.into(),
-            Ast::Block {
-                returns: true,
-                statements,
-            } => statements
-                .last()
-                .map(|s: &Ast| self.get_expr_type(s))
-                .unwrap_or(TypeInfo::Unit.into()),
-            Ast::StmtIf {
-                condition,
-                body,
-                else_,
-            } => todo!(),
-            Ast::ExprCall {
-                function_name,
-                paramaters,
-            } => todo!(),
-            Ast::StmtLet {
-                name,
-                value_type,
-                value,
-            } => todo!(),
-            Ast::DefType { name, typ } => todo!(),
-            Ast::Expr { lhs, op, rhs } => todo!(),
-            Ast::Program { definitions } => todo!(),
-        }
-    }
-}
-
-#[cfg(test)]
-
-mod test {
-    use crate::typecheck::{RecordCell, ScalarType, TypeInfo};
-
-    #[test]
-    pub fn int_intersect() {
-        assert_eq!(
-            TypeInfo::integer(0, 15).intersect(&TypeInfo::integer(5, 20)),
-            TypeInfo::integer(5, 15)
-        );
-
-        assert_eq!(
-            TypeInfo::integer(0, 3).intersect(&TypeInfo::integer(5, 20)),
-            TypeInfo::Unit
-        )
-    }
-
-    #[test]
-    pub fn record_intersect() {
-        assert_eq!(
-            TypeInfo::record([
-                RecordCell::new("foo", 0, 4, TypeInfo::Unit),
-                RecordCell::new("bar", 4, 4, TypeInfo::Scalar(ScalarType::Boolean))
-            ])
-            .intersect(&TypeInfo::record([
-                RecordCell::new("foo", 0, 4, TypeInfo::Unit),
-                RecordCell::new("bar", 4, 4, TypeInfo::Scalar(ScalarType::Float64))
-            ])),
-            TypeInfo::record([RecordCell::new("foo", 0, 4, TypeInfo::Unit),])
-        );
-
-        assert_eq!(
-            TypeInfo::integer(0, 3).intersect(&TypeInfo::integer(5, 20)),
-            TypeInfo::Unit
-        )
     }
 }

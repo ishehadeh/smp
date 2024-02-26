@@ -1,12 +1,12 @@
 use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
-use crate::typecheck::TypeInfo;
+use crate::typecheck::{ScalarType, TypeInfo};
 use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
 pub struct VariableInfo {
-    pub typ: String,
+    pub typ: TypeInfo,
     pub stack_space: usize,
     pub offset: usize,
 }
@@ -74,8 +74,7 @@ impl Compiler {
         anon_type_name
     }
 
-    pub fn alloc_local(&mut self, var_name: &String, typ_name: String) -> &VariableInfo {
-        let typ = self.types.get(&typ_name).unwrap();
+    pub fn alloc_local(&mut self, var_name: &String, typ: TypeInfo) -> &VariableInfo {
         let typ_size = typ.get_size();
         // TODO: don't hardcode word size
         // padding to fit into a word
@@ -85,7 +84,7 @@ impl Compiler {
         self.frame_mut().variables.insert(
             var_name.clone(),
             VariableInfo {
-                typ: typ_name,
+                typ,
                 stack_space: size,
                 offset: current_stack_offset,
             },
@@ -94,17 +93,10 @@ impl Compiler {
         self.frame().variables.get(var_name).unwrap()
     }
 
-    pub fn ast_to_type_name(&mut self, node: &AnonType) -> String {
-        match node {
-            AnonType::TypeReference { name, parameters } => return name.clone(),
-            AnonType::IntegerRange {
-                inclusive_low,
-                inclusive_high,
-            } => self.add_anon_type(TypeInfo::integer(
-                inclusive_low.parse().unwrap(),
-                inclusive_high.parse().unwrap(),
-            )),
-            AnonType::StructBody { members: _ } => todo!(),
+    pub fn expr_type(&mut self, e: &Ast) -> TypeInfo {
+        match e {
+            Ast::Number(n) => TypeInfo::integer(*n as usize, *n as usize),
+            _ => todo!(),
         }
     }
 
@@ -163,7 +155,10 @@ impl Compiler {
                 value_type,
                 value,
             } => {
-                let typ = self.ast_to_type_name(value_type);
+                let typ = TypeInfo::from_ast(value_type);
+                let val_type = self.expr_type(value);
+                dbg!(val_type.intersect(&typ));
+
                 let &VariableInfo {
                     offset,
                     stack_space,

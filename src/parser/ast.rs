@@ -1,6 +1,6 @@
 use std::{
     collections::BTreeMap,
-    sync::atomic::{self, AtomicUsize, ATOMIC_USIZE_INIT},
+    sync::atomic::{self, AtomicUsize},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -44,6 +44,7 @@ pub enum AnonType {
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {
+    // TODO convert this to usize
     Number(u32),
     Ident(String),
     // TODO: remove this
