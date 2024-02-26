@@ -3,5 +3,7 @@ func main(): unit {
         let i: int 1 to 100 = 1
     } else {
         let i: int 1 to 300 = 2
-    }
+    };
+
+    let j: int 1 to 100 = 1 + i;
 }

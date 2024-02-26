@@ -1,7 +1,7 @@
 use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
-use crate::typecheck::TypeInfo;
+use crate::typecheck::{ScalarType, TypeInfo};
 use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
@@ -51,6 +51,7 @@ pub struct Compiler {
 #[derive(Clone, Debug)]
 pub enum CompileError {
     TypeError { left: TypeInfo, right: TypeInfo },
+    ArithmeticIncompatible { left: TypeInfo, right: TypeInfo },
 }
 
 impl Compiler {
@@ -96,16 +97,60 @@ impl Compiler {
         self.frame().variables.get(var_name).unwrap()
     }
 
-    pub fn expr_type(&mut self, e: &Ast) -> TypeInfo {
+    pub fn expr_type(&mut self, e: &Ast) -> Result<TypeInfo, CompileError> {
         match e {
-            Ast::Number(n) => TypeInfo::integer(*n as usize, *n as usize),
+            Ast::Ident(a) => Ok(self.frame().variables.get(a).unwrap().typ.clone()),
+            Ast::Number(n) => Ok(TypeInfo::integer(*n as usize, *n as usize)),
+            Ast::Expr { lhs, op, rhs } => {
+                let ltype = self.expr_type(lhs)?;
+                let rtype = self.expr_type(rhs)?;
+
+                match (&ltype, &rtype) {
+                    (TypeInfo::Scalar(s1), TypeInfo::Scalar(s2)) => match (s1, s2) {
+                        (ScalarType::Float32, ScalarType::Float64)
+                        | (ScalarType::Float64, ScalarType::Float32) => {
+                            Ok(TypeInfo::Scalar(ScalarType::Float64))
+                        }
+                        (ScalarType::Integer(x), ScalarType::Integer(y)) => match op {
+                            InfixOp::Add => Ok(TypeInfo::integer(x.lo + y.lo, x.hi + y.hi)),
+                            InfixOp::Sub => Ok(TypeInfo::integer(x.lo - y.lo, x.hi - y.hi)),
+                            InfixOp::Div => Ok(TypeInfo::integer(x.lo / y.lo, x.hi / y.hi)),
+                            InfixOp::Mul => Ok(TypeInfo::integer(x.lo * y.lo, x.hi + y.hi)),
+                            InfixOp::CmpNotEqual => todo!(),
+                            InfixOp::CmpEqual => todo!(),
+                        },
+                        (ScalarType::Character, ScalarType::Character) => {
+                            Ok(TypeInfo::Scalar(ScalarType::Character))
+                        }
+                        _ => Err(CompileError::ArithmeticIncompatible {
+                            left: ltype,
+                            right: rtype,
+                        }),
+                    },
+                    _ => Err(CompileError::ArithmeticIncompatible {
+                        left: ltype,
+                        right: rtype,
+                    }),
+                }
+            }
             _ => todo!(),
         }
     }
 
     pub fn add_node(&mut self, node: &Ast) -> Result<(), CompileError> {
         match node {
-            Ast::Ident(_) => unimplemented!(),
+            Ast::Ident(varname) => {
+                let frame: &mut FrameInfo = self.stackframes.back_mut().expect("no stack frames!");
+                let var = frame.variables.get(varname).unwrap();
+                for word in 0..(var.stack_space / 4) {
+                    frame.operations.push(Op::Ld(
+                        Register::T1,
+                        Register::Fp,
+                        -((var.offset / 4) as i8 + word as i8),
+                    ));
+                    frame.operations.push(Op::Push(Register::T1));
+                }
+            }
             Ast::Repaired(_) | Ast::Error => panic!("error in ast!"),
             Ast::Number(x) => self.frame_mut().operations.push(Op::PushI(*x)),
             Ast::Expr { lhs, op, rhs } => {
@@ -162,7 +207,7 @@ impl Compiler {
                 value,
             } => {
                 let typ = TypeInfo::from_ast(value_type);
-                let val_type = self.expr_type(value);
+                let val_type = self.expr_type(value)?;
                 // TODO no intersect and unit are different things, intersect should return some kind of None or 0 type.
                 if val_type.intersect(&typ) == TypeInfo::Unit {
                     return Err(CompileError::TypeError {
