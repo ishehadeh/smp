@@ -3,3 +3,6 @@
 
 # Editor Configs
 .vscode/
+
+# Other
+/notes/simon_riscv_notes
