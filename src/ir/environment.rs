@@ -1,6 +1,9 @@
-use std::{collections::BTreeMap, rc::Rc};
+use std::collections::BTreeMap;
 
-use crate::typecheck::TypeInfo;
+use crate::{
+    typecheck::TypeInfo,
+    util::idvec::{Id, IdVec},
+};
 
 /// Type name or literal type
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -26,9 +29,12 @@ pub struct ValueCell {
     pub typ: NamedType,
 }
 
+type VReg = Id<ValueCell>;
+
 #[derive(Debug, Clone)]
 pub struct Environment {
     pub scopes: Vec<Scope>,
+    pub virtual_registers: IdVec<ValueCell>,
     pub types: BTreeMap<String, TypeInfo>,
 }
 
@@ -40,7 +46,7 @@ pub struct Function {
 
 #[derive(Default, Clone, Debug)]
 pub struct Scope {
-    pub variables: BTreeMap<String, Rc<ValueCell>>,
+    pub variables: BTreeMap<String, VReg>,
 }
 
 impl Environment {
@@ -69,16 +75,25 @@ impl Environment {
         }
     }
 
+    pub fn alloc_reg(&mut self, typ: NamedType) -> VReg {
+        self.virtual_registers.push(ValueCell { typ })
+    }
+
+    pub fn resolve_type<'a>(&'a self, typename: &'a NamedType) -> &'a TypeInfo {
+        match typename {
+            NamedType::Value(t) => t,
+            NamedType::Named(n) => self.types.get(n).unwrap(), // TODO error dont unwrap
+        }
+    }
+
+    pub fn get_type(&self, vreg: VReg) -> &TypeInfo {
+        self.resolve_type(&self.virtual_registers.get(vreg).typ)
+    }
+
     /// Add a variable to the current scope
-    pub fn add_variable(
-        &mut self,
-        name: impl Into<String>,
-        typ: impl Into<NamedType>,
-    ) -> Rc<ValueCell> {
-        let val = Rc::new(ValueCell { typ: typ.into() });
-        self.current_scope_mut()
-            .variables
-            .insert(name.into(), val.clone());
-        val
+    pub fn add_variable(&mut self, name: impl Into<String>, typ: impl Into<NamedType>) -> VReg {
+        let reg = self.alloc_reg(typ.into());
+        self.current_scope_mut().variables.insert(name.into(), reg);
+        reg
     }
 }

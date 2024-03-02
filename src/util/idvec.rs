@@ -42,7 +42,7 @@ impl<Marker> Ord for Id<Marker> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct IdVec<T, Marker = T> {
     elements: BTreeMap<Id<Marker>, T>,
     next_element_id: usize,
@@ -76,7 +76,7 @@ impl<T, Marker> IdVec<T, Marker> {
         id
     }
 
-    pub fn get(&mut self, id: Id<Marker>) -> &T {
+    pub fn get(&self, id: Id<Marker>) -> &T {
         assert_eq!(id.container_id, self.container_id);
         self.elements.get(&id).unwrap()
     }
