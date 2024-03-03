@@ -1,3 +1,4 @@
+pub mod asmcompiler;
 pub mod compiler;
 pub mod environment;
 pub mod ircompiler;

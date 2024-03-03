@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use crate::{
     parser::InfixOp,
     typecheck::{ScalarType, TypeInfo},
@@ -9,10 +11,35 @@ use super::{
     environment::{Environment, NamedType},
 };
 pub enum IrOp {
+    /// IAdd.0 = IAdd.1 + IAdd.2
     IAdd(VReg, VReg, VReg),
+
+    /// ISub.0 = ISub.1 - ISub.2
     ISub(VReg, VReg, VReg),
+
+    /// IDiv.0 = IDiv.1 / IDiv.2
     IDiv(VReg, VReg, VReg),
+
+    /// IMul.0 = IMul.1 * IMul.2
     IMul(VReg, VReg, VReg),
+
+    /// Using params from Call.2 jump to the absolute offset in Call.1
+    /// storing the return value in  Call.0
+    Call(VReg, VReg, Vec<VReg>),
+}
+
+impl IrOp {
+    pub fn registers(&self) -> BTreeSet<VReg> {
+        match self {
+            IrOp::IAdd(r, a, b)
+            | IrOp::ISub(r, a, b)
+            | IrOp::IDiv(r, a, b)
+            | IrOp::IMul(r, a, b) => BTreeSet::from([*r, *a, *b]),
+            IrOp::Call(r, f, params) => {
+                BTreeSet::from_iter([r, f].into_iter().chain(params.iter()).cloned())
+            }
+        }
+    }
 }
 pub struct IrCompiler<'a> {
     pub environ: &'a mut Environment,

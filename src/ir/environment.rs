@@ -36,11 +36,13 @@ pub struct Environment {
     pub scopes: Vec<Scope>,
     pub virtual_registers: IdVec<ValueCell>,
     pub types: BTreeMap<String, TypeInfo>,
+    pub functions: BTreeMap<String, Function>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Function {
     pub name: String,
+    pub parameters: Vec<NamedType>,
     pub return_type: NamedType,
 }
 
@@ -50,6 +52,15 @@ pub struct Scope {
 }
 
 impl Environment {
+    pub fn new() -> Environment {
+        Environment {
+            scopes: vec![Scope::default()],
+            virtual_registers: IdVec::default(),
+            types: BTreeMap::default(),
+            functions: BTreeMap::default(),
+        }
+    }
+
     pub fn current_scope(&self) -> &Scope {
         self.scopes
             .last()
