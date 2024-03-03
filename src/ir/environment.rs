@@ -29,9 +29,9 @@ pub struct ValueCell {
     pub typ: NamedType,
 }
 
-type VReg = Id<ValueCell>;
+pub type VReg = Id<ValueCell>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Environment {
     pub scopes: Vec<Scope>,
     pub virtual_registers: IdVec<ValueCell>,

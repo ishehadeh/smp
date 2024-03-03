@@ -1,9 +1,7 @@
-use super::environment::{Environment, NamedType, ValueCell};
 use super::vm::{Cond, Op, Register};
 use crate::parser::AnonType;
 use crate::parser::{Ast, InfixOp};
 use crate::typecheck::{ScalarType, TypeInfo};
-use crate::util::idvec::Id;
 use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
@@ -296,60 +294,5 @@ impl Compiler {
 
     pub fn into_program(self) -> Vec<Op> {
         todo!("actually compile the program")
-    }
-}
-
-type VReg = Id<ValueCell>;
-
-pub enum IrOp {
-    IAdd(VReg, VReg, VReg),
-    ISub(VReg, VReg, VReg),
-    IDiv(VReg, VReg, VReg),
-    IMul(VReg, VReg, VReg),
-}
-
-pub struct FrameCompiler<'a> {
-    pub environ: &'a mut Environment,
-    pub ops: Vec<IrOp>,
-}
-
-impl<'a> FrameCompiler<'a> {
-    pub fn new(environ: &'a mut Environment) -> FrameCompiler<'a> {
-        FrameCompiler {
-            environ,
-            ops: Vec::new(),
-        }
-    }
-
-    pub fn add_op(&mut self, op: InfixOp, lhs: VReg, rhs: VReg) -> Result<VReg, CompileError> {
-        let ltyp = self.environ.get_type(lhs);
-        let rtyp = self.environ.get_type(rhs);
-        if !ltyp.is_subset(rtyp) || !rtyp.is_subset(ltyp) {
-            return Err(CompileError::TypeError {
-                left: ltyp.clone(),
-                right: rtyp.clone(),
-            });
-        }
-
-        // we know the left and right types are equivalent now
-        let typ = ltyp;
-
-        let result = if matches!(op, InfixOp::CmpEqual | InfixOp::CmpNotEqual) {
-            self.environ
-                .alloc_reg(NamedType::Value(TypeInfo::Scalar(ScalarType::Boolean)))
-        } else {
-            self.environ.alloc_reg(NamedType::Value(ltyp.clone()))
-        };
-
-        match op {
-            InfixOp::Add => self.ops.push(IrOp::IAdd(result, lhs, rhs)),
-            InfixOp::Sub => self.ops.push(IrOp::ISub(result, rhs, lhs)),
-            InfixOp::Div => self.ops.push(IrOp::IDiv(result, rhs, lhs)),
-            InfixOp::Mul => self.ops.push(IrOp::IMul(result, rhs, lhs)),
-            InfixOp::CmpNotEqual => self.ops.push(IrOp::ISub(result, rhs, lhs)),
-            InfixOp::CmpEqual => todo!(),
-        }
-
-        Ok(result)
     }
 }

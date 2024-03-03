@@ -1,5 +1,6 @@
 pub mod compiler;
 pub mod environment;
+pub mod ircompiler;
 pub mod vm;
 
 #[cfg(test)]
