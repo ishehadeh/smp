@@ -262,6 +262,16 @@ impl<'env> RiscVCompiler<'env> {
         self.emit_frame_setup(&allocs)
     }
 
+    pub fn compile_op(&mut self, op: IrOp) {
+        match op {
+            IrOp::IAdd(r, a, b) => todo!(),
+            IrOp::ISub(_, _, _) => todo!(),
+            IrOp::IDiv(_, _, _) => todo!(),
+            IrOp::IMul(_, _, _) => todo!(),
+            IrOp::Call(_, _, _) => todo!(),
+        }
+    }
+
     pub fn text(&self) -> &str {
         &self.text
     }
