@@ -6,12 +6,12 @@ use crate::parser::AnonType;
 pub struct IntegerType {
     // TODO: allow for integers larger than a single pointer
     // FIXME: sync these field names with the AST integer range names
-    pub lo: usize,
-    pub hi: usize,
+    pub lo: i32,
+    pub hi: i32,
 }
 
 impl IntegerType {
-    pub fn new(lo: usize, hi: usize) -> IntegerType {
+    pub fn new(lo: i32, hi: i32) -> IntegerType {
         IntegerType { lo, hi }
     }
 
@@ -77,7 +77,7 @@ impl TypeInfo {
             _ => todo!(),
         }
     }
-    pub fn integer(lo: usize, hi: usize) -> TypeInfo {
+    pub fn integer(lo: i32, hi: i32) -> TypeInfo {
         TypeInfo::Scalar(ScalarType::Integer(IntegerType::new(lo, hi)))
     }
     pub fn union(types: impl Into<BTreeSet<TypeInfo>>) -> TypeInfo {

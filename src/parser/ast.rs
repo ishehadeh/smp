@@ -3,7 +3,7 @@ use std::{
     sync::atomic::{self, AtomicUsize},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
 pub enum InfixOp {
     Add,
     Sub,
@@ -45,7 +45,7 @@ pub enum AnonType {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {
     // TODO convert this to usize
-    Number(u32),
+    Number(i32),
     Ident(String),
     // TODO: remove this
     Error,

@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt::Write;
 
 use super::{
@@ -366,6 +366,7 @@ impl<'env> RiscVCompiler<'env> {
             IrOp::IDiv(_, _, _) => todo!(),
             IrOp::IMul(_, _, _) => todo!(),
             IrOp::Call(_, _, _) => todo!(),
+            IrOp::IStoreImm(_, _) => todo!(),
         }
     }
 

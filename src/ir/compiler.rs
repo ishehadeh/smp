@@ -100,7 +100,7 @@ impl Compiler {
     pub fn expr_type(&mut self, e: &Ast) -> Result<TypeInfo, CompileError> {
         match e {
             Ast::Ident(a) => Ok(self.frame().variables.get(a).unwrap().typ.clone()),
-            Ast::Number(n) => Ok(TypeInfo::integer(*n as usize, *n as usize)),
+            Ast::Number(n) => Ok(TypeInfo::integer(*n, *n)),
             Ast::Expr { lhs, op, rhs } => {
                 let ltype = self.expr_type(lhs)?;
                 let rtype = self.expr_type(rhs)?;
@@ -152,7 +152,10 @@ impl Compiler {
                 }
             }
             Ast::Repaired(_) | Ast::Error => panic!("error in ast!"),
-            Ast::Number(x) => self.frame_mut().operations.push(Op::PushI(*x)),
+            Ast::Number(x) => self
+                .frame_mut()
+                .operations
+                .push(Op::PushI(u32::from_le_bytes(x.to_le_bytes()))),
             Ast::Expr { lhs, op, rhs } => {
                 self.add_node(lhs)?;
                 self.add_node(rhs)?;

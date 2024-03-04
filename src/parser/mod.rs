@@ -1,6 +1,6 @@
 mod ast;
 mod errors;
-mod lexer;
+pub mod lexer;
 
 lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
 

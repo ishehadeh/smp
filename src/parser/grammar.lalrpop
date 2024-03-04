@@ -228,7 +228,7 @@ pub InfixOp: InfixOp = {
     "==" => InfixOp::CmpEqual,
 }
 
-pub Number: Ast = <s:"literal-int"> => Ast::Number(s.parse::<u32>().unwrap());
+pub Number: Ast = <s:"literal-int"> => Ast::Number(s.parse::<i32>().unwrap());
 pub Ident: Ast = <s:"ident"> => Ast::Ident(s.to_string());
 
 TopLevel: Ast = {
