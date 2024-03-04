@@ -141,7 +141,9 @@ impl<'env> FrameAllocations<'env> {
         }
     }
 
-    pub fn iter_saved_registers(&'_ self) -> impl Iterator<Item = (Register, VReg)> + '_ {
+    pub fn iter_saved_registers(
+        &'_ self,
+    ) -> impl DoubleEndedIterator<Item = (Register, VReg)> + '_ {
         static SAVED_REGISTER_MAP: [Register; 11] = [
             // S0 is frame pointer
             Register::S1,
@@ -266,7 +268,7 @@ impl<'env> RiscVCompiler<'env> {
         .expect("failed to emit instruction, format error")
     }
 
-    fn emit_frame_setup(&mut self, allocs: &FrameAllocations<'env>) {
+    fn emit_func_prelude(&mut self, allocs: &FrameAllocations<'env>) {
         let frame_header_size = allocs.required_stack_space();
         assert!(frame_header_size <= 2048); // TODO allow bigger frames, or fail with a hard error, since no function should use 2kb of stack space lmao.
 
@@ -283,14 +285,30 @@ impl<'env> RiscVCompiler<'env> {
         }
     }
 
+    fn emit_func_epilogue(&mut self, allocs: &FrameAllocations<'env>) {
+        let mut store_offset: i16 = 0;
+
+        for (reg, _) in allocs.iter_saved_registers() {
+            self.emit_load_register(reg, Register::Fp, store_offset);
+            store_offset += 4;
+        }
+
+        self.emit_load_register(Register::Fp, Register::Fp, store_offset);
+
+        let frame_header_size = allocs.required_stack_space() as i16;
+        self.emit_stack_shift(frame_header_size);
+        writeln!(self.text, "ret").expect("write failed");
+    }
+
     pub fn compile_frame(&mut self, name: &str, ops: &[IrOp]) {
         writeln!(self.text, ".globl {}", name).unwrap();
         writeln!(self.text, "{}:", name).unwrap();
         let allocs = self.alloc_vregs(ops);
-        self.emit_frame_setup(&allocs);
+        self.emit_func_prelude(&allocs);
         for op in ops {
             self.compile_op(&allocs, op.clone())
         }
+        self.emit_func_epilogue(&allocs);
     }
 
     pub fn get_free_temporaries(&mut self) -> HashSet<Register> {
@@ -430,7 +448,7 @@ mod test {
         let ops = [IrOp::IAdd(r, a, b), IrOp::IAdd(r, c, r)];
 
         let allocs = compiler.alloc_vregs(&ops);
-        compiler.emit_frame_setup(&allocs);
+        compiler.emit_func_prelude(&allocs);
         assert_eq!(
             compiler.text(),
             r"addi sp, sp, -20
