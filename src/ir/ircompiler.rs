@@ -10,6 +10,8 @@ use super::{
     compiler::CompileError,
     environment::{Environment, NamedType},
 };
+
+#[derive(Clone, Debug)]
 pub enum IrOp {
     /// IAdd.0 = IAdd.1 + IAdd.2
     IAdd(VReg, VReg, VReg),

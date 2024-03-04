@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fmt::Write;
 
 use super::{
@@ -6,7 +6,7 @@ use super::{
     ircompiler::{IrOp, VReg},
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
 pub enum Register {
     Zero = 0,
@@ -112,6 +112,8 @@ pub struct RiscVCompiler<'env> {
     /// text section of the output asm
     text: String,
     environ: &'env Environment,
+
+    temporaries: HashMap<VReg, Register>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -122,8 +124,8 @@ pub struct StackAllocation {
 
 #[derive(Clone, Debug)]
 pub struct FrameAllocations<'env> {
-    /// Allocations of the x18-x27 registers (ABI: s1-s11), followed by the 6 temporary registers
-    saved_registers: [Option<VReg>; 16],
+    /// Allocations of the x18-x27 registers (ABI: s1-s11)
+    saved_registers: [Option<VReg>; 11],
 
     stack: Vec<VReg>,
 
@@ -133,14 +135,14 @@ pub struct FrameAllocations<'env> {
 impl<'env> FrameAllocations<'env> {
     pub fn new(environ: &'env Environment) -> FrameAllocations<'env> {
         FrameAllocations {
-            saved_registers: [None; 16],
+            saved_registers: [None; 11],
             stack: Vec::default(),
             environ,
         }
     }
 
     pub fn iter_saved_registers(&'_ self) -> impl Iterator<Item = (Register, VReg)> + '_ {
-        static SAVED_REGISTER_MAP: [Register; 16] = [
+        static SAVED_REGISTER_MAP: [Register; 11] = [
             // S0 is frame pointer
             Register::S1,
             Register::S2,
@@ -153,11 +155,6 @@ impl<'env> FrameAllocations<'env> {
             Register::S9,
             Register::S10,
             Register::S11,
-            Register::T0,
-            Register::T1,
-            Register::T2,
-            Register::T3,
-            Register::T4,
         ];
         self.saved_registers
             .iter()
@@ -181,6 +178,23 @@ impl<'env> FrameAllocations<'env> {
             .sum()
     }
 
+    pub fn stack_offset_of(&self, vreg: VReg) -> Option<usize> {
+        let pos = self
+            .stack
+            .iter()
+            .enumerate()
+            .find(|(_, p)| **p == vreg)
+            .map(|(i, _)| i);
+
+        pos.map(|offset| {
+            self.stack
+                .iter()
+                .take(offset)
+                .map(|r| self.environ.get_type(*r).get_size())
+                .sum()
+        })
+    }
+
     /// Total space needed to hold the frame info
     pub fn required_stack_space(&self) -> usize {
         self.saved_register_count() * 4 + self.stack_allocation_size()
@@ -192,6 +206,7 @@ impl<'env> RiscVCompiler<'env> {
         RiscVCompiler {
             environ,
             text: String::new(),
+            temporaries: HashMap::new(),
         }
     }
 
@@ -238,6 +253,19 @@ impl<'env> RiscVCompiler<'env> {
         .expect("failed to emit instruction, format error")
     }
 
+    fn emit_load_register(&mut self, target: Register, src: Register, offset: i16) {
+        assert!((-2048_i16..2048_i16).contains(&offset));
+
+        writeln!(
+            self.text,
+            "lw {}, {}({})",
+            target.to_abi_name(),
+            offset,
+            src.to_abi_name()
+        )
+        .expect("failed to emit instruction, format error")
+    }
+
     fn emit_frame_setup(&mut self, allocs: &FrameAllocations<'env>) {
         let frame_header_size = allocs.required_stack_space();
         assert!(frame_header_size <= 2048); // TODO allow bigger frames, or fail with a hard error, since no function should use 2kb of stack space lmao.
@@ -259,12 +287,81 @@ impl<'env> RiscVCompiler<'env> {
         self.text.push_str(name);
         self.text.push_str(":\n");
         let allocs = self.alloc_vregs(ops);
-        self.emit_frame_setup(&allocs)
+        self.emit_frame_setup(&allocs);
+        for op in ops {
+            self.compile_op(&allocs, op.clone())
+        }
     }
 
-    pub fn compile_op(&mut self, op: IrOp) {
+    pub fn get_free_temporaries(&mut self) -> HashSet<Register> {
+        static TEMPORARY_REGISTER: [Register; 6] = [
+            Register::T0,
+            Register::T1,
+            Register::T2,
+            Register::T3,
+            Register::T4,
+            Register::T5,
+        ];
+
+        let mut free_temporaries = HashSet::from(TEMPORARY_REGISTER);
+        for t in self.temporaries.values() {
+            free_temporaries.remove(t);
+        }
+
+        free_temporaries
+    }
+
+    /// Allocate a temporary register
+    pub fn take_temporary(&mut self, vreg: VReg) -> Register {
+        // TODO: free a temporary if they're all in use
+        let t = self
+            .get_free_temporaries()
+            .iter()
+            .copied()
+            .nth(0)
+            .expect("No free temporaries");
+        self.temporaries.insert(vreg, t);
+        t
+    }
+
+    pub fn release_temporary(&mut self, r: VReg) {
+        self.temporaries.remove(&r);
+    }
+
+    pub fn use_word(&mut self, vreg: VReg, alloc: &FrameAllocations<'env>) -> Register {
+        let vreg_hw_register = alloc
+            .iter_saved_registers()
+            .find(|&(_, mapped_vreg)| mapped_vreg == vreg)
+            .map(|(reg, _)| reg);
+        if let Some(vreg_hw_register) = vreg_hw_register {
+            vreg_hw_register
+        } else if let Some(stack_offset) = alloc.stack_offset_of(vreg) {
+            assert!(stack_offset <= 2048);
+
+            let t = self.take_temporary(vreg);
+            self.emit_load_register(t, Register::Fp, -(stack_offset as i16));
+            t
+        } else {
+            panic!("could not find virtual register in stack frame"); // TODO: error handling
+        }
+    }
+
+    pub fn compile_op(&mut self, alloc: &FrameAllocations<'env>, op: IrOp) {
         match op {
-            IrOp::IAdd(r, a, b) => todo!(),
+            IrOp::IAdd(r, a, b) => {
+                let a_reg = self.use_word(a, alloc);
+                let b_reg = self.use_word(b, alloc);
+                let r_reg = self.use_word(r, alloc);
+
+                writeln!(
+                    self.text,
+                    "add {}, {}, {}",
+                    r_reg.to_abi_name(),
+                    a_reg.to_abi_name(),
+                    b_reg.to_abi_name()
+                )
+                .expect("write failed");
+            }
             IrOp::ISub(_, _, _) => todo!(),
             IrOp::IDiv(_, _, _) => todo!(),
             IrOp::IMul(_, _, _) => todo!(),
@@ -324,6 +421,34 @@ mod test {
         // r = a + b + c;
         let ops = [IrOp::IAdd(r, a, b), IrOp::IAdd(r, c, r)];
 
+        let allocs = compiler.alloc_vregs(&ops);
+        compiler.emit_frame_setup(&allocs);
+        assert_eq!(
+            compiler.text(),
+            r"addi sp, sp, -20
+sw fp, 16(sp)
+sw s1, 12(sp)
+sw s2, 8(sp)
+sw s3, 4(sp)
+sw s4, 0(sp)
+"
+        )
+    }
+
+    #[test]
+    fn emit_add_op() {
+        let mut environ = Environment::new();
+        let t: NamedType = TypeInfo::integer(0, 100).into();
+        let r = environ.alloc_reg(t.clone());
+        let a = environ.alloc_reg(t.clone());
+        let b = environ.alloc_reg(t.clone());
+        let c = environ.alloc_reg(t.clone());
+
+        let mut compiler = RiscVCompiler::new(&environ);
+
+        // r = a + b + c;
+        let ops = [IrOp::IAdd(r, a, b), IrOp::IAdd(r, c, r)];
+
         compiler.compile_frame("test", &ops);
         assert_eq!(
             compiler.text(),
@@ -334,6 +459,8 @@ sw s1, 12(sp)
 sw s2, 8(sp)
 sw s3, 4(sp)
 sw s4, 0(sp)
+add s1, s2, s4
+add s1, s3, s1
 "
         )
     }
