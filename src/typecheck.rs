@@ -93,6 +93,7 @@ impl TypeInfo {
     pub fn get_size(&self) -> usize {
         match self {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
+            TypeInfo::Unit => 0,
             _ => todo!(),
         }
     }

@@ -220,7 +220,7 @@ impl<'env> RiscVCompiler<'env> {
         let mut i = 0;
         for &vreg in all_vregs.iter() {
             // if possible put the value in the next available register
-            if i < 14 && self.environ.get_type(vreg).get_size() <= 4 {
+            if i < allocs.saved_registers.len() && self.environ.get_type(vreg).get_size() <= 4 {
                 allocs.saved_registers[i] = Some(vreg);
                 i += 1;
             } else {
@@ -284,8 +284,8 @@ impl<'env> RiscVCompiler<'env> {
     }
 
     pub fn compile_frame(&mut self, name: &str, ops: &[IrOp]) {
-        self.text.push_str(name);
-        self.text.push_str(":\n");
+        writeln!(self.text, ".globl {}", name).unwrap();
+        writeln!(self.text, "{}:", name).unwrap();
         let allocs = self.alloc_vregs(ops);
         self.emit_frame_setup(&allocs);
         for op in ops {
@@ -331,6 +331,7 @@ impl<'env> RiscVCompiler<'env> {
     pub fn use_word(&mut self, vreg: VReg, alloc: &FrameAllocations<'env>) -> Register {
         let vreg_hw_register = alloc
             .iter_saved_registers()
+            .chain(self.temporaries.iter().map(|(a, b)| (*b, *a)))
             .find(|&(_, mapped_vreg)| mapped_vreg == vreg)
             .map(|(reg, _)| reg);
         if let Some(vreg_hw_register) = vreg_hw_register {
@@ -361,12 +362,18 @@ impl<'env> RiscVCompiler<'env> {
                     b_reg.to_abi_name()
                 )
                 .expect("write failed");
+                for r in [a, b] {
+                    self.release_temporary(r)
+                }
             }
             IrOp::ISub(_, _, _) => todo!(),
             IrOp::IDiv(_, _, _) => todo!(),
             IrOp::IMul(_, _, _) => todo!(),
             IrOp::Call(_, _, _) => todo!(),
-            IrOp::IStoreImm(_, _) => todo!(),
+            IrOp::IStoreImm(l, val) => {
+                let l_reg = self.use_word(l, alloc);
+                writeln!(self.text, "li {}, {}", l_reg.to_abi_name(), val).expect("write failed");
+            }
         }
     }
 

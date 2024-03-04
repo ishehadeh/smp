@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     parser::{Ast, InfixOp},
@@ -8,7 +8,7 @@ use crate::{
 pub use super::environment::VReg;
 use super::{
     compiler::CompileError,
-    environment::{Environment, NamedType},
+    environment::{Environment, Function, NamedType},
 };
 
 #[derive(Clone, Debug)]
@@ -28,9 +28,9 @@ pub enum IrOp {
     /// store an immediate integer in a virtual register
     IStoreImm(VReg, i32),
 
-    /// Using params from Call.2 jump to the absolute offset in Call.1
+    /// Using params from Call.2 invoke the function in call.1
     /// storing the return value in  Call.0
-    Call(VReg, VReg, Vec<VReg>),
+    Call(VReg, String, Vec<VReg>),
 }
 
 impl IrOp {
@@ -41,8 +41,8 @@ impl IrOp {
             | IrOp::IDiv(r, a, b)
             | IrOp::IMul(r, a, b) => BTreeSet::from([*r, *a, *b]),
             IrOp::IStoreImm(r, _) => BTreeSet::from([*r]),
-            IrOp::Call(r, f, params) => {
-                BTreeSet::from_iter([r, f].into_iter().chain(params.iter()).cloned())
+            IrOp::Call(r, _, params) => {
+                BTreeSet::from_iter([r].into_iter().chain(params.iter()).cloned())
             }
         }
     }
@@ -52,6 +52,8 @@ impl IrOp {
 pub struct IrCompiler<'a> {
     pub environ: &'a mut Environment,
     pub ops: Vec<IrOp>,
+
+    pub functions: HashMap<String, Vec<IrOp>>,
 }
 
 impl<'a> IrCompiler<'a> {
@@ -59,19 +61,61 @@ impl<'a> IrCompiler<'a> {
         IrCompiler {
             environ,
             ops: Vec::new(),
+
+            functions: HashMap::default(),
         }
+    }
+
+    pub fn compile_program(&mut self, ops: &[Ast]) -> Result<(), CompileError> {
+        for op in ops {
+            match op {
+                Ast::DefFunction {
+                    name,
+                    params: _params,
+                    return_type: _return_type,
+                    body,
+                } => {
+                    // TODO: params
+                    self.environ.functions.insert(
+                        name.clone(),
+                        Function {
+                            name: name.clone(),
+                            parameters: vec![],
+                            return_type: TypeInfo::Unit.into(),
+                        },
+                    );
+
+                    let _ret = self.compile_expr(body)?;
+                    // TODO: actually return value here
+                    self.functions.insert(name.clone(), self.ops.to_owned());
+                    self.ops.clear();
+                }
+                Ast::Number(_) => todo!(),
+                Ast::Ident(_) => todo!(),
+                Ast::Error => todo!(),
+                Ast::Repaired(_) => todo!(),
+                Ast::Block { .. } => todo!(),
+                Ast::StmtIf { .. } => todo!(),
+                Ast::ExprCall { .. } => todo!(),
+                Ast::StmtLet { .. } => todo!(),
+                Ast::DefType { .. } => todo!(),
+                Ast::Expr { .. } => todo!(),
+                Ast::Program { .. } => todo!(),
+            }
+        }
+
+        Ok(())
     }
 
     pub fn compile_expr(&mut self, expr: &Ast) -> Result<VReg, CompileError> {
         match expr {
             Ast::Number(x) => Ok(self.add_store_integer_imm(*x)),
-            Ast::Ident(varname) => Ok(self
+            Ast::Ident(varname) => Ok(*self
                 .environ
                 .current_scope()
                 .variables
                 .get(varname)
-                .expect("no such variable")
-                .clone()), // TODO error checking
+                .expect("no such variable")), // TODO error checking
             Ast::Expr { lhs, op, rhs } => {
                 let lhs_vreg = self.compile_expr(lhs)?;
                 let rhs_vreg = self.compile_expr(rhs)?;
@@ -81,7 +125,21 @@ impl<'a> IrCompiler<'a> {
             Ast::Error => todo!(),
             Ast::Repaired(_) => todo!(),
             Ast::DefFunction { .. } => todo!(),
-            Ast::Block { .. } => todo!(),
+            Ast::Block {
+                statements,
+                returns,
+            } => {
+                let mut last_result = None;
+                for stmt in statements {
+                    last_result = Some(self.compile_expr(stmt)?);
+                }
+                if let Some(last_result) = last_result {
+                    if *returns {
+                        return Ok(last_result);
+                    }
+                }
+                Ok(self.environ.unit_reg())
+            }
             Ast::StmtIf { .. } => todo!(),
             Ast::ExprCall { .. } => todo!(),
             Ast::StmtLet { .. } => todo!(),

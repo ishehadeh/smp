@@ -34,9 +34,11 @@ pub type VReg = Id<ValueCell>;
 #[derive(Debug, Clone, Default)]
 pub struct Environment {
     pub scopes: Vec<Scope>,
+    // figure out how these can be freed
     pub virtual_registers: IdVec<ValueCell>,
     pub types: BTreeMap<String, TypeInfo>,
     pub functions: BTreeMap<String, Function>,
+    unit_reg: Option<VReg>,
 }
 
 #[derive(Debug, Clone)]
@@ -58,7 +60,18 @@ impl Environment {
             virtual_registers: IdVec::default(),
             types: BTreeMap::default(),
             functions: BTreeMap::default(),
+            unit_reg: None,
         }
+    }
+
+    pub fn unit_reg(&mut self) -> VReg {
+        if let Some(r) = self.unit_reg {
+            return r;
+        }
+
+        let reg = self.alloc_reg(TypeInfo::Unit.into());
+        self.unit_reg = Some(reg);
+        reg
     }
 
     pub fn current_scope(&self) -> &Scope {

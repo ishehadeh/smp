@@ -1,5 +1,40 @@
-use reed::greeting;
+use std::{
+    env,
+    io::{self, Read},
+};
+
+use reed::{
+    ir::{asmcompiler::RiscVCompiler, environment::Environment, ircompiler::IrCompiler},
+    parser::Ast,
+};
 
 fn main() {
-    println!("{}", greeting());
+    let mut program = String::new();
+    if let Some(arg1) = env::args().nth(1) {
+        program.push_str(&arg1);
+    } else {
+        io::stdin().read_to_string(&mut program).unwrap();
+    };
+    let result: reed::parser::ParseResult = reed::parser::parse(&program);
+    dbg!(result.errors);
+    dbg!(program);
+
+    let mut environ = Environment::new();
+    let mut ircompiler = IrCompiler::new(&mut environ);
+
+    match result.ast {
+        Ast::Program { definitions } => ircompiler
+            .compile_program(&definitions)
+            .expect("failed to compile from ast to ir"),
+        _ => panic!("expected top-level program"),
+    };
+
+    let IrCompiler { functions, .. } = ircompiler;
+
+    let mut compiler = RiscVCompiler::new(&environ);
+    for (func_name, func_ir) in functions.iter() {
+        compiler.compile_frame(func_name, func_ir)
+    }
+
+    println!(".text\n{}", compiler.text())
 }

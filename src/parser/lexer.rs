@@ -60,7 +60,7 @@ pub enum Token<'input> {
     #[token("/")]
     OperatorDiv,
 
-    #[regex(r"[ \t\n\f]+", |lex| lex.slice())]
+    #[regex(r"[ \t\r\n\f]+", |lex| lex.slice())]
     Whitespace(&'input str),
 }
 
