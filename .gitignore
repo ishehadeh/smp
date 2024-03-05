@@ -1,6 +1,9 @@
 # Compiler Output
 /target
 
+# scripts/hltc-debug-qemu.sh output
+/out/
+
 # Editor Configs
 .vscode/
 
