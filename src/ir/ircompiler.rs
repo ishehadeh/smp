@@ -141,7 +141,11 @@ impl<'a> IrCompiler<'a> {
                 Ok(self.environ.unit_reg())
             }
             Ast::StmtIf { .. } => todo!(),
-            Ast::ExprCall { .. } => todo!(),
+            Ast::ExprCall { function_name, .. } => {
+                let r = self.environ.unit_reg();
+                self.ops.push(IrOp::Call(r, function_name.clone(), vec![]));
+                Ok(r)
+            }
             Ast::StmtLet { .. } => todo!(),
             Ast::DefType { .. } => todo!(),
             Ast::Program { .. } => todo!(),

@@ -286,18 +286,20 @@ impl<'env> RiscVCompiler<'env> {
     }
 
     fn emit_func_epilogue(&mut self, allocs: &FrameAllocations<'env>) {
-        let mut store_offset: i16 = 0;
+        let frame_header_size = allocs.required_stack_space() as i16;
+        assert!(frame_header_size <= 2048); // TODO: (again) allow bigger frames, see emit_func_prelude TODO
+
+        let mut store_offset: i16 = frame_header_size - 4;
+
+        self.emit_load_register(Register::Fp, Register::Sp, store_offset);
 
         for (reg, _) in allocs.iter_saved_registers() {
-            self.emit_load_register(reg, Register::Fp, store_offset);
-            store_offset += 4;
+            self.emit_load_register(reg, Register::Sp, store_offset);
+            store_offset -= 4;
         }
 
-        self.emit_load_register(Register::Fp, Register::Fp, store_offset);
-
-        let frame_header_size = allocs.required_stack_space() as i16;
         self.emit_stack_shift(frame_header_size);
-        writeln!(self.text, "ret").expect("write failed");
+        writeln!(self.text, "jr ra").expect("write failed");
     }
 
     pub fn compile_frame(&mut self, name: &str, ops: &[IrOp]) {
@@ -387,7 +389,9 @@ impl<'env> RiscVCompiler<'env> {
             IrOp::ISub(_, _, _) => todo!(),
             IrOp::IDiv(_, _, _) => todo!(),
             IrOp::IMul(_, _, _) => todo!(),
-            IrOp::Call(_, _, _) => todo!(),
+            IrOp::Call(_ret, name, _params) => {
+                writeln!(self.text, "jal zero,{}", name).expect("write failed");
+            }
             IrOp::IStoreImm(l, val) => {
                 let l_reg = self.use_word(l, alloc);
                 writeln!(self.text, "li {}, {}", l_reg.to_abi_name(), val).expect("write failed");

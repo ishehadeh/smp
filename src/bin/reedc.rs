@@ -8,6 +8,13 @@ use reed::{
     parser::Ast,
 };
 
+const DEBUG_PRELUDE: &'static str = r"
+.globl __hw_breakpoint
+__hw_breakpoint:
+    ebreak
+    jr ra
+";
+
 fn main() {
     let mut program = String::new();
     if let Some(arg1) = env::args().nth(1) {
@@ -36,5 +43,5 @@ fn main() {
         compiler.compile_frame(func_name, func_ir)
     }
 
-    println!(".text\n{}", compiler.text())
+    println!(".text\n{}\n{}", compiler.text(), DEBUG_PRELUDE)
 }

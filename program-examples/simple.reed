@@ -1,6 +1,9 @@
 func __libc_start_main(): unit {
-
+    main();
+    __hw_breakpoint();
 }
+
+
 func main(): unit {
-    
+    1 + 1;
 }
