@@ -1,4 +1,4 @@
-# Reed Programming Language
+# The Howlite Programming Language
 
 A simple, low-level systems programming language.
 

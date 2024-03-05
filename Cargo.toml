@@ -1,5 +1,5 @@
 [package]
-name = "reed"
+name = "howlite"
 version = "0.1.0"
 edition = "2021"
 
@@ -21,5 +21,9 @@ lalrpop = "0.20.0"
 cli = ["clap"]
 
 [[bin]]
-name = "reedi"
+name = "hltc"
+required-features = ["cli"]
+
+[[bin]]
+name = "hlti"
 required-features = ["cli"]

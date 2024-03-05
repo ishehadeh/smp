@@ -1,15 +1,15 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(name = "reedi")]
+#[command(name = "hlti")]
 #[command(author = "Ian Shehadeh <ian@shehadeh.net>")]
 #[command(version = "0.0")]
-#[command(about = "reed programming language interpreter")]
+#[command(about = "Howlite programming language interpreter")]
 struct Args {
     program: String,
 }
 
-use reed::{
+use howlite::{
     ir::{compiler, vm::Vm},
     parser::parse,
 };

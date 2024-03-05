@@ -3,7 +3,7 @@ use std::{
     io::{self, Read},
 };
 
-use reed::{
+use howlite::{
     ir::{asmcompiler::RiscVCompiler, environment::Environment, ircompiler::IrCompiler},
     parser::Ast,
 };
@@ -22,7 +22,7 @@ fn main() {
     } else {
         io::stdin().read_to_string(&mut program).unwrap();
     };
-    let result: reed::parser::ParseResult = reed::parser::parse(&program);
+    let result: howlite::parser::ParseResult = howlite::parser::parse(&program);
     dbg!(result.errors);
     dbg!(program);
 

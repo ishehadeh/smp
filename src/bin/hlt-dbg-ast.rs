@@ -9,7 +9,7 @@ pub fn main() {
     } else {
         io::stdin().read_to_string(&mut program).unwrap();
     };
-    let result = reed::parser::parse(&program);
+    let result = howlite::parser::parse(&program);
     println!("ast = {:#?}", result.ast);
     println!("errors = {:#?}", result.errors);
 }

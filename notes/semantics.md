@@ -1,4 +1,4 @@
-# Semantics of ReedLang
+# Semantics of Howlite
 
 ## Feature: Polymorphism
 
@@ -111,12 +111,12 @@ TODO
 
 ## Name Aliasing
 
-Reed does not support namespaces - exactly.
+Howlite does not support namespaces - exactly.
 
 One of the primary goals of this language is easy interoperation with other languages.
 As a result, the names (and calling conventions (TODO)) of compiled functions and values should be transparent.
 
-But namespaces are nice! So, Reed implements a similar scheme to Zig:
+But namespaces are nice! So, Howlite implements a similar scheme to Zig:
 Modules and type members are syntactic sugar for `<Container>_Member`.
 
 ## References
