@@ -38,7 +38,7 @@ impl<Marker> PartialOrd for Id<Marker> {
 
 impl<Marker> Ord for Id<Marker> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.container_id.cmp(&other.element_id)
+        self.element_id.cmp(&other.element_id)
     }
 }
 
@@ -76,6 +76,10 @@ impl<T, Marker> IdVec<T, Marker> {
         id
     }
 
+    pub fn iter(&self) -> impl Iterator<Item = (Id<Marker>, &T)> {
+        self.elements.iter().map(|(id, x)| (*id, x))
+    }
+
     pub fn get(&self, id: Id<Marker>) -> &T {
         assert_eq!(id.container_id, self.container_id);
         self.elements.get(&id).unwrap()
@@ -85,5 +89,24 @@ impl<T, Marker> IdVec<T, Marker> {
 impl<T, Marker> Default for IdVec<T, Marker> {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::IdVec;
+
+    #[test]
+    fn idvec_push_get() {
+        let mut vec: IdVec<usize> = IdVec::new();
+        let a = vec.push(1);
+        let b = vec.push(2);
+        let c = vec.push(3);
+        let d = vec.push(4);
+
+        assert_eq!(*vec.get(a), 1);
+        assert_eq!(*vec.get(b), 2);
+        assert_eq!(*vec.get(c), 3);
+        assert_eq!(*vec.get(d), 4);
     }
 }
