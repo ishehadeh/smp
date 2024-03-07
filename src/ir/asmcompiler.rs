@@ -70,6 +70,19 @@ pub enum Register {
 }
 
 impl Register {
+    pub fn is_callee_saved(&self) -> bool {
+        // TODO there are more callee registers I THINK
+        matches!(
+            self,
+            Register::S1
+                | Register::S2
+                | Register::S3
+                | Register::S4
+                | Register::S5
+                | Register::S6
+                | Register::S7
+        )
+    }
     pub fn to_abi_name(&self) -> &'static str {
         match self {
             Register::Zero => "zero",
@@ -243,7 +256,12 @@ impl RiscVCompiler {
         self.emit_store_register(Register::Fp, Register::Sp, store_offset);
         store_offset -= 4;
 
-        for (_, &reg) in allocs.register_allocations.forward() {
+        for (_, &reg) in allocs
+            .register_allocations
+            .forward()
+            .iter()
+            .filter(|(_, reg)| reg.is_callee_saved())
+        {
             self.emit_store_register(reg, Register::Sp, store_offset);
             store_offset -= 4;
         }
@@ -258,7 +276,12 @@ impl RiscVCompiler {
         self.emit_load_register(Register::Fp, Register::Sp, store_offset);
         store_offset -= 4;
 
-        for (_, &reg) in allocs.register_allocations.forward() {
+        for (_, &reg) in allocs
+            .register_allocations
+            .forward()
+            .iter()
+            .filter(|(_, reg)| reg.is_callee_saved())
+        {
             self.emit_load_register(reg, Register::Sp, store_offset);
             store_offset -= 4;
         }
