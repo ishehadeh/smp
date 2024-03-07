@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt::Write;
 use std::hash::Hash;
 
@@ -195,18 +195,31 @@ impl RiscVCompiler {
             Register::A7,
         ];
 
-        let mut allocs = FrameAllocations::new();
-        let mut i = 0;
-        for (inp, _) in frame.registers.iter() {
-            if frame.get_type(inp).get_size() <= 4 {
-                allocs.register_allocations.insert(inp, PARAM_REGISTERS[i]);
-                i += 1;
-            }
+        let mut alloc_queue: Vec<Register> = PARAM_REGISTERS.iter().rev().copied().collect();
 
-            if i >= PARAM_REGISTERS.len() {
-                break;
+        let mut allocs = FrameAllocations::new();
+        for &vreg in frame.inputs.iter() {
+            if frame.get_type(vreg).get_size() <= 4 {
+                let reg = alloc_queue.pop().unwrap(); // TODO break instead of unwrapping
+                allocs.register_allocations.insert(vreg, reg);
+            } else {
+                todo!("stack allocate, or double-up")
             }
         }
+        for (vreg, _) in frame.registers.iter() {
+            if allocs.register_allocations.forward().get(&vreg).is_some() {
+                continue;
+            }
+
+            if frame.get_type(vreg).get_size() <= 4 {
+                let reg = alloc_queue.pop().unwrap(); // TODO break instead of unwrapping
+                allocs.register_allocations.insert(vreg, reg);
+            } else {
+                todo!("stack allocate, or double-up")
+            }
+        }
+
+        // TODO stack allocations
 
         allocs
     }

@@ -41,7 +41,7 @@ fn main() {
     };
 
     let IrCompiler { functions, .. } = ircompiler;
-
+    dbg!(&functions);
     let mut compiler = RiscVCompiler::new();
     for (func_name, func_ir) in functions.iter() {
         compiler.compile_frame(func_name, func_ir)
