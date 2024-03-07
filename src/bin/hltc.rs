@@ -4,7 +4,7 @@ use std::{
 };
 
 use howlite::{
-    ir::{asmcompiler::RiscVCompiler, environment::Environment, ircompiler::IrCompiler},
+    ir::{asmcompiler::RiscVCompiler, ircompiler::IrCompiler},
     parser::Ast,
 };
 
@@ -26,19 +26,23 @@ fn main() {
     dbg!(result.errors);
     dbg!(program);
 
-    let mut environ = Environment::new();
-    let mut ircompiler = IrCompiler::new(&mut environ);
+    let mut ircompiler = IrCompiler::new();
 
     match result.ast {
-        Ast::Program { definitions } => ircompiler
-            .compile_program(&definitions)
-            .expect("failed to compile from ast to ir"),
+        Ast::Program { definitions } => {
+            ircompiler
+                .scan_declarations(definitions.iter())
+                .expect("failed to compile from ast to ir");
+            ircompiler
+                .compile_functions(definitions.iter())
+                .expect("failde to compile functions")
+        }
         _ => panic!("expected top-level program"),
     };
 
     let IrCompiler { functions, .. } = ircompiler;
 
-    let mut compiler = RiscVCompiler::new(&environ);
+    let mut compiler = RiscVCompiler::new();
     for (func_name, func_ir) in functions.iter() {
         compiler.compile_frame(func_name, func_ir)
     }

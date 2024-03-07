@@ -39,6 +39,21 @@ pub enum ScalarType {
     Boolean,
 }
 
+impl ScalarType {
+    pub fn add(&self, rhs: &ScalarType) -> Option<ScalarType> {
+        match (self, rhs) {
+            (ScalarType::Integer(a), ScalarType::Integer(b)) => {
+                Some(ScalarType::Integer(IntegerType {
+                    lo: a.lo + b.lo,
+                    hi: a.hi + b.hi,
+                }))
+            }
+            (a, b) if a == b => Some(a.clone()),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UnionType {
     pub types: BTreeSet<TypeInfo>,
@@ -74,7 +89,12 @@ impl TypeInfo {
                 inclusive_low.parse().unwrap(),
                 inclusive_high.parse().unwrap(),
             ),
-            _ => todo!(),
+            // TODO: unit keyword type
+            AnonType::TypeReference {
+                name,
+                parameters: _,
+            } if name == "unit" => TypeInfo::Unit,
+            a => panic!("TODO: from_ast for {:?}", a),
         }
     }
     pub fn integer(lo: i32, hi: i32) -> TypeInfo {

@@ -272,6 +272,7 @@ dependencies = [
  "lalrpop",
  "lalrpop-util",
  "logos",
+ "petgraph",
  "thiserror",
 ]
 
