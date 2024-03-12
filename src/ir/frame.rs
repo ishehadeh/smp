@@ -7,7 +7,7 @@ use crate::{
 };
 
 use super::{
-    values::{NamedType, VReg, Value, ValueCell},
+    values::{VReg, Value, ValueCell},
     CompileError, IrOp,
 };
 
@@ -29,15 +29,9 @@ pub struct Scope {
 }
 
 impl FrameData {
-    pub fn resolve_type<'a>(&'a self, typename: &'a NamedType) -> &'a TypeInfo {
-        match typename {
-            NamedType::Value(t) => t,
-            NamedType::Named(_) => todo!("removed name type"),
-        }
-    }
-
-    pub fn get_type(&self, vreg: VReg) -> &TypeInfo {
-        self.resolve_type(&self.registers.get(vreg).typ)
+    /// Get the value cell associated with a given register
+    pub fn cell(&self, vreg: VReg) -> &ValueCell {
+        self.registers.get(vreg)
     }
 }
 
@@ -52,13 +46,13 @@ impl FrameCompiler {
     pub fn from_function_declaration(decl: &FunctionDeclaration) -> FrameCompiler {
         let mut registers = IdVec::default();
         let unit_register = registers.push(ValueCell {
-            typ: TypeInfo::Unit.into(),
+            typ: TypeInfo::Unit,
         });
         let output = if decl.returns == TypeInfo::Unit {
             unit_register
         } else {
             registers.push(ValueCell {
-                typ: decl.returns.clone().into(),
+                typ: decl.returns.clone(),
             })
         };
 
@@ -72,9 +66,7 @@ impl FrameCompiler {
 
         let mut top_scope = Scope::default();
         for (name, typ) in &decl.paramaters {
-            let reg = frame.registers.push(ValueCell {
-                typ: typ.clone().into(),
-            });
+            let reg = frame.registers.push(ValueCell { typ: typ.clone() });
             top_scope.variables.insert(name.clone(), reg);
             frame.inputs.push(reg);
         }
@@ -184,7 +176,7 @@ impl FrameCompiler {
     }
 
     pub fn allocate_register(&mut self, typ: TypeInfo) -> VReg {
-        self.frame.registers.push(ValueCell { typ: typ.into() })
+        self.frame.registers.push(ValueCell { typ })
     }
 
     pub fn add_store_integer_imm(&mut self, value: i32) -> VReg {
@@ -194,8 +186,8 @@ impl FrameCompiler {
     }
 
     pub fn add_op(&mut self, op: InfixOp, lhs: VReg, rhs: VReg) -> Result<VReg, CompileError> {
-        let ltyp = self.frame.get_type(lhs);
-        let rtyp = self.frame.get_type(rhs);
+        let ltyp = &self.frame.cell(lhs).typ;
+        let rtyp = &self.frame.cell(rhs).typ;
         let result_type = match (ltyp, rtyp) {
             (TypeInfo::Scalar(lhs), TypeInfo::Scalar(rhs)) => match op {
                 InfixOp::Add => lhs.add(rhs),

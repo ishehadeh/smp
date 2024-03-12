@@ -209,7 +209,7 @@ impl RiscVCompiler {
 
         let mut allocs = FrameAllocations::new();
         for &vreg in frame.inputs.iter() {
-            if frame.get_type(vreg).get_size() <= 4 {
+            if frame.cell(vreg).typ.get_size() <= 4 {
                 let reg = alloc_queue.pop().unwrap(); // TODO break instead of unwrapping
                 allocs.register_allocations.insert(vreg, reg);
             } else {
@@ -221,7 +221,7 @@ impl RiscVCompiler {
                 continue;
             }
 
-            if frame.get_type(vreg).get_size() <= 4 {
+            if frame.cell(vreg).typ.get_size() <= 4 {
                 let reg = alloc_queue.pop().unwrap(); // TODO break instead of unwrapping
                 allocs.register_allocations.insert(vreg, reg);
             } else {
@@ -329,7 +329,7 @@ impl RiscVCompiler {
         for op in &frame.operations {
             self.compile_op(&allocs, op.clone())
         }
-        if frame.get_type(frame.output) != &TypeInfo::Unit {
+        if frame.cell(frame.output).typ != TypeInfo::Unit {
             dbg!(frame, &allocs);
             self.emit_load_vreg(&allocs, frame.output, &[Register::A0, Register::A1]);
         }
@@ -499,7 +499,7 @@ mod test {
     fn alloc_vregs_simple() {
         let mut registers = IdVec::new();
         let reg_cell = ValueCell {
-            typ: TypeInfo::integer(0, 100).into(),
+            typ: TypeInfo::integer(0, 100),
         };
 
         let r = registers.push(reg_cell.clone());
@@ -539,7 +539,7 @@ mod test {
     fn emit_frame_setup_simple() {
         let mut registers = IdVec::new();
         let reg_cell = ValueCell {
-            typ: TypeInfo::integer(0, 100).into(),
+            typ: TypeInfo::integer(0, 100),
         };
 
         let r = registers.push(reg_cell.clone());
@@ -573,7 +573,7 @@ sw a3, 0(sp)
     fn emit_add_op() {
         let mut registers = IdVec::new();
         let reg_cell = ValueCell {
-            typ: TypeInfo::integer(0, 100).into(),
+            typ: TypeInfo::integer(0, 100),
         };
 
         let r = registers.push(reg_cell.clone());

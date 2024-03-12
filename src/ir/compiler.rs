@@ -146,7 +146,7 @@ mod test {
         let r = frame_compiler.allocate_register(TypeInfo::integer(0, 100));
 
         let result = frame_compiler.add_op(InfixOp::Add, l, r).unwrap();
-        let t = frame_compiler.get_frame().get_type(result);
+        let t = &frame_compiler.get_frame().cell(result).typ;
         assert_eq!(t.clone(), TypeInfo::integer(0, 100));
     }
 
