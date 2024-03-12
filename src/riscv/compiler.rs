@@ -2,10 +2,11 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 use std::hash::Hash;
 
+use crate::ir::frame::FrameData;
+use crate::ir::values::VReg;
+use crate::ir::IrOp;
 use crate::typecheck::TypeInfo;
 use crate::util::bidihashmap::BidiHashMap;
-
-use crate::ir::compiler::{FrameData, IrOp, VReg};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
@@ -477,7 +478,7 @@ impl Default for RiscVCompiler {
 #[cfg(test)]
 mod test {
     use crate::{
-        ir::compiler::{FrameData, IrOp, ValueCell},
+        ir::{frame::FrameData, values::ValueCell, IrOp},
         riscv::compiler::Register,
         typecheck::TypeInfo,
         util::idvec::IdVec,

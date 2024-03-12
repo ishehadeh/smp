@@ -229,3 +229,18 @@ impl RecordCell {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct FunctionDeclaration {
+    pub paramaters: Vec<(String, TypeInfo)>,
+    pub returns: TypeInfo,
+}
+
+impl Default for FunctionDeclaration {
+    fn default() -> Self {
+        FunctionDeclaration {
+            paramaters: Vec::new(),
+            returns: TypeInfo::Unit,
+        }
+    }
+}
