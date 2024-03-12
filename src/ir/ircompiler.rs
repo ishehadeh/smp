@@ -6,8 +6,11 @@ use crate::{
     util::idvec::{Id, IdVec},
 };
 
-use super::compiler::CompileError;
-
+#[derive(Clone, Debug)]
+pub enum CompileError {
+    TypeError { left: TypeInfo, right: TypeInfo },
+    ArithmeticIncompatible { left: TypeInfo, right: TypeInfo },
+}
 #[derive(Default, Clone, Debug)]
 pub struct Scope {
     pub variables: HashMap<String, VReg>,
