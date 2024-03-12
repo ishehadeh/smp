@@ -1,5 +1,5 @@
 #!/bin/sh
-set -xeo
+set -xe
 
 RV_ARCH="${RV_ARCH:-riscv64}"
 GCC_TARGET="${GCC_TARGET:-$RV_ARCH-linux-gnu}"

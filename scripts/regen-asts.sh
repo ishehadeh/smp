@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eo
+set -e
 
 root="$(dirname $(dirname $(readlink -f "$0")))"
 
