@@ -114,7 +114,7 @@ impl IrCompiler {
                         FunctionDeclaration {
                             paramaters: params
                                 .iter()
-                                .map(|p| (p.name.clone(), TypeInfo::from_ast(&p.typ).into()))
+                                .map(|p| (p.name.clone(), TypeInfo::from_ast(&p.typ)))
                                 .collect(),
                             returns: TypeInfo::from_ast(return_type),
                         },
@@ -154,7 +154,7 @@ impl IrCompiler {
                     // TODO: params, return type
                     let decl = self.declarations.functions.get(name).unwrap();
                     let mut framecc = FrameCompiler::from_function_declaration(decl);
-                    let _ = framecc.compile(body)?;
+                    framecc.compile(body)?;
                     // TODO handle output
                     self.functions.insert(name.clone(), framecc.into_frame());
                 }
@@ -323,7 +323,7 @@ impl FrameCompiler {
                 function_name,
                 paramaters,
             } => {
-                /// TODO create a real return value reg
+                // TODO create a real return value reg
                 let r = self.unit();
                 let mut param_vregs: Vec<Id<ValueCell>> = vec![];
                 for param in paramaters {
@@ -355,7 +355,7 @@ impl FrameCompiler {
     }
 
     pub fn add_store_integer_imm(&mut self, value: i32) -> VReg {
-        let r = self.allocate_register(TypeInfo::integer(value, value).into());
+        let r = self.allocate_register(TypeInfo::integer(value, value));
         self.frame.operations.push(IrOp::IStoreImm(r, value));
         r
     }
@@ -424,8 +424,8 @@ mod test {
             paramaters: vec![],
             returns: TypeInfo::Unit,
         });
-        let l = frame_compiler.allocate_register(TypeInfo::integer(0, 100).into());
-        let r = frame_compiler.allocate_register(TypeInfo::integer(0, 100).into());
+        let l = frame_compiler.allocate_register(TypeInfo::integer(0, 100));
+        let r = frame_compiler.allocate_register(TypeInfo::integer(0, 100));
 
         let result = frame_compiler.add_op(InfixOp::Add, l, r).unwrap();
         let t = frame_compiler.get_frame().get_type(result);
