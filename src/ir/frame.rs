@@ -191,6 +191,9 @@ impl FrameCompiler {
         let result_type = match (ltyp, rtyp) {
             (TypeInfo::Scalar(lhs), TypeInfo::Scalar(rhs)) => match op {
                 InfixOp::Add => lhs.add(rhs),
+                InfixOp::Sub => lhs.sub(rhs),
+                InfixOp::Mul => lhs.mul(rhs),
+                InfixOp::Div => lhs.div(rhs),
                 _ => todo!(),
             },
             _ => None,

@@ -40,17 +40,30 @@ pub enum ScalarType {
 }
 
 impl ScalarType {
-    pub fn add(&self, rhs: &ScalarType) -> Option<ScalarType> {
+    /// apply an operation to both sides of an integer range type, return none if self or rhs is not an integer type.
+    fn int_op(&self, map: fn(l: i32, r: i32) -> i32, rhs: &ScalarType) -> Option<ScalarType> {
         match (self, rhs) {
             (ScalarType::Integer(a), ScalarType::Integer(b)) => {
                 Some(ScalarType::Integer(IntegerType {
-                    lo: a.lo + b.lo,
-                    hi: a.hi + b.hi,
+                    lo: map(a.lo, b.lo),
+                    hi: map(a.hi, b.hi),
                 }))
             }
             (a, b) if a == b => Some(a.clone()),
             _ => None,
         }
+    }
+    pub fn add(&self, rhs: &ScalarType) -> Option<ScalarType> {
+        self.int_op(|a, b| a + b, rhs)
+    }
+    pub fn sub(&self, rhs: &ScalarType) -> Option<ScalarType> {
+        self.int_op(|a, b| a - b, rhs)
+    }
+    pub fn mul(&self, rhs: &ScalarType) -> Option<ScalarType> {
+        self.int_op(|a, b| a * b, rhs)
+    }
+    pub fn div(&self, rhs: &ScalarType) -> Option<ScalarType> {
+        self.int_op(|a, b| a / b, rhs)
     }
 }
 
