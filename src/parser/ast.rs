@@ -31,6 +31,7 @@ pub struct StructMember {
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum AnonType {
     TypeReference {
         name: String,
@@ -47,6 +48,7 @@ pub enum AnonType {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {

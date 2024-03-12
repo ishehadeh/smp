@@ -1,1 +1,31 @@
-{"ast":{"Program":{"definitions":[{"DefFunction":{"name":"main","params":[],"return_type":{"TypeReference":{"name":"unit","parameters":null}},"body":{"Block":{"returns":false,"statements":[]}}}}]}},"errors":[]}
+{
+  "ast": {
+    "type": "Program",
+    "data": {
+      "definitions": [
+        {
+          "type": "DefFunction",
+          "data": {
+            "name": "main",
+            "params": [],
+            "return_type": {
+              "type": "TypeReference",
+              "data": {
+                "name": "unit",
+                "parameters": null
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "returns": false,
+                "statements": []
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "errors": []
+}

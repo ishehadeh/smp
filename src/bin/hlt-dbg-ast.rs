@@ -49,7 +49,7 @@ pub fn main() {
             println!("errors = {:#?}", parse_result.errors);
         }
         Format::Json => {
-            serde_json::to_writer(stdout(), &parse_result).unwrap();
+            serde_json::to_writer_pretty(stdout(), &parse_result).unwrap();
             stdout().flush().unwrap();
         }
     }
