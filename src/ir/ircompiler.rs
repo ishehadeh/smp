@@ -59,6 +59,9 @@ pub enum IrOp {
     /// Using params from Call.2 invoke the function in call.1
     /// storing the return value in  Call.0
     Call(VReg, String, Vec<VReg>),
+
+    /// Mark Eq.0 equal to Eq.1 at this point in the program
+    Eq(VReg, VReg),
 }
 
 #[derive(Debug)]
@@ -151,7 +154,7 @@ impl IrCompiler {
                     // TODO: params, return type
                     let decl = self.declarations.functions.get(name).unwrap();
                     let mut framecc = FrameCompiler::from_function_declaration(decl);
-                    let _ = framecc.compile_expr(body)?;
+                    let _ = framecc.compile(body)?;
                     // TODO handle output
                     self.functions.insert(name.clone(), framecc.into_frame());
                 }
@@ -327,6 +330,14 @@ impl FrameCompiler {
             Ast::DefType { .. } => todo!(),
             Ast::Program { .. } => todo!(),
         }
+    }
+
+    pub fn compile(&mut self, expr: &Ast) -> Result<(), CompileError> {
+        let result = self.compile_expr(expr)?;
+        self.frame
+            .operations
+            .push(IrOp::Eq(self.frame.output, result));
+        Ok(())
     }
 
     pub fn allocate_register(&mut self, typ: TypeInfo) -> VReg {

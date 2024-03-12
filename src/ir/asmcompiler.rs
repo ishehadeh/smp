@@ -2,6 +2,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt::Write;
 use std::hash::Hash;
 
+use crate::typecheck::TypeInfo;
 use crate::util::bidihashmap::BidiHashMap;
 
 use super::ircompiler::FrameData;
@@ -121,14 +122,6 @@ impl Register {
     }
 }
 
-#[derive(Debug)]
-pub struct RiscVCompiler {
-    /// text section of the output asm
-    text: String,
-
-    temporaries: HashMap<VReg, Register>,
-}
-
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StackAllocation {
     offset: usize,
@@ -175,11 +168,22 @@ impl FrameAllocations {
     }
 }
 
+#[derive(Debug)]
+pub struct RiscVCompiler {
+    /// text section of the output asm
+    text: String,
+
+    temporaries: HashMap<VReg, Register>,
+
+    aliases: HashMap<VReg, VReg>,
+}
+
 impl RiscVCompiler {
     pub fn new() -> RiscVCompiler {
         RiscVCompiler {
             text: String::new(),
             temporaries: HashMap::new(),
+            aliases: HashMap::new(),
         }
     }
 
@@ -280,6 +284,14 @@ impl RiscVCompiler {
         }
     }
 
+    fn resolve_alias(&self, maybe_alias: VReg) -> VReg {
+        if let Some(real) = self.aliases.get(&maybe_alias) {
+            self.resolve_alias(*real)
+        } else {
+            maybe_alias
+        }
+    }
+
     fn emit_func_epilogue(&mut self, allocs: &FrameAllocations) {
         let frame_header_size = allocs.required_stack_space() as i16;
         assert!(frame_header_size <= 2048); // TODO: (again) allow bigger frames, see emit_func_prelude TODO
@@ -310,6 +322,10 @@ impl RiscVCompiler {
         self.emit_func_prelude(&allocs);
         for op in &frame.operations {
             self.compile_op(&allocs, op.clone())
+        }
+        if frame.get_type(frame.output) != &TypeInfo::Unit {
+            dbg!(frame, &allocs);
+            self.emit_load_vreg(&allocs, frame.output, &[Register::A0, Register::A1]);
         }
         self.emit_func_epilogue(&allocs);
     }
@@ -350,7 +366,10 @@ impl RiscVCompiler {
     }
 
     pub fn use_word(&mut self, vreg: VReg, alloc: &FrameAllocations) -> Register {
-        let vreg_hw_register = alloc.register_allocations.forward().get(&vreg);
+        let vreg_hw_register = alloc
+            .register_allocations
+            .forward()
+            .get(&self.resolve_alias(vreg));
 
         if let Some(&vreg_hw_register) = vreg_hw_register {
             vreg_hw_register
@@ -397,11 +416,35 @@ impl RiscVCompiler {
                 let l_reg = self.use_word(l, alloc);
                 writeln!(self.text, "li {}, {}", l_reg.to_abi_name(), val).expect("write failed");
             }
+            IrOp::Eq(l, r) => {
+                self.aliases.insert(l, r);
+            }
         }
     }
 
     pub fn text(&self) -> &str {
         &self.text
+    }
+
+    fn emit_load_vreg(
+        &mut self,
+        frame: &FrameAllocations,
+        vreg: VReg,
+        registers: &[Register],
+    ) -> usize {
+        let vreg_phys = frame
+            .register_allocations
+            .forward()
+            .get(&self.resolve_alias(vreg))
+            .unwrap_or_else(|| todo!("load non-register allocated vregs"));
+        writeln!(
+            &mut self.text,
+            "mv {}, {}",
+            registers[0].to_abi_name(),
+            vreg_phys.to_abi_name()
+        )
+        .unwrap();
+        1
     }
 }
 

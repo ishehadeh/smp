@@ -23,5 +23,3 @@ mkdir -p "$HTLC_OUT_DIR"
 cargo run --features=cli --bin hltc "$@" <"$input" >"$output_asm"
 
 $GCC "$output_asm" -g -nodefaultlibs -static -o "$output_bin"
-$QEMU_USER -g "$GDB_PORT" "$output_bin" &
-$GDB -ex 'target remote :'"$GDB_PORT" -ex 'b main'

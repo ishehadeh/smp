@@ -1,0 +1,12 @@
+func add(a: int 0 to 100,b: int 0 to 100): int 0 to 200 {
+    a + b
+}
+
+func __libc_start_main(): unit {
+    main();
+    __hw_breakpoint();
+}
+
+func main(): unit {
+    add(5, 5);
+}

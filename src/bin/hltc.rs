@@ -8,7 +8,7 @@ use howlite::{
     parser::Ast,
 };
 
-const DEBUG_PRELUDE: &'static str = r"
+const DEBUG_PRELUDE: &str = r"
 .globl __hw_breakpoint
 __hw_breakpoint:
     ebreak
