@@ -415,7 +415,22 @@ impl RiscVCompiler {
             IrOp::ISub(_, _, _) => todo!(),
             IrOp::IDiv(_, _, _) => todo!(),
             IrOp::IMul(_, _, _) => todo!(),
-            IrOp::Call(_ret, name, _params) => {
+            IrOp::Call(_ret, name, params) => {
+                let arg_registers = [
+                    Register::A0,
+                    Register::A1,
+                    Register::A2,
+                    Register::A3,
+                    Register::A4,
+                    Register::A5,
+                    Register::A6,
+                    Register::A7,
+                ];
+                let mut arg_reg_index = 0;
+                for param in params {
+                    arg_reg_index +=
+                        self.emit_load_vreg(alloc, param, &arg_registers[arg_reg_index..])
+                }
                 writeln!(self.text, "jal zero,{}", name).expect("write failed");
             }
             IrOp::IStoreImm(l, val) => {

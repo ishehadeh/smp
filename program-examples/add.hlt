@@ -8,5 +8,5 @@ func __libc_start_main(): unit {
 }
 
 func main(): unit {
-    add(5, 5);
+    add(5,5);
 }

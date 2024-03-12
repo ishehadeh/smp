@@ -319,11 +319,21 @@ impl FrameCompiler {
                 Ok(self.unit())
             }
             Ast::StmtIf { .. } => todo!(),
-            Ast::ExprCall { function_name, .. } => {
+            Ast::ExprCall {
+                function_name,
+                paramaters,
+            } => {
+                /// TODO create a real return value reg
                 let r = self.unit();
+                let mut param_vregs: Vec<Id<ValueCell>> = vec![];
+                for param in paramaters {
+                    let result = self.compile_expr(param)?;
+                    param_vregs.push(result);
+                }
+
                 self.frame
                     .operations
-                    .push(IrOp::Call(r, function_name.clone(), vec![]));
+                    .push(IrOp::Call(r, function_name.clone(), param_vregs));
                 Ok(r)
             }
             Ast::StmtLet { .. } => todo!(),
