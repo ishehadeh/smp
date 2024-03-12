@@ -50,19 +50,16 @@
                       },
                       "op": "Add",
                       "rhs": {
-                        "type": "Repaired",
+                        "type": "Expr",
                         "data": {
-                          "type": "Expr",
-                          "data": {
-                            "lhs": {
-                              "type": "Ident",
-                              "data": "b"
-                            },
-                            "op": "Sub",
-                            "rhs": {
-                              "type": "Ident",
-                              "data": "a"
-                            }
+                          "lhs": {
+                            "type": "Ident",
+                            "data": "b"
+                          },
+                          "op": "Sub",
+                          "rhs": {
+                            "type": "Ident",
+                            "data": "a"
                           }
                         }
                       }
