@@ -1,3 +1,7 @@
-func main(): unit {
-    let x : int 1 to 100 = 102;
+func main(): int 1 to 1 {
+    2
+}
+
+func __libc_start_main(): unit {
+    __hw_breakpoint();
 }

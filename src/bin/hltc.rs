@@ -36,7 +36,6 @@ fn main() {
     let result: howlite::parser::ParseResult = howlite::parser::parse(&program);
 
     let mut ircompiler = IrCompiler::new();
-
     match result.ast {
         Ast::Program(program) => {
             ircompiler

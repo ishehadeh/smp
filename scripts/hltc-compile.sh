@@ -20,6 +20,6 @@ output_bin="$HTLC_OUT_DIR/$(basename "$input" .hlt)"
 
 
 mkdir -p "$HTLC_OUT_DIR"
-cargo run --features=cli --bin hltc "$@" <"$input" >"$output_asm"
+cargo run --features=cli --bin hltc -- --debug "$@" <"$input" >"$output_asm"
 
 $GCC "$output_asm" -g -nodefaultlibs -static -o "$output_bin"

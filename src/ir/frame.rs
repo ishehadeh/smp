@@ -164,6 +164,17 @@ impl FrameCompiler {
 
     pub fn compile(&mut self, expr: &Ast) -> Result<(), CompileError> {
         let result = self.compile_expr(expr)?;
+        if !self
+            .get_frame()
+            .cell(result)
+            .typ
+            .is_subset(&self.get_frame().cell(self.frame.output).typ)
+        {
+            return Err(CompileError::TypeError {
+                left: self.get_frame().cell(result).typ.clone(),
+                right: self.get_frame().cell(self.frame.output).typ.clone(),
+            });
+        }
         self.frame
             .operations
             .push(IrOp::Eq(self.frame.output, result));
