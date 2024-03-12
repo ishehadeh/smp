@@ -1,4 +1,4 @@
-use crate::parser::{ParseError, Ast, Param, AnonType, StructMember, InfixOp};
+use crate::parser::{ParseError, ast::{Ast, Param, AnonType, StructMember, InfixOp, self}};
 use lalrpop_util::ErrorRecovery;
 use crate::parser::lexer::Token;
 
@@ -74,13 +74,14 @@ pub DefParams: Vec<Param> = {
     "(" " "?<params: OneOrMore<Param>> " "? ")" => params
 };
 
-pub DefFunction: Ast = {
-    "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:AnonType> " "? <block: Block> => {
-        Ast::DefFunction {
+pub DefFunction: ast::DefFunction = {
+    <l: @L> "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:AnonType> " "? <block: Block> <r: @R> => {
+        ast::DefFunction {
+            span: (l, r).into(),
             name: name.to_string(),
             params,
             return_type: typ,
-            body: Box::new(block)
+            body: Box::new(Ast::Block(block))
         }
     }
 };
@@ -125,37 +126,42 @@ pub AnonType: AnonType = {
     TypeReference,
 }
 
-pub DefType: Ast = {
-    "type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";" => {
-        Ast::DefType {
+pub DefType: ast::DefType = {
+    <l: @L>"type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
+        ast::DefType {
+            span: (l, r).into(),
             name: name.to_string(),
             typ,
         }
     }
 }
 
-pub StmtIf: Ast = {
-    "if" " " <condition:Expr> <body:Block> => Ast::StmtIf {
+pub StmtIf: ast::StmtIf = {
+    <l: @L> "if" " " <condition:Expr> <body:Block> <r: @R> => ast::StmtIf {
+        span: (l, r).into(),
         condition: Box::new(condition),
-        body: Box::new(body),
+        body: Box::new(Ast::Block(body)),
         else_: None,
     },
 
-    "if" " " <condition:Expr> <body:Block> "else" " "? <else_:Block> => Ast::StmtIf {
+    <l: @L> "if" " " <condition:Expr> <body:Block> "else" " "? <else_:Block> <r: @R> => ast::StmtIf {
+        span: (l, r).into(),
         condition: Box::new(condition),
-        body: Box::new(body),
-        else_: Some(Box::new(else_)),
+        body: Box::new(Ast::Block(body)),
+        else_: Some(Box::new(Ast::Block(else_))),
     }
 }
 
-pub ExprCall: Ast = {
+pub ExprCall: ast::ExprCall = {
     // FIXME: how to allow whitespace between fname and ( without adding ambiguity
-    <fname:"ident"> "(" " "? ")" => Ast::ExprCall {
+    <l: @L> <fname:"ident"> "(" " "? ")" <r: @R> => ast::ExprCall {
+        span: (l, r).into(),
         function_name: fname.to_string(),
         paramaters: vec![]
     },
 
-    <fname:"ident"> "(" " "? <paramaters:OneOrMore<Expr>> ")" => Ast::ExprCall {
+    <l: @L> <fname:"ident"> "(" " "? <paramaters:OneOrMore<Expr>> ")" <r: @R> => ast::ExprCall {
+        span: (l, r).into(),
         function_name: fname.to_string(),
         paramaters,
     }
@@ -163,15 +169,19 @@ pub ExprCall: Ast = {
 
 pub Expr: Ast = {
     // notice only trailing whitespace is used to reduce ambiguities
-    <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:ErrNoExplicitExprGrouping> => Ast::Expr {
-        lhs: Box::new(lhs), op, rhs: Box::new(rhs) 
-    },
+    <l: @L> <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:ErrNoExplicitExprGrouping> <r: @R>  => Ast::Expr(ast::Expr {
+        span: (l, r).into(),
+        lhs: Box::new(lhs),
+        op,
+        rhs: Box::new(rhs) 
+    }),
     AtomicExpr
 };
 
 
-pub StmtLet: Ast = {
-    "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> => Ast::StmtLet {
+pub StmtLet: ast::StmtLet = {
+    <l: @L> "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
+        span: (l, r).into(),
         name: name.to_string(),
         value_type: typ,
         value: Box::new(value),
@@ -179,9 +189,9 @@ pub StmtLet: Ast = {
 }
 
 pub Stmt: Ast = {
-    StmtLet,
-    StmtIf,
-    Expr,
+    <a:StmtLet> => Ast::StmtLet(a),
+    <a:StmtIf> => Ast::StmtIf(a),
+    <a:Expr> => a,
 }
 
 pub StmtList: Vec<Ast> = {
@@ -192,31 +202,40 @@ pub StmtList: Vec<Ast> = {
     }
 }
 
-pub Block: Ast = {
-    "{" " "? "}" " "? => Ast::Block { returns: false, statements: vec![]  },
-    "{" " "? <statements: StmtList> "}" " "? => Ast::Block { returns: true, statements },
-    "{" " "? <statements: StmtList>  ";" " "? "}" " "? => Ast::Block { returns: false, statements },
+pub Block: ast::Block = {
+    <l: @L> "{" " "? "}" <r: @R> " "? => ast::Block { span: (l, r).into(), returns: false, statements: vec![]  },
+    <l: @L> "{" " "? <statements: StmtList> "}" <r: @R> " "? => ast::Block { span: (l, r).into(), returns: true, statements },
+    <l: @L> "{" " "? <statements: StmtList>  ";" " "? "}"  <r: @R> " "? => ast::Block { span: (l, r).into(), returns: false, statements },
 }
 
 pub ErrNoExplicitExprGrouping: Ast = {
-    // TODO: detailed error message
-    <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:Expr> => {
-        Ast::Repaired(Box::new(Ast::Expr {
-            lhs: Box::new(lhs), op, rhs:Box::new(rhs),
-        }))
+    <l: @L> <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:Expr> <r: @R>  => {
+        // TODO push error
+        Ast::Repaired(
+            Some(Box::new(
+                Ast::Expr(
+                    ast::Expr {
+                        span: (l, r).into(),
+                        lhs: Box::new(lhs),
+                        op,
+                        rhs:Box::new(rhs),
+                    }
+                )
+            ))
+        )
     },
     AtomicExpr,
 };
 
 pub AtomicExpr: Ast = {
-    <n:Number> " "? => n,
-    <i:Ident> " "? => i,
-    <c:ExprCall> " "? => c,
+    <n:Number> " "? => Ast::LiteralInteger(n),
+    <i:Ident> " "? => Ast::Ident(i),
+    <c:ExprCall> " "? => Ast::ExprCall(c),
     "(" <e:Expr> ")" " "? => e,
 
     // error recovery handler
     // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
-    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Error },
+    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Repaired(None) },
 };
 
 pub InfixOp: InfixOp = {
@@ -228,12 +247,22 @@ pub InfixOp: InfixOp = {
     "==" => InfixOp::CmpEqual,
 }
 
-pub Number: Ast = <s:"literal-int"> => Ast::Number(s.parse::<i32>().unwrap());
-pub Ident: Ast = <s:"ident"> => Ast::Ident(s.to_string());
+pub Number: ast::LiteralInteger = {
+    <l: @L> <s:"literal-int"> <r: @R> => ast::LiteralInteger {
+        span: (l, r).into(),
+        value: s.parse::<i32>().unwrap()
+    }
+}
+pub Ident: ast::Ident = {
+    <l: @L> <s:"ident"> <r: @R> => ast::Ident {
+        span: (l, r).into(),
+        symbol: s.to_string()
+    }
+}
 
 TopLevel: Ast = {
-    DefFunction,
-    <a:DefType> " "? => a
+    <a:DefFunction> => Ast::DefFunction(a),
+    <a:DefType> " "? => Ast::DefType(a)
 };
 
 TopLevelList: Vec<Ast> = {
@@ -246,9 +275,10 @@ TopLevelList: Vec<Ast> = {
 
 
 pub Program: Ast = {
-    <definitions:TopLevelList> => {
-        Ast::Program {
-            definitions
-        }
+    <l: @L> <definitions:TopLevelList> <r: @R> => {
+        Ast::Program(ast::Program {
+            span: (l, r).into(),
+            definitions,
+        })
     }
 };

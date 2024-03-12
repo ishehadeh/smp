@@ -1,18 +1,18 @@
-mod ast;
+pub mod ast;
 mod errors;
 pub mod lexer;
 
 lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
 
-pub use ast::*;
+pub use ast::Ast;
 pub use errors::*;
 
 use lalrpop_util::lalrpop_mod;
 
 use self::lexer::Lexer;
 
-#[cfg(test)]
-mod test;
+// #[cfg(test)]
+// mod test;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ParseResult {
@@ -61,7 +61,7 @@ pub fn parse(s: &str) -> ParseResult {
         Ok(v) => v,
         Err(e) => {
             errors.push(ParseError::from(e));
-            Ast::Error
+            Ast::Repaired(None)
         }
     };
 

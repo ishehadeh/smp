@@ -11,6 +11,10 @@ impl SourceSpan {
     }
 }
 
+pub trait Spanned {
+    fn span(&self) -> &SourceSpan;
+}
+
 impl From<(usize, usize)> for SourceSpan {
     fn from((start, end): (usize, usize)) -> Self {
         Self { start, end }

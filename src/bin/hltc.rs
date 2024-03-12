@@ -38,12 +38,12 @@ fn main() {
     let mut ircompiler = IrCompiler::new();
 
     match result.ast {
-        Ast::Program { definitions } => {
+        Ast::Program(program) => {
             ircompiler
-                .scan_declarations(definitions.iter())
+                .scan_declarations(program.definitions.iter())
                 .expect("failed to compile from ast to ir");
             ircompiler
-                .compile_functions(definitions.iter())
+                .compile_functions(program.definitions.iter())
                 .expect("failde to compile functions")
         }
         _ => panic!("expected top-level program"),

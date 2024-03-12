@@ -33,37 +33,32 @@ impl IrCompiler {
     ) -> Result<(), CompileError> {
         for toplevel_ast_node in program {
             match toplevel_ast_node {
-                Ast::DefFunction {
-                    name,
-                    params,
-                    return_type,
-                    body: _body,
-                } => {
+                Ast::DefFunction(func) => {
                     // TODO: params, return type
                     self.declarations.functions.insert(
-                        name.clone(),
+                        func.name.clone(),
                         FunctionDeclaration {
-                            paramaters: params
+                            paramaters: func
+                                .params
                                 .iter()
                                 .map(|p| (p.name.clone(), TypeInfo::from_ast(&p.typ)))
                                 .collect(),
-                            returns: TypeInfo::from_ast(return_type),
+                            returns: TypeInfo::from_ast(&func.return_type),
                         },
                     );
                 }
 
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
-                Ast::Number(_)
+                Ast::LiteralInteger(_)
                 | Ast::Ident(_)
-                | Ast::Error
                 | Ast::Repaired(_)
-                | Ast::Block { .. }
-                | Ast::StmtIf { .. }
-                | Ast::ExprCall { .. }
-                | Ast::DefType { .. }
-                | Ast::StmtLet { .. }
-                | Ast::Expr { .. }
-                | Ast::Program { .. } => continue,
+                | Ast::Block(_)
+                | Ast::StmtIf(_)
+                | Ast::ExprCall(_)
+                | Ast::StmtLet(_)
+                | Ast::DefType(_)
+                | Ast::Expr(_)
+                | Ast::Program(_) => continue,
             }
         }
 
@@ -76,31 +71,26 @@ impl IrCompiler {
     ) -> Result<(), CompileError> {
         for toplevel_ast_node in program {
             match toplevel_ast_node {
-                Ast::DefFunction {
-                    name,
-                    params: _params,
-                    return_type: _return_type,
-                    body,
-                } => {
+                Ast::DefFunction(func) => {
                     // TODO: params, return type
-                    let decl = self.declarations.functions.get(name).unwrap();
+                    let decl = self.declarations.functions.get(&func.name).unwrap();
                     let mut framecc = FrameCompiler::from_function_declaration(decl);
-                    framecc.compile(body)?;
+                    framecc.compile(&func.body)?;
                     // TODO handle output
-                    self.functions.insert(name.clone(), framecc.into_frame());
+                    self.functions
+                        .insert(func.name.clone(), framecc.into_frame());
                 }
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
-                Ast::Number(_)
+                Ast::LiteralInteger(_)
                 | Ast::Ident(_)
-                | Ast::Error
                 | Ast::Repaired(_)
-                | Ast::Block { .. }
-                | Ast::StmtIf { .. }
-                | Ast::ExprCall { .. }
-                | Ast::StmtLet { .. }
-                | Ast::DefType { .. }
-                | Ast::Expr { .. }
-                | Ast::Program { .. } => continue,
+                | Ast::Block(_)
+                | Ast::StmtIf(_)
+                | Ast::ExprCall(_)
+                | Ast::StmtLet(_)
+                | Ast::DefType(_)
+                | Ast::Expr(_)
+                | Ast::Program(_) => continue,
             }
         }
 
@@ -111,8 +101,8 @@ impl IrCompiler {
 #[cfg(test)]
 mod test {
     use crate::ir::{compiler::FunctionDeclaration, frame::FrameCompiler, ops::IrOp};
+    use crate::parser::ast::InfixOp;
     use crate::parser::lexer::Lexer;
-    use crate::parser::InfixOp;
     use crate::parser::{grammar, Ast, ParseError};
     use crate::typecheck::TypeInfo;
 

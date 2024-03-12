@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    parser::{Ast, InfixOp},
+    parser::{ast::InfixOp, Ast},
     typecheck::{FunctionDeclaration, TypeInfo},
     util::idvec::IdVec,
 };
@@ -113,52 +113,47 @@ impl FrameCompiler {
     pub fn compile_expr(&mut self, expr: &Ast) -> Result<VReg, CompileError> {
         // TODO maybe pass in the result reg, so we're not constantly allocating registers?
         match expr {
-            Ast::Number(x) => Ok(self.add_store_integer_imm(*x)),
-            Ast::Ident(varname) => Ok(*self
+            Ast::LiteralInteger(x) => Ok(self.add_store_integer_imm(x.value)),
+            Ast::Ident(ident) => Ok(*self
                 .current_scope()
                 .variables
-                .get(varname)
+                .get(&ident.symbol)
                 .expect("no such variable")), // TODO error checking
-            Ast::Expr { lhs, op, rhs } => {
-                let lhs_vreg = self.compile_expr(lhs)?;
-                let rhs_vreg = self.compile_expr(rhs)?;
-                self.add_op(*op, lhs_vreg, rhs_vreg)
+            Ast::Expr(expr) => {
+                let lhs_vreg = self.compile_expr(&expr.lhs)?;
+                let rhs_vreg = self.compile_expr(&expr.rhs)?;
+                self.add_op(expr.op, lhs_vreg, rhs_vreg)
             }
 
-            Ast::Error => todo!(),
             Ast::Repaired(_) => todo!(),
-            Ast::DefFunction { .. } => todo!(),
-            Ast::Block {
-                statements,
-                returns,
-            } => {
+            Ast::DefFunction(_) => todo!(),
+            Ast::Block(block) => {
                 let mut last_result = None;
-                for stmt in statements {
+                for stmt in &block.statements {
                     last_result = Some(self.compile_expr(stmt)?);
                 }
                 if let Some(last_result) = last_result {
-                    if *returns {
+                    if block.returns {
                         return Ok(last_result);
                     }
                 }
                 Ok(self.unit())
             }
             Ast::StmtIf { .. } => todo!(),
-            Ast::ExprCall {
-                function_name,
-                paramaters,
-            } => {
+            Ast::ExprCall(expr_call) => {
                 // TODO create a real return value reg
                 let r = self.unit();
                 let mut param_vregs: Vec<VReg> = vec![];
-                for param in paramaters {
+                for param in &expr_call.paramaters {
                     let result = self.compile_expr(param)?;
                     param_vregs.push(result);
                 }
 
-                self.frame
-                    .operations
-                    .push(IrOp::Call(r, function_name.clone(), param_vregs));
+                self.frame.operations.push(IrOp::Call(
+                    r,
+                    expr_call.function_name.clone(),
+                    param_vregs,
+                ));
                 Ok(r)
             }
             Ast::StmtLet { .. } => todo!(),

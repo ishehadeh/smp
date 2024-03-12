@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::AnonType;
+use crate::parser::ast::AnonType;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IntegerType {
