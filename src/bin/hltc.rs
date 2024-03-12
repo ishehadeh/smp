@@ -3,10 +3,7 @@ use std::{
     io::{self, Read},
 };
 
-use howlite::{
-    ir::{asmcompiler::RiscVCompiler, ircompiler::IrCompiler},
-    parser::Ast,
-};
+use howlite::{ir::compiler::IrCompiler, parser::Ast, riscv::compiler::RiscVCompiler};
 
 const DEBUG_PRELUDE: &str = r"
 .globl __hw_breakpoint

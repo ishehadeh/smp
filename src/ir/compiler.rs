@@ -395,7 +395,7 @@ impl FrameCompiler {
 
 #[cfg(test)]
 mod test {
-    use crate::ir::ircompiler::{FrameCompiler, FunctionDeclaration, IrOp};
+    use crate::ir::compiler::{FrameCompiler, FunctionDeclaration, IrOp};
     use crate::parser::lexer::Lexer;
     use crate::parser::InfixOp;
     use crate::parser::{grammar, Ast, ParseError};

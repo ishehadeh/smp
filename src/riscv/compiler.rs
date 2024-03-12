@@ -5,8 +5,7 @@ use std::hash::Hash;
 use crate::typecheck::TypeInfo;
 use crate::util::bidihashmap::BidiHashMap;
 
-use super::ircompiler::FrameData;
-use super::ircompiler::{IrOp, VReg};
+use crate::ir::compiler::{FrameData, IrOp, VReg};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
@@ -478,11 +477,8 @@ impl Default for RiscVCompiler {
 #[cfg(test)]
 mod test {
     use crate::{
-        ir::{
-            asmcompiler::Register,
-            ircompiler::ValueCell,
-            ircompiler::{FrameData, IrOp},
-        },
+        ir::compiler::{FrameData, IrOp, ValueCell},
+        riscv::compiler::Register,
         typecheck::TypeInfo,
         util::idvec::IdVec,
     };
