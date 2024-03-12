@@ -24,7 +24,3 @@ cli = ["clap"]
 [[bin]]
 name = "hltc"
 required-features = ["cli"]
-
-[[bin]]
-name = "hlti"
-required-features = ["cli"]
