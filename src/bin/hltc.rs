@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::{
-    env, fs,
+    fs,
     io::{self, Read},
     path::PathBuf,
 };
@@ -56,7 +56,9 @@ fn main() {
         compiler.compile_frame(func_name, func_ir)
     }
 
+    println!(".text\n{}", compiler.text());
+
     if args.debug {
-        println!(".text\n{}\n{}", compiler.text(), DEBUG_PRELUDE)
+        println!("\n{}", DEBUG_PRELUDE)
     }
 }
