@@ -3,6 +3,7 @@ use std::{
     sync::atomic::{self, AtomicUsize},
 };
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
 pub enum InfixOp {
     Add,
@@ -13,11 +14,14 @@ pub enum InfixOp {
     CmpEqual,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Param {
     pub name: String,
     pub typ: AnonType,
 }
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StructMember {
     pub mutable: bool,
@@ -25,6 +29,7 @@ pub struct StructMember {
     pub typ: AnonType,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AnonType {
     TypeReference {
@@ -41,6 +46,7 @@ pub enum AnonType {
     },
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ast {

@@ -9,18 +9,31 @@ edition = "2021"
 lalrpop-util = {version = "0.20.0", features = ["lexer", "unicode"] }
 petgraph="*"
 thiserror = { version = "1.0.56" }
+logos = "0.14.0"
 
 # cli deps
 clap = { version = "4.4.8", features= ["derive"], optional = true }
-logos = "0.14.0"
+
+# serialize/deserialize compiler structures
+serde = { version = "1.0.19", features= ["derive"], optional = true }
+
+# used for debugging the ast
+serde_json = { version = "1.0.19",  optional = true }
 
 
 [build-dependencies]
 lalrpop = "0.20.0"
 
 [features]
-cli = ["clap"]
+cli = ["dep:clap"]
+serde = ["dep:serde"]
+json = ["serde", "dep:serde_json"]
 
 [[bin]]
 name = "hltc"
 required-features = ["cli"]
+
+
+[[bin]]
+name = "hlt-dbg-ast"
+required-features = ["cli", "json"]

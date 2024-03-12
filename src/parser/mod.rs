@@ -14,6 +14,7 @@ use self::lexer::Lexer;
 #[cfg(test)]
 mod test;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ParseResult {
     pub ast: Ast,
     pub errors: Vec<ParseError>,

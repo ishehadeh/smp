@@ -1,0 +1,68 @@
+{
+    "ast": {
+        "Program": {
+            "definitions": [
+                {
+                    "DefFunction": {
+                        "name": "add",
+                        "params": [
+                            {
+                                "name": "a",
+                                "typ": {
+                                    "IntegerRange": {
+                                        "inclusive_low": "0",
+                                        "inclusive_high": "100"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "b",
+                                "typ": {
+                                    "IntegerRange": {
+                                        "inclusive_low": "0",
+                                        "inclusive_high": "100"
+                                    }
+                                }
+                            }
+                        ],
+                        "return_type": {
+                            "IntegerRange": {
+                                "inclusive_low": "0",
+                                "inclusive_high": "200"
+                            }
+                        },
+                        "body": {
+                            "Block": {
+                                "returns": true,
+                                "statements": [
+                                    {
+                                        "Expr": {
+                                            "lhs": {
+                                                "Ident": "a"
+                                            },
+                                            "op": "Add",
+                                            "rhs": {
+                                                "Repaired": {
+                                                    "Expr": {
+                                                        "lhs": {
+                                                            "Ident": "b"
+                                                        },
+                                                        "op": "Sub",
+                                                        "rhs": {
+                                                            "Ident": "a"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "errors": []
+}

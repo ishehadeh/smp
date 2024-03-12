@@ -392,29 +392,38 @@ impl RiscVCompiler {
             ); // TODO: error handling
         }
     }
+    pub fn emit_arith_op(
+        &mut self,
+        allocs: &FrameAllocations,
+        instr: &str,
+        r: VReg,
+        x: VReg,
+        y: VReg,
+    ) {
+        let a_reg = self.use_word(x, allocs);
+        let b_reg = self.use_word(y, allocs);
+        let r_reg = self.use_word(r, allocs);
 
-    pub fn compile_op(&mut self, alloc: &FrameAllocations, op: IrOp) {
+        writeln!(
+            self.text,
+            "{} {}, {}, {}",
+            instr,
+            r_reg.to_abi_name(),
+            a_reg.to_abi_name(),
+            b_reg.to_abi_name()
+        )
+        .expect("write failed");
+        for r in [x, y] {
+            self.release_temporary(r)
+        }
+    }
+    pub fn compile_op(&mut self, allocs: &FrameAllocations, op: IrOp) {
         match op {
-            IrOp::IAdd(r, a, b) => {
-                let a_reg = self.use_word(a, alloc);
-                let b_reg = self.use_word(b, alloc);
-                let r_reg = self.use_word(r, alloc);
+            IrOp::IAdd(r, x, y) => self.emit_arith_op(allocs, "add", r, x, y),
+            IrOp::ISub(r, x, y) => self.emit_arith_op(allocs, "sub", r, x, y),
+            IrOp::IMul(r, x, y) => self.emit_arith_op(allocs, "mul", r, x, y),
+            IrOp::IDiv(r, x, y) => self.emit_arith_op(allocs, "div", r, x, y),
 
-                writeln!(
-                    self.text,
-                    "add {}, {}, {}",
-                    r_reg.to_abi_name(),
-                    a_reg.to_abi_name(),
-                    b_reg.to_abi_name()
-                )
-                .expect("write failed");
-                for r in [a, b] {
-                    self.release_temporary(r)
-                }
-            }
-            IrOp::ISub(_, _, _) => todo!(),
-            IrOp::IDiv(_, _, _) => todo!(),
-            IrOp::IMul(_, _, _) => todo!(),
             IrOp::Call(_ret, name, params) => {
                 let arg_registers = [
                     Register::A0,
@@ -429,12 +438,12 @@ impl RiscVCompiler {
                 let mut arg_reg_index = 0;
                 for param in params {
                     arg_reg_index +=
-                        self.emit_load_vreg(alloc, param, &arg_registers[arg_reg_index..])
+                        self.emit_load_vreg(allocs, param, &arg_registers[arg_reg_index..])
                 }
                 writeln!(self.text, "jal zero,{}", name).expect("write failed");
             }
             IrOp::IStoreImm(l, val) => {
-                let l_reg = self.use_word(l, alloc);
+                let l_reg = self.use_word(l, allocs);
                 writeln!(self.text, "li {}, {}", l_reg.to_abi_name(), val).expect("write failed");
             }
             IrOp::Eq(l, r) => {

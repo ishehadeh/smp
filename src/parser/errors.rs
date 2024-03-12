@@ -4,6 +4,7 @@ use crate::span::SourceSpan;
 use lalrpop_util::ParseError as LalrpopError;
 use thiserror::Error;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ParseError {
     pub kind: ParseErrorKind,
@@ -55,6 +56,7 @@ impl<'i> From<LalrpopError<usize, Token<'i>, ParseError>> for ParseError {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Error, Clone)]
 pub enum ParseErrorKind {
     // Parser Generator Errors
