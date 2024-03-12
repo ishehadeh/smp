@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 use std::hash::Hash;
 
@@ -165,6 +165,12 @@ impl FrameAllocations {
     /// Total space needed to hold the frame info
     pub fn required_stack_space(&self) -> usize {
         self.saved_register_count() * 4 + self.stack_allocation_size() + 4
+    }
+}
+
+impl Default for FrameAllocations {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
