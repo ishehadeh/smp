@@ -1,5 +1,5 @@
 func add(a: int 0 to 100,b: int 0 to 100): int 0 to 200 {
-    a + b - a
+    a + (b - a)
 }
 
 func __libc_start_main(): unit {
