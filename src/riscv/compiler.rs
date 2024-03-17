@@ -330,7 +330,6 @@ impl RiscVCompiler {
             self.compile_op(&allocs, op.clone())
         }
         if frame.cell(frame.output).typ != TypeInfo::Unit {
-            dbg!(frame, &allocs);
             self.emit_load_vreg(&allocs, frame.output, &[Register::A0, Register::A1]);
         }
         self.emit_func_epilogue(&allocs);
