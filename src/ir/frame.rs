@@ -124,8 +124,7 @@ impl FrameCompiler {
                 let rhs_vreg = self.compile_expr(&expr.rhs)?;
                 self.add_op(expr.op, lhs_vreg, rhs_vreg)
             }
-
-            Ast::Repaired(_) => todo!(),
+            Ast::Repaired(r) => panic!("{:?}", r),
             Ast::DefFunction(_) => todo!(),
             Ast::Block(block) => {
                 let mut last_result = None;
