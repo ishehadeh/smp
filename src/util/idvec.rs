@@ -84,6 +84,11 @@ impl<T, Marker> IdVec<T, Marker> {
         assert_eq!(id.container_id, self.container_id);
         self.elements.get(&id).unwrap()
     }
+
+    pub fn get_mut(&mut self, id: Id<Marker>) -> &mut T {
+        assert_eq!(id.container_id, self.container_id);
+        self.elements.get_mut(&id).unwrap()
+    }
 }
 
 impl<T, Marker> Default for IdVec<T, Marker> {

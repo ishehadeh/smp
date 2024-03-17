@@ -240,6 +240,7 @@ pub AtomicExpr: Ast = {
     <n:LiteralBool> " "? => Ast::LiteralBool(n),
     <i:Ident> " "? => Ast::Ident(i),
     <c:ExprCall> " "? => Ast::ExprCall(c),
+    <b:Block> => Ast::Block(b),
     "(" <e:Expr> ")" " "? => e,
 
     // error recovery handler

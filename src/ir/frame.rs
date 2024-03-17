@@ -33,6 +33,11 @@ impl FrameData {
     pub fn cell(&self, vreg: VReg) -> &ValueCell {
         self.registers.get(vreg)
     }
+
+    /// Get the value cell associated with a given register (and allow it to be mutated)
+    pub fn cell_mut(&mut self, vreg: VReg) -> &mut ValueCell {
+        self.registers.get_mut(vreg)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -110,16 +115,22 @@ impl FrameCompiler {
         self.frame
     }
 
+    pub fn find_var(&self, var: &str) -> Option<VReg> {
+        for scope in self.scopes.iter().rev() {
+            if let Some(&v) = scope.variables.get(var) {
+                return Some(v);
+            }
+        }
+
+        None
+    }
+
     pub fn compile_expr(&mut self, expr: &Ast) -> Result<VReg, CompileError> {
         // TODO maybe pass in the result reg, so we're not constantly allocating registers?
         match expr {
             Ast::LiteralInteger(x) => Ok(self.add_store_integer_imm(x.value)),
             Ast::LiteralBool(x) => Ok(self.add_store_bool_imm(x.value)),
-            Ast::Ident(ident) => Ok(*self
-                .current_scope()
-                .variables
-                .get(&ident.symbol)
-                .expect("no such variable")), // TODO error checking
+            Ast::Ident(ident) => Ok(self.find_var(&ident.symbol).expect("no such variable")), // TODO error checking
             Ast::Expr(expr) => {
                 let lhs_vreg = self.compile_expr(&expr.lhs)?;
                 let rhs_vreg = self.compile_expr(&expr.rhs)?;
@@ -129,14 +140,17 @@ impl FrameCompiler {
             Ast::DefFunction(_) => todo!(),
             Ast::Block(block) => {
                 let mut last_result = None;
+                self.push_scope();
                 for stmt in &block.statements {
                     last_result = Some(self.compile_expr(stmt)?);
                 }
                 if let Some(last_result) = last_result {
                     if block.returns {
+                        self.pop_scope();
                         return Ok(last_result);
                     }
                 }
+                self.pop_scope();
                 Ok(self.unit())
             }
             Ast::StmtIf { .. } => todo!(),
@@ -167,6 +181,8 @@ impl FrameCompiler {
                         right: value_typ.clone(),
                     });
                 }
+                self.frame.cell_mut(value_reg).typ = var_typ;
+
                 self.current_scope_mut()
                     .variables
                     .insert(stmt_let.name.clone(), value_reg);

@@ -17,6 +17,7 @@ gen_ast() {
 test -z "$NO_AST" && cargo build --bin hlt-dbg-ast --features cli,json
 test -z "$NO_COMPILE" && cargo build --bin hltc --features cli
 
-for file in $(find "$root/tests/syntax" -maxdepth 2 -iname '*.hlt'); do
+PAT="${1:-*}"
+for file in $(find "$root/tests/syntax" -maxdepth 2 -iname "$PAT.hlt"); do
     gen_ast "$file"
 done
