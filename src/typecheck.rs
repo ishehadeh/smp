@@ -107,6 +107,7 @@ impl TypeInfo {
                 name,
                 parameters: _,
             } if name == "unit" => TypeInfo::Unit,
+            AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean),
             a => panic!("TODO: from_ast for {:?}", a),
         }
     }
@@ -126,6 +127,7 @@ impl TypeInfo {
     pub fn get_size(&self) -> usize {
         match self {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
+            TypeInfo::Scalar(ScalarType::Boolean) => 1,
             TypeInfo::Unit => 0,
             _ => todo!(),
         }

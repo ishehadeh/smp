@@ -42,6 +42,7 @@ pub enum AnonType {
         inclusive_low: String,
         inclusive_high: String,
     },
+    Bool,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -51,6 +52,7 @@ pub enum AnonType {
 pub enum Ast {
     // TODO convert this to usize
     LiteralInteger(LiteralInteger),
+    LiteralBool(LiteralBool),
     Ident(Ident),
 
     /// A repaired node is one where an error occured but parsing was still able to be completed
@@ -150,6 +152,13 @@ pub struct Block {
 pub struct LiteralInteger {
     pub span: SourceSpan,
     pub value: i32,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LiteralBool {
+    pub span: SourceSpan,
+    pub value: bool,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

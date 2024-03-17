@@ -1,0 +1,94 @@
+{
+  "ast": {
+    "type": "Program",
+    "data": {
+      "span": {
+        "start": 0,
+        "end": 76
+      },
+      "definitions": [
+        {
+          "type": "DefFunction",
+          "data": {
+            "span": {
+              "start": 0,
+              "end": 76
+            },
+            "name": "main",
+            "params": [],
+            "return_type": {
+              "type": "TypeReference",
+              "data": {
+                "name": "unit",
+                "parameters": null
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "span": {
+                  "start": 18,
+                  "end": 75
+                },
+                "returns": false,
+                "statements": [
+                  {
+                    "type": "StmtLet",
+                    "data": {
+                      "span": {
+                        "start": 24,
+                        "end": 43
+                      },
+                      "name": "a",
+                      "value_type": {
+                        "type": "Bool"
+                      },
+                      "value": {
+                        "type": "LiteralBool",
+                        "data": {
+                          "span": {
+                            "start": 38,
+                            "end": 43
+                          },
+                          "value": false
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "StmtLet",
+                    "data": {
+                      "span": {
+                        "start": 49,
+                        "end": 72
+                      },
+                      "name": "b",
+                      "value_type": {
+                        "type": "IntegerRange",
+                        "data": {
+                          "inclusive_low": "0",
+                          "inclusive_high": "100"
+                        }
+                      },
+                      "value": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 71,
+                            "end": 72
+                          },
+                          "value": 5
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "errors": []
+}

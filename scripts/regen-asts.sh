@@ -5,12 +5,17 @@ root="$(dirname $(dirname $(readlink -f "$0")))"
 
 gen_ast() {
     basename="$(dirname $1)/$(basename "$1" .hlt)"
-    "$root/target/debug/hlt-dbg-ast" --format json "$1" >"$basename.json" || echo "hlt-dbg-ast failed"
-    "$root/target/debug/hltc" "$1" >"$basename.s" || echo "hltc failed"
+    if [ -z "$NO_AST" ]; then
+        "$root/target/debug/hlt-dbg-ast" --format json "$1" >"$basename.json" || echo "hlt-dbg-ast failed"
+    fi
+
+    if [ -z "$NO_COMPILE" ]; then
+        "$root/target/debug/hltc" "$1" >"$basename.s" || echo "hltc failed"
+    fi
 }
 
-cargo build --bin hlt-dbg-ast --features cli,json
-cargo build --bin hltc --features cli
+test -z "$NO_AST" && cargo build --bin hlt-dbg-ast --features cli,json
+test -z "$NO_COMPILE" && cargo build --bin hltc --features cli
 
 for file in $(find "$root/tests/syntax" -maxdepth 2 -iname '*.hlt'); do
     gen_ast "$file"

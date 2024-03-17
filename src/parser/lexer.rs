@@ -11,6 +11,13 @@ pub enum Token<'input> {
     KeywordTo,
     #[token("int")]
     KeywordInt,
+    #[token("bool")]
+    KeywordBool,
+    #[token("true")]
+    KeywordTrue,
+    #[token("false")]
+    KeywordFalse,
+
     #[token("type")]
     KeywordType,
     #[token("if")]

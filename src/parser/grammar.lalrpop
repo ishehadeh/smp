@@ -16,6 +16,9 @@ extern {
         "func" => Token::KeywordFunc,
         "to" => Token::KeywordTo,
         "int" => Token::KeywordInt,
+        "bool" => Token::KeywordBool,
+        "false" => Token::KeywordFalse,
+        "true" => Token::KeywordTrue,
         "mut" => Token::KeywordMut,
         "type" => Token::KeywordType,
         "if" => Token::KeywordIf,
@@ -111,6 +114,10 @@ pub TypeIntegerRange: AnonType = {
     },
 }
 
+pub TypeBoolean: AnonType = {
+    "bool" => AnonType::Bool
+}
+
 pub StructBody: AnonType = {
     "{" " "? "}" => AnonType::StructBody { members: vec![] },
     "{" " "? <members: OneOrMore<DefStructMember>> " "? "}" => {
@@ -124,6 +131,7 @@ pub AnonType: AnonType = {
     StructBody,
     TypeIntegerRange,
     TypeReference,
+    TypeBoolean,
 }
 
 pub DefType: ast::DefType = {
@@ -228,7 +236,8 @@ pub ErrNoExplicitExprGrouping: Ast = {
 };
 
 pub AtomicExpr: Ast = {
-    <n:Number> " "? => Ast::LiteralInteger(n),
+    <n:LiteralInteger> " "? => Ast::LiteralInteger(n),
+    <n:LiteralBool> " "? => Ast::LiteralBool(n),
     <i:Ident> " "? => Ast::Ident(i),
     <c:ExprCall> " "? => Ast::ExprCall(c),
     "(" <e:Expr> ")" " "? => e,
@@ -247,12 +256,24 @@ pub InfixOp: InfixOp = {
     "==" => InfixOp::CmpEqual,
 }
 
-pub Number: ast::LiteralInteger = {
+pub LiteralInteger: ast::LiteralInteger = {
     <l: @L> <s:"literal-int"> <r: @R> => ast::LiteralInteger {
         span: (l, r).into(),
         value: s.parse::<i32>().unwrap()
     }
 }
+
+pub LiteralBool: ast::LiteralBool = {
+    <l: @L> "true" <r: @R> => ast::LiteralBool {
+        span: (l, r).into(),
+        value: true
+    },
+    <l: @L> "false" <r: @R> => ast::LiteralBool {
+        span: (l, r).into(),
+        value: false
+    }
+}
+
 pub Ident: ast::Ident = {
     <l: @L> <s:"ident"> <r: @R> => ast::Ident {
         span: (l, r).into(),
@@ -275,7 +296,7 @@ TopLevelList: Vec<Ast> = {
 
 
 pub Program: Ast = {
-    <l: @L> <definitions:TopLevelList> <r: @R> => {
+    <l: @L> " "? <definitions:TopLevelList> <r: @R> => {
         Ast::Program(ast::Program {
             span: (l, r).into(),
             definitions,

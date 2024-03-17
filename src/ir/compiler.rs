@@ -50,6 +50,7 @@ impl IrCompiler {
 
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
                 Ast::LiteralInteger(_)
+                | Ast::LiteralBool(_)
                 | Ast::Ident(_)
                 | Ast::Repaired(_)
                 | Ast::Block(_)
@@ -82,6 +83,7 @@ impl IrCompiler {
                 }
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
                 Ast::LiteralInteger(_)
+                | Ast::LiteralBool(_)
                 | Ast::Ident(_)
                 | Ast::Repaired(_)
                 | Ast::Block(_)

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     parser::{ast::InfixOp, Ast},
-    typecheck::{FunctionDeclaration, TypeInfo},
+    typecheck::{FunctionDeclaration, ScalarType, TypeInfo},
     util::idvec::IdVec,
 };
 
@@ -114,6 +114,7 @@ impl FrameCompiler {
         // TODO maybe pass in the result reg, so we're not constantly allocating registers?
         match expr {
             Ast::LiteralInteger(x) => Ok(self.add_store_integer_imm(x.value)),
+            Ast::LiteralBool(x) => Ok(self.add_store_bool_imm(x.value)),
             Ast::Ident(ident) => Ok(*self
                 .current_scope()
                 .variables
@@ -155,7 +156,22 @@ impl FrameCompiler {
                 ));
                 Ok(r)
             }
-            Ast::StmtLet { .. } => todo!(),
+            Ast::StmtLet(stmt_let) => {
+                let var_typ = TypeInfo::from_ast(&stmt_let.value_type);
+                let value_reg = self.compile_expr(&stmt_let.value)?;
+                let value_typ = &self.get_frame().cell(value_reg).typ;
+
+                if !value_typ.is_subset(&var_typ) {
+                    return Err(CompileError::TypeError {
+                        left: var_typ,
+                        right: value_typ.clone(),
+                    });
+                }
+                self.current_scope_mut()
+                    .variables
+                    .insert(stmt_let.name.clone(), value_reg);
+                Ok(value_reg)
+            }
             Ast::DefType { .. } => todo!(),
             Ast::Program { .. } => todo!(),
         }
@@ -192,6 +208,14 @@ impl FrameCompiler {
     pub fn add_store_integer_imm(&mut self, value: i32) -> VReg {
         let r = self.allocate_register(TypeInfo::integer(value, value));
         self.frame.operations.push(IrOp::IStoreImm(r, value));
+        r
+    }
+
+    pub fn add_store_bool_imm(&mut self, value: bool) -> VReg {
+        let r = self.allocate_register(TypeInfo::Scalar(ScalarType::Boolean));
+        self.frame
+            .operations
+            .push(IrOp::IStoreImm(r, if value { 1 } else { 0 }));
         r
     }
 
