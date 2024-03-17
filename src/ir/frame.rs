@@ -163,6 +163,8 @@ impl FrameCompiler {
 
     pub fn compile(&mut self, expr: &Ast) -> Result<(), CompileError> {
         let result = self.compile_expr(expr)?;
+
+        // unify body result and return type.
         if !self
             .get_frame()
             .cell(result)
@@ -174,9 +176,12 @@ impl FrameCompiler {
                 right: self.get_frame().cell(self.frame.output).typ.clone(),
             });
         }
+
+        // map frame result to output vreg.
         self.frame
             .operations
             .push(IrOp::Eq(self.frame.output, result));
+
         Ok(())
     }
 
