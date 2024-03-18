@@ -1,7 +1,8 @@
 use crate::span::{SourceSpan, Spanned};
+use std::fmt::Debug;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, Copy, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord)]
 pub enum InfixOp {
     Add,
     Sub,
@@ -12,14 +13,14 @@ pub enum InfixOp {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct Param {
     pub name: String,
     pub typ: AnonType,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct StructMember {
     pub mutable: bool,
     pub name: String,
@@ -27,7 +28,7 @@ pub struct StructMember {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum AnonType {
     TypeReference {
@@ -48,85 +49,103 @@ pub enum AnonType {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Ast {
+#[derive(Debug, Clone)]
+pub enum Ast<X: Debug + Clone = ()> {
     // TODO convert this to usize
-    LiteralInteger(LiteralInteger),
-    LiteralBool(LiteralBool),
-    Ident(Ident),
+    LiteralInteger(LiteralInteger<X>),
+    LiteralBool(LiteralBool<X>),
+    Ident(Ident<X>),
 
     /// A repaired node is one where an error occured but parsing was still able to be completed
     /// This is typically used for non-critical errors like 1 + 1 + 1 instead of 1 + (1 + 1)
-    Repaired(Option<Box<Ast>>),
+    Repaired(Option<Box<Ast<X>>>),
 
-    DefFunction(DefFunction),
-    Block(Block),
-    StmtIf(StmtIf),
-    ExprCall(ExprCall),
-    Expr(Expr),
+    DefFunction(DefFunction<X>),
+    Block(Block<X>),
+    StmtIf(StmtIf<X>),
+    ExprCall(ExprCall<X>),
+    Expr(Expr<X>),
 
-    StmtLet(StmtLet),
+    StmtLet(StmtLet<X>),
 
-    DefType(DefType),
+    DefType(DefType<X>),
 
-    Program(Program),
+    Program(Program<X>),
+}
+
+pub struct SyntaxNode<X> {
+    span: SourceSpan,
+    xdata: X,
+    data: Ast<X>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Expr {
+#[derive(Debug, Clone)]
+pub struct Expr<X: Debug + Clone> {
     pub span: SourceSpan,
-    pub lhs: Box<Ast>,
+    pub xdata: X,
+
+    pub lhs: Box<Ast<X>>,
     pub op: InfixOp,
-    pub rhs: Box<Ast>,
+    pub rhs: Box<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExprCall {
+#[derive(Debug, Clone)]
+pub struct ExprCall<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
+
     pub function_name: String,
-    pub paramaters: Vec<Ast>,
+    pub paramaters: Vec<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct StmtLet {
+#[derive(Debug, Clone)]
+pub struct StmtLet<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
 
     pub name: String,
     pub value_type: AnonType,
-    pub value: Box<Ast>,
+    pub value: Box<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Program {
+#[derive(Debug, Clone)]
+pub struct Program<X: Debug + Clone> {
     pub span: SourceSpan,
-    pub definitions: Vec<Ast>,
+    pub xdata: X,
+
+    pub definitions: Vec<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DefType {
+#[derive(Debug, Clone)]
+pub struct DefType<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
+
     pub name: String,
     pub typ: AnonType,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct StmtIf {
+#[derive(Debug, Clone)]
+pub struct StmtIf<X: Debug + Clone> {
     pub span: SourceSpan,
-    pub condition: Box<Ast>,
-    pub body: Box<Ast>,
-    pub else_: Option<Box<Ast>>,
+    pub xdata: X,
+
+    pub condition: Box<Ast<X>>,
+    pub body: Box<Ast<X>>,
+    pub else_: Option<Box<Ast<X>>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Block {
+#[derive(Debug, Clone)]
+pub struct Block<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
 
     /// Indicates that the value of the final value in `statements` should be the value of this block.
     /// For example:
@@ -144,52 +163,59 @@ pub struct Block {
     /// // evaluates to `unit`, `returns = false`
     /// ```
     pub returns: bool,
-    pub statements: Vec<Ast>,
+    pub statements: Vec<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LiteralInteger {
+#[derive(Debug, Clone)]
+pub struct LiteralInteger<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
+
     pub value: i32,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LiteralBool {
+#[derive(Debug, Clone)]
+pub struct LiteralBool<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
+
     pub value: bool,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Ident {
+#[derive(Debug, Clone)]
+pub struct Ident<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
+
     pub symbol: String,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DefFunction {
+#[derive(Debug, Clone)]
+pub struct DefFunction<X: Debug + Clone> {
     pub span: SourceSpan,
+    pub xdata: X,
 
     pub name: String,
     pub params: Vec<Param>,
     pub return_type: AnonType,
-    pub body: Box<Ast>,
+    pub body: Box<Ast<X>>,
 }
 
 /// Implement Spanned for a struct, with the given member of type SourceSpan
 macro_rules! impl_spanned {
-    ($t:ty, $member:ident) => {
-        impl Spanned for $t {
+    ($t:ident, $member:ident) => {
+        impl<X: Debug + Clone> Spanned for $t<X> {
             fn span(&self) -> &SourceSpan {
                 &self.$member
             }
         }
     };
 
-    ($t:ty) => {
+    ($t:ident) => {
         impl_spanned!($t, span);
     };
 }

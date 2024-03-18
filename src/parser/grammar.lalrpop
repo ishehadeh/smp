@@ -80,6 +80,8 @@ pub DefFunction: ast::DefFunction = {
     <l: @L> "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:AnonType> " "? <block: Block> <r: @R> => {
         ast::DefFunction {
             span: (l, r).into(),
+            xdata: (),
+
             name: name.to_string(),
             params,
             return_type: typ,
@@ -137,6 +139,8 @@ pub DefType: ast::DefType = {
     <l: @L>"type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
         ast::DefType {
             span: (l, r).into(),
+            xdata: (),
+
             name: name.to_string(),
             typ,
         }
@@ -146,6 +150,8 @@ pub DefType: ast::DefType = {
 pub StmtIf: ast::StmtIf = {
     <l: @L> "if" " " <condition:Expr> <body:Block> <r: @R> => ast::StmtIf {
         span: (l, r).into(),
+        xdata: (),
+
         condition: Box::new(condition),
         body: Box::new(Ast::Block(body)),
         else_: None,
@@ -153,6 +159,8 @@ pub StmtIf: ast::StmtIf = {
 
     <l: @L> "if" " " <condition:Expr> <body:Block> "else" " "? <else_:Block> <r: @R> => ast::StmtIf {
         span: (l, r).into(),
+        xdata: (),
+
         condition: Box::new(condition),
         body: Box::new(Ast::Block(body)),
         else_: Some(Box::new(Ast::Block(else_))),
@@ -163,12 +171,16 @@ pub ExprCall: ast::ExprCall = {
     // FIXME: how to allow whitespace between fname and ( without adding ambiguity
     <l: @L> <fname:"ident"> "(" " "? ")" <r: @R> => ast::ExprCall {
         span: (l, r).into(),
+        xdata: (),
+
         function_name: fname.to_string(),
         paramaters: vec![]
     },
 
     <l: @L> <fname:"ident"> "(" " "? <paramaters:OneOrMore<Expr>> ")" <r: @R> => ast::ExprCall {
         span: (l, r).into(),
+        xdata: (),
+
         function_name: fname.to_string(),
         paramaters,
     }
@@ -178,6 +190,8 @@ pub Expr: Ast = {
     // notice only trailing whitespace is used to reduce ambiguities
     <l: @L> <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:ErrNoExplicitExprGrouping> <r: @R>  => Ast::Expr(ast::Expr {
         span: (l, r).into(),
+        xdata: (),
+
         lhs: Box::new(lhs),
         op,
         rhs: Box::new(rhs) 
@@ -189,6 +203,8 @@ pub Expr: Ast = {
 pub StmtLet: ast::StmtLet = {
     <l: @L> "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
         span: (l, r).into(),
+        xdata: (),
+
         name: name.to_string(),
         value_type: typ,
         value: Box::new(value),
@@ -210,9 +226,15 @@ pub StmtList: Vec<Ast> = {
 }
 
 pub Block: ast::Block = {
-    <l: @L> "{" " "? "}" <r: @R> " "? => ast::Block { span: (l, r).into(), returns: false, statements: vec![]  },
-    <l: @L> "{" " "? <statements: StmtList> "}" <r: @R> " "? => ast::Block { span: (l, r).into(), returns: true, statements },
-    <l: @L> "{" " "? <statements: StmtList>  ";" " "? "}"  <r: @R> " "? => ast::Block { span: (l, r).into(), returns: false, statements },
+    <l: @L> "{" " "? "}" <r: @R> " "? => ast::Block { span: (l, r).into(),
+        xdata: (),
+ returns: false, statements: vec![]  },
+    <l: @L> "{" " "? <statements: StmtList> "}" <r: @R> " "? => ast::Block { span: (l, r).into(),
+        xdata: (),
+ returns: true, statements },
+    <l: @L> "{" " "? <statements: StmtList>  ";" " "? "}"  <r: @R> " "? => ast::Block { span: (l, r).into(),
+        xdata: (),
+ returns: false, statements },
 }
 
 pub ErrNoExplicitExprGrouping: Ast = {
@@ -223,6 +245,8 @@ pub ErrNoExplicitExprGrouping: Ast = {
                 Ast::Expr(
                     ast::Expr {
                         span: (l, r).into(),
+                        xdata: (),
+
                         lhs: Box::new(lhs),
                         op,
                         rhs:Box::new(rhs),
@@ -259,6 +283,8 @@ pub InfixOp: InfixOp = {
 pub LiteralInteger: ast::LiteralInteger = {
     <l: @L> <s:"literal-int"> <r: @R> => ast::LiteralInteger {
         span: (l, r).into(),
+        xdata: (),
+
         value: s.parse::<i32>().unwrap()
     }
 }
@@ -266,10 +292,14 @@ pub LiteralInteger: ast::LiteralInteger = {
 pub LiteralBool: ast::LiteralBool = {
     <l: @L> "true" <r: @R> => ast::LiteralBool {
         span: (l, r).into(),
+        xdata: (),
+
         value: true
     },
     <l: @L> "false" <r: @R> => ast::LiteralBool {
         span: (l, r).into(),
+        xdata: (),
+
         value: false
     }
 }
@@ -277,6 +307,8 @@ pub LiteralBool: ast::LiteralBool = {
 pub Ident: ast::Ident = {
     <l: @L> <s:"ident"> <r: @R> => ast::Ident {
         span: (l, r).into(),
+        xdata: (),
+
         symbol: s.to_string()
     }
 }
@@ -299,6 +331,9 @@ pub Program: Ast = {
     <l: @L> " "? <definitions:TopLevelList> <r: @R> => {
         Ast::Program(ast::Program {
             span: (l, r).into(),
+        xdata: (),
+
+
             definitions,
         })
     }
