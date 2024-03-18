@@ -263,23 +263,37 @@ impl RiscVCompiler {
         .expect("failed to emit instruction, format error")
     }
 
+    /// Get the stack space required for the given frame allocation scheme
+    fn required_stack_space(&self, allocs: &FrameAllocations) -> usize {
+        // total size of variables placed on the stack
+        let stack_alloc_size: usize = allocs.stack.iter().map(|a| a.size).sum();
+
+        // number of registers that need to be saved before we put variables in them
+        let saved_register_count = allocs
+            .register_allocations
+            .forward()
+            .iter()
+            .filter(|(_, reg)| reg.is_callee_saved())
+            .count();
+
+        // TODO: if there is a function call in the output also add space for caller saved registers
+
+        // NOTE: add 1 here because stack ptr not in allocs.register_allocations
+        //       but it is always saved
+        let frame_header_size = stack_alloc_size + (saved_register_count + 1) * 4;
+
+        frame_header_size
+    }
+
     fn emit_func_prelude(&mut self, allocs: &FrameAllocations) {
-        let stack_alloc_size = allocs.stack_allocation_size();
-        assert!(stack_alloc_size <= 2048); // TODO allow bigger frames, or fail with a hard error, since no function should use 2kb of stack space lmao.
+        let frame_header_size = self.required_stack_space(allocs);
 
-        let frame_header_size = stack_alloc_size as i16
-            + ((allocs
-                .register_allocations
-                .forward()
-                .iter()
-                .filter(|(_, reg)| reg.is_callee_saved())
-                .count()
-                + 1)
-                * 4) as i16;
+        // max value that can be stored in the immediate.
+        assert!(frame_header_size <= 2048);
 
-        self.emit_stack_shift(-frame_header_size);
+        self.emit_stack_shift(-(frame_header_size as i16));
 
-        let mut store_offset = frame_header_size - 4;
+        let mut store_offset = frame_header_size as i16 - 4;
         self.emit_store_register(Register::Fp, Register::Sp, store_offset);
         store_offset -= 4;
 
@@ -303,22 +317,12 @@ impl RiscVCompiler {
     }
 
     fn emit_func_epilogue(&mut self, allocs: &FrameAllocations) {
-        let stack_alloc_size = allocs.stack_allocation_size();
-        assert!(stack_alloc_size <= 2048); // TODO: (again) allow bigger frames, see emit_func_prelude TODO
+        let frame_header_size = self.required_stack_space(allocs);
 
-        // TODO lots of duplicate code with prolog, clean that up
-        let frame_header_size = stack_alloc_size as i16
-            + ((allocs
-                .register_allocations
-                .forward()
-                .iter()
-                .filter(|(_, reg)| reg.is_callee_saved())
-                .count()
-                + 1)
-                * 4) as i16;
+        // max value that can be stored in the immediate.
+        assert!(frame_header_size <= 2048);
 
-        let mut store_offset: i16 = frame_header_size - 4;
-
+        let mut store_offset = frame_header_size as i16 - 4;
         self.emit_load_register(Register::Fp, Register::Sp, store_offset);
         store_offset -= 4;
 
@@ -332,7 +336,7 @@ impl RiscVCompiler {
             store_offset -= 4;
         }
 
-        self.emit_stack_shift(frame_header_size);
+        self.emit_stack_shift(frame_header_size as i16);
         writeln!(self.text, "jr ra").expect("write failed");
     }
 
