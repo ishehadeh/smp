@@ -1,5 +1,5 @@
-func add(a: int 0 to 100,b: int 0 to 100): int 0 to 200 {
-    a + (b - a)
+func triple(a: int 0 to 100): int 0 to 300 {
+    a + (a + a)
 }
 
 func __libc_start_main(): unit {
@@ -8,5 +8,5 @@ func __libc_start_main(): unit {
 }
 
 func main(): unit {
-    add(5,5);
+    triple(5);
 }

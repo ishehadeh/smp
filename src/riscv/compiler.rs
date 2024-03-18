@@ -199,8 +199,25 @@ impl RiscVCompiler {
             Register::A6,
             Register::A7,
         ];
+        const STORED_REGISTERS: [Register; 11] = [
+            Register::S1,
+            Register::S2,
+            Register::S3,
+            Register::S4,
+            Register::S5,
+            Register::S6,
+            Register::S7,
+            Register::S8,
+            Register::S9,
+            Register::S10,
+            Register::S11,
+        ];
 
-        let mut alloc_queue: Vec<Register> = PARAM_REGISTERS.iter().rev().copied().collect();
+        let mut alloc_queue: Vec<Register> = STORED_REGISTERS
+            .iter()
+            .chain(PARAM_REGISTERS.iter().rev())
+            .copied()
+            .collect();
 
         let mut allocs = FrameAllocations::new();
         for &vreg in frame.inputs.iter() {

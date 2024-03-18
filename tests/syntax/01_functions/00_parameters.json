@@ -1,0 +1,408 @@
+{
+  "ast": {
+    "type": "Program",
+    "data": {
+      "span": {
+        "start": 0,
+        "end": 294
+      },
+      "definitions": [
+        {
+          "type": "DefFunction",
+          "data": {
+            "span": {
+              "start": 0,
+              "end": 64
+            },
+            "name": "main",
+            "params": [],
+            "return_type": {
+              "type": "TypeReference",
+              "data": {
+                "name": "unit",
+                "parameters": null
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "span": {
+                  "start": 18,
+                  "end": 62
+                },
+                "returns": true,
+                "statements": [
+                  {
+                    "type": "ExprCall",
+                    "data": {
+                      "span": {
+                        "start": 24,
+                        "end": 57
+                      },
+                      "function_name": "many_many_params",
+                      "paramaters": [
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 41,
+                              "end": 42
+                            },
+                            "value": 0
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 43,
+                              "end": 44
+                            },
+                            "value": 1
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 45,
+                              "end": 46
+                            },
+                            "value": 1
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 47,
+                              "end": 48
+                            },
+                            "value": 0
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 49,
+                              "end": 50
+                            },
+                            "value": 1
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 51,
+                              "end": 52
+                            },
+                            "value": 1
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 53,
+                              "end": 54
+                            },
+                            "value": 0
+                          }
+                        },
+                        {
+                          "type": "LiteralInteger",
+                          "data": {
+                            "span": {
+                              "start": 55,
+                              "end": 56
+                            },
+                            "value": 1
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "DefFunction",
+          "data": {
+            "span": {
+              "start": 64,
+              "end": 112
+            },
+            "name": "__libc_start_main",
+            "params": [],
+            "return_type": {
+              "type": "TypeReference",
+              "data": {
+                "name": "unit",
+                "parameters": null
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "span": {
+                  "start": 95,
+                  "end": 110
+                },
+                "returns": false,
+                "statements": [
+                  {
+                    "type": "ExprCall",
+                    "data": {
+                      "span": {
+                        "start": 101,
+                        "end": 107
+                      },
+                      "function_name": "main",
+                      "paramaters": []
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "DefFunction",
+          "data": {
+            "span": {
+              "start": 112,
+              "end": 294
+            },
+            "name": "many_many_params",
+            "params": [
+              {
+                "name": "a",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "b",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "c",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "d",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "e",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "f",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              },
+              {
+                "name": "g",
+                "typ": {
+                  "type": "IntegerRange",
+                  "data": {
+                    "inclusive_low": "0",
+                    "inclusive_high": "1"
+                  }
+                }
+              }
+            ],
+            "return_type": {
+              "type": "IntegerRange",
+              "data": {
+                "inclusive_low": "0",
+                "inclusive_high": "8"
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "span": {
+                  "start": 251,
+                  "end": 294
+                },
+                "returns": true,
+                "statements": [
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 257,
+                        "end": 293
+                      },
+                      "lhs": {
+                        "type": "Ident",
+                        "data": {
+                          "span": {
+                            "start": 257,
+                            "end": 258
+                          },
+                          "symbol": "a"
+                        }
+                      },
+                      "op": "Add",
+                      "rhs": {
+                        "type": "Expr",
+                        "data": {
+                          "span": {
+                            "start": 262,
+                            "end": 291
+                          },
+                          "lhs": {
+                            "type": "Ident",
+                            "data": {
+                              "span": {
+                                "start": 262,
+                                "end": 263
+                              },
+                              "symbol": "b"
+                            }
+                          },
+                          "op": "Add",
+                          "rhs": {
+                            "type": "Expr",
+                            "data": {
+                              "span": {
+                                "start": 267,
+                                "end": 290
+                              },
+                              "lhs": {
+                                "type": "Ident",
+                                "data": {
+                                  "span": {
+                                    "start": 267,
+                                    "end": 268
+                                  },
+                                  "symbol": "c"
+                                }
+                              },
+                              "op": "Add",
+                              "rhs": {
+                                "type": "Expr",
+                                "data": {
+                                  "span": {
+                                    "start": 272,
+                                    "end": 289
+                                  },
+                                  "lhs": {
+                                    "type": "Ident",
+                                    "data": {
+                                      "span": {
+                                        "start": 272,
+                                        "end": 273
+                                      },
+                                      "symbol": "d"
+                                    }
+                                  },
+                                  "op": "Add",
+                                  "rhs": {
+                                    "type": "Expr",
+                                    "data": {
+                                      "span": {
+                                        "start": 277,
+                                        "end": 288
+                                      },
+                                      "lhs": {
+                                        "type": "Ident",
+                                        "data": {
+                                          "span": {
+                                            "start": 277,
+                                            "end": 278
+                                          },
+                                          "symbol": "e"
+                                        }
+                                      },
+                                      "op": "Add",
+                                      "rhs": {
+                                        "type": "Expr",
+                                        "data": {
+                                          "span": {
+                                            "start": 282,
+                                            "end": 287
+                                          },
+                                          "lhs": {
+                                            "type": "Ident",
+                                            "data": {
+                                              "span": {
+                                                "start": 282,
+                                                "end": 283
+                                              },
+                                              "symbol": "f"
+                                            }
+                                          },
+                                          "op": "Add",
+                                          "rhs": {
+                                            "type": "Ident",
+                                            "data": {
+                                              "span": {
+                                                "start": 286,
+                                                "end": 287
+                                              },
+                                              "symbol": "g"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "errors": []
+}
