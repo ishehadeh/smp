@@ -6,6 +6,7 @@
         "start": 0,
         "end": 76
       },
+      "xdata": null,
       "definitions": [
         {
           "type": "DefFunction",
@@ -14,6 +15,7 @@
               "start": 0,
               "end": 76
             },
+            "xdata": null,
             "name": "add",
             "params": [
               {
@@ -51,6 +53,7 @@
                   "start": 56,
                   "end": 75
                 },
+                "xdata": null,
                 "returns": true,
                 "statements": [
                   {
@@ -60,6 +63,7 @@
                         "start": 62,
                         "end": 74
                       },
+                      "xdata": null,
                       "lhs": {
                         "type": "Ident",
                         "data": {
@@ -67,6 +71,7 @@
                             "start": 62,
                             "end": 63
                           },
+                          "xdata": null,
                           "symbol": "a"
                         }
                       },
@@ -78,6 +83,7 @@
                             "start": 67,
                             "end": 72
                           },
+                          "xdata": null,
                           "lhs": {
                             "type": "Ident",
                             "data": {
@@ -85,6 +91,7 @@
                                 "start": 67,
                                 "end": 68
                               },
+                              "xdata": null,
                               "symbol": "b"
                             }
                           },
@@ -96,6 +103,7 @@
                                 "start": 71,
                                 "end": 72
                               },
+                              "xdata": null,
                               "symbol": "a"
                             }
                           }

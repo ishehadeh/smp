@@ -6,6 +6,7 @@
         "start": 0,
         "end": 294
       },
+      "xdata": null,
       "definitions": [
         {
           "type": "DefFunction",
@@ -14,6 +15,7 @@
               "start": 0,
               "end": 64
             },
+            "xdata": null,
             "name": "main",
             "params": [],
             "return_type": {
@@ -30,6 +32,7 @@
                   "start": 18,
                   "end": 62
                 },
+                "xdata": null,
                 "returns": true,
                 "statements": [
                   {
@@ -39,6 +42,7 @@
                         "start": 24,
                         "end": 57
                       },
+                      "xdata": null,
                       "function_name": "many_many_params",
                       "paramaters": [
                         {
@@ -48,6 +52,7 @@
                               "start": 41,
                               "end": 42
                             },
+                            "xdata": null,
                             "value": 0
                           }
                         },
@@ -58,6 +63,7 @@
                               "start": 43,
                               "end": 44
                             },
+                            "xdata": null,
                             "value": 1
                           }
                         },
@@ -68,6 +74,7 @@
                               "start": 45,
                               "end": 46
                             },
+                            "xdata": null,
                             "value": 1
                           }
                         },
@@ -78,6 +85,7 @@
                               "start": 47,
                               "end": 48
                             },
+                            "xdata": null,
                             "value": 0
                           }
                         },
@@ -88,6 +96,7 @@
                               "start": 49,
                               "end": 50
                             },
+                            "xdata": null,
                             "value": 1
                           }
                         },
@@ -98,6 +107,7 @@
                               "start": 51,
                               "end": 52
                             },
+                            "xdata": null,
                             "value": 1
                           }
                         },
@@ -108,6 +118,7 @@
                               "start": 53,
                               "end": 54
                             },
+                            "xdata": null,
                             "value": 0
                           }
                         },
@@ -118,6 +129,7 @@
                               "start": 55,
                               "end": 56
                             },
+                            "xdata": null,
                             "value": 1
                           }
                         }
@@ -136,6 +148,7 @@
               "start": 64,
               "end": 112
             },
+            "xdata": null,
             "name": "__libc_start_main",
             "params": [],
             "return_type": {
@@ -152,6 +165,7 @@
                   "start": 95,
                   "end": 110
                 },
+                "xdata": null,
                 "returns": false,
                 "statements": [
                   {
@@ -161,6 +175,7 @@
                         "start": 101,
                         "end": 107
                       },
+                      "xdata": null,
                       "function_name": "main",
                       "paramaters": []
                     }
@@ -177,6 +192,7 @@
               "start": 112,
               "end": 294
             },
+            "xdata": null,
             "name": "many_many_params",
             "params": [
               {
@@ -264,6 +280,7 @@
                   "start": 251,
                   "end": 294
                 },
+                "xdata": null,
                 "returns": true,
                 "statements": [
                   {
@@ -273,6 +290,7 @@
                         "start": 257,
                         "end": 293
                       },
+                      "xdata": null,
                       "lhs": {
                         "type": "Ident",
                         "data": {
@@ -280,6 +298,7 @@
                             "start": 257,
                             "end": 258
                           },
+                          "xdata": null,
                           "symbol": "a"
                         }
                       },
@@ -291,6 +310,7 @@
                             "start": 262,
                             "end": 291
                           },
+                          "xdata": null,
                           "lhs": {
                             "type": "Ident",
                             "data": {
@@ -298,6 +318,7 @@
                                 "start": 262,
                                 "end": 263
                               },
+                              "xdata": null,
                               "symbol": "b"
                             }
                           },
@@ -309,6 +330,7 @@
                                 "start": 267,
                                 "end": 290
                               },
+                              "xdata": null,
                               "lhs": {
                                 "type": "Ident",
                                 "data": {
@@ -316,6 +338,7 @@
                                     "start": 267,
                                     "end": 268
                                   },
+                                  "xdata": null,
                                   "symbol": "c"
                                 }
                               },
@@ -327,6 +350,7 @@
                                     "start": 272,
                                     "end": 289
                                   },
+                                  "xdata": null,
                                   "lhs": {
                                     "type": "Ident",
                                     "data": {
@@ -334,6 +358,7 @@
                                         "start": 272,
                                         "end": 273
                                       },
+                                      "xdata": null,
                                       "symbol": "d"
                                     }
                                   },
@@ -345,6 +370,7 @@
                                         "start": 277,
                                         "end": 288
                                       },
+                                      "xdata": null,
                                       "lhs": {
                                         "type": "Ident",
                                         "data": {
@@ -352,6 +378,7 @@
                                             "start": 277,
                                             "end": 278
                                           },
+                                          "xdata": null,
                                           "symbol": "e"
                                         }
                                       },
@@ -363,6 +390,7 @@
                                             "start": 282,
                                             "end": 287
                                           },
+                                          "xdata": null,
                                           "lhs": {
                                             "type": "Ident",
                                             "data": {
@@ -370,6 +398,7 @@
                                                 "start": 282,
                                                 "end": 283
                                               },
+                                              "xdata": null,
                                               "symbol": "f"
                                             }
                                           },
@@ -381,6 +410,7 @@
                                                 "start": 286,
                                                 "end": 287
                                               },
+                                              "xdata": null,
                                               "symbol": "g"
                                             }
                                           }
