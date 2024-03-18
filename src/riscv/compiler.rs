@@ -161,11 +161,6 @@ impl FrameAllocations {
             .find(|alloc| alloc.vreg == vreg)
             .map(|alloc| alloc.offset)
     }
-
-    /// Total space needed to hold the frame info
-    pub fn required_stack_space(&self) -> usize {
-        self.saved_register_count() * 4 + self.stack_allocation_size() + 4
-    }
 }
 
 impl Default for FrameAllocations {
@@ -269,10 +264,19 @@ impl RiscVCompiler {
     }
 
     fn emit_func_prelude(&mut self, allocs: &FrameAllocations) {
-        let frame_header_size = allocs.required_stack_space();
-        assert!(frame_header_size <= 2048); // TODO allow bigger frames, or fail with a hard error, since no function should use 2kb of stack space lmao.
+        let stack_alloc_size = allocs.stack_allocation_size();
+        assert!(stack_alloc_size <= 2048); // TODO allow bigger frames, or fail with a hard error, since no function should use 2kb of stack space lmao.
 
-        let frame_header_size = frame_header_size as i16;
+        let frame_header_size = stack_alloc_size as i16
+            + ((allocs
+                .register_allocations
+                .forward()
+                .iter()
+                .filter(|(_, reg)| reg.is_callee_saved())
+                .count()
+                + 1)
+                * 4) as i16;
+
         self.emit_stack_shift(-frame_header_size);
 
         let mut store_offset = frame_header_size - 4;
@@ -299,8 +303,19 @@ impl RiscVCompiler {
     }
 
     fn emit_func_epilogue(&mut self, allocs: &FrameAllocations) {
-        let frame_header_size = allocs.required_stack_space() as i16;
-        assert!(frame_header_size <= 2048); // TODO: (again) allow bigger frames, see emit_func_prelude TODO
+        let stack_alloc_size = allocs.stack_allocation_size();
+        assert!(stack_alloc_size <= 2048); // TODO: (again) allow bigger frames, see emit_func_prelude TODO
+
+        // TODO lots of duplicate code with prolog, clean that up
+        let frame_header_size = stack_alloc_size as i16
+            + ((allocs
+                .register_allocations
+                .forward()
+                .iter()
+                .filter(|(_, reg)| reg.is_callee_saved())
+                .count()
+                + 1)
+                * 4) as i16;
 
         let mut store_offset: i16 = frame_header_size - 4;
 

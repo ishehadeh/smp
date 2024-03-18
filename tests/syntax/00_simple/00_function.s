@@ -1,9 +1,9 @@
 .text
 .globl main
 main:
-addi sp, sp, -8
-sw fp, 4(sp)
-lw fp, 4(sp)
-addi sp, sp, 8
+addi sp, sp, -4
+sw fp, 0(sp)
+lw fp, 0(sp)
+addi sp, sp, 4
 jr ra
 
