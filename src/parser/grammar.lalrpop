@@ -57,8 +57,7 @@ pub TypeReference: AnonType = {
 /// Source: https://github.com/RustPython/Parser/blob/9ce55aefdeb35e2f706ce0b02d5a2dfe6295fc57/parser/src/python.lalrpop#L1659
 OneOrMore<T>: Vec<T> = {
     <e:T> => vec![e],
-    // This causes issues if I add whitespace around ","
-    <mut v: OneOrMore<T>> "," <e:T> => {
+    <mut v: OneOrMore<T>> "," " "? <e:T> => {
         v.push(e);
         v
     }
@@ -66,7 +65,7 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <name:"ident"> " "? ":" " "? <typ:AnonType> => Param {
+    <name:"ident"> " "? ":" " "? <typ:AnonType> " "? => Param {
         name: name.to_string(),
         typ,
     }
@@ -74,7 +73,7 @@ pub Param: Param = {
 
 pub DefParams: Vec<Param> = {
     "(" " "? ")" => vec![],
-    "(" " "?<params: OneOrMore<Param>> " "? ")" => params
+    "(" " "?<params: OneOrMore<Param>> ")" => params
 };
 
 pub DefFunction: ast::DefFunction = {
