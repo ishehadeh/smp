@@ -61,7 +61,11 @@ pub fn parse(s: &str) -> ParseResult {
         Ok(v) => v,
         Err(e) => {
             errors.push(ParseError::from(e));
-            Ast::Repaired(None)
+            Ast::Repaired(ast::Repaired {
+                tree: None,
+                xdata: (),
+                span: (0, 0).into(),
+            })
         }
     };
 

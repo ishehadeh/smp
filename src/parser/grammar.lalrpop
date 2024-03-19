@@ -241,18 +241,23 @@ pub ErrNoExplicitExprGrouping: Ast = {
     <l: @L> <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:Expr> <r: @R>  => {
         // TODO push error
         Ast::Repaired(
-            Some(Box::new(
-                Ast::Expr(
-                    ast::Expr {
-                        span: (l, r).into(),
-                        xdata: (),
+            ast::Repaired {
+                xdata: (),
+                span: (l, r).into(),
 
-                        lhs: Box::new(lhs),
-                        op,
-                        rhs:Box::new(rhs),
-                    }
-                )
-            ))
+                tree: Some(Box::new(
+                    Ast::Expr(
+                        ast::Expr {
+                            span: (l, r).into(),
+                            xdata: (),
+
+                            lhs: Box::new(lhs),
+                            op,
+                            rhs:Box::new(rhs),
+                        }
+                    )
+                ))
+            }
         )
     },
     AtomicExpr,
@@ -268,7 +273,7 @@ pub AtomicExpr: Ast = {
 
     // error recovery handler
     // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
-    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Repaired(None) },
+    <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Repaired(ast::Repaired { xdata: (), span: (l, r).into(), tree: None }) },
 };
 
 pub InfixOp: InfixOp = {

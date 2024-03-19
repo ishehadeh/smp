@@ -1,7 +1,12 @@
 use std::collections::BTreeSet;
 
 use crate::parser::ast::AnonType;
+pub mod typetree;
 
+mod errors;
+pub use errors::*;
+
+pub use self::typetree::TypeTree;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IntegerType {
     // TODO: allow for integers larger than a single pointer
@@ -36,7 +41,9 @@ pub enum ScalarType {
     Float32,
     Integer(IntegerType),
     Character,
-    Boolean,
+
+    /// booleans may be used as a true/false unit type
+    Boolean(Option<bool>),
 }
 
 impl ScalarType {
@@ -53,6 +60,7 @@ impl ScalarType {
             _ => None,
         }
     }
+
     pub fn add(&self, rhs: &ScalarType) -> Option<ScalarType> {
         self.int_op(|a, b| a + b, rhs)
     }
@@ -107,28 +115,47 @@ impl TypeInfo {
                 name,
                 parameters: _,
             } if name == "unit" => TypeInfo::Unit,
-            AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean),
+            AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean(None)),
             a => panic!("TODO: from_ast for {:?}", a),
         }
     }
     pub fn integer(lo: i32, hi: i32) -> TypeInfo {
         TypeInfo::Scalar(ScalarType::Integer(IntegerType::new(lo, hi)))
     }
+
+    pub fn bool() -> TypeInfo {
+        TypeInfo::Scalar(ScalarType::Boolean(None))
+    }
+
+    pub fn bool_valued(value: bool) -> TypeInfo {
+        TypeInfo::Scalar(ScalarType::Boolean(Some(value)))
+    }
+
     pub fn union(types: impl Into<BTreeSet<TypeInfo>>) -> TypeInfo {
         TypeInfo::Union(UnionType {
             types: types.into(),
         })
     }
+
+    pub fn is_integer(&self) -> bool {
+        matches!(self, TypeInfo::Scalar(ScalarType::Integer(_)))
+    }
+
+    pub fn is_bool(&self) -> bool {
+        matches!(self, TypeInfo::Scalar(ScalarType::Boolean(_)))
+    }
+
     pub fn record(fields: impl Into<BTreeSet<RecordCell>>) -> TypeInfo {
         TypeInfo::Record(RecordType {
             fields: fields.into(),
         })
     }
+
     pub fn get_size(&self) -> usize {
         match self {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
-            TypeInfo::Scalar(ScalarType::Boolean) => 1,
-            TypeInfo::Unit => 0,
+            TypeInfo::Scalar(ScalarType::Boolean(None)) => 1,
+            TypeInfo::Scalar(ScalarType::Boolean(_)) | TypeInfo::Unit => 0,
             _ => todo!(),
         }
     }
@@ -245,7 +272,7 @@ impl RecordCell {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     pub paramaters: Vec<(String, TypeInfo)>,
     pub returns: TypeInfo,

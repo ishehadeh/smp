@@ -46,6 +46,11 @@ pub enum AnonType {
     Bool,
 }
 
+/// Trait to access extension data on an ast node
+pub trait XData<X> {
+    fn xdata(&self) -> &X;
+}
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
@@ -58,7 +63,7 @@ pub enum Ast<X: Debug + Clone = ()> {
 
     /// A repaired node is one where an error occured but parsing was still able to be completed
     /// This is typically used for non-critical errors like 1 + 1 + 1 instead of 1 + (1 + 1)
-    Repaired(Option<Box<Ast<X>>>),
+    Repaired(Repaired<X>),
 
     DefFunction(DefFunction<X>),
     Block(Block<X>),
@@ -71,6 +76,15 @@ pub enum Ast<X: Debug + Clone = ()> {
     DefType(DefType<X>),
 
     Program(Program<X>),
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone)]
+pub struct Repaired<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub tree: Option<Box<Ast>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -200,26 +214,55 @@ pub struct DefFunction<X: Debug + Clone = ()> {
 }
 
 /// Implement Spanned for a struct, with the given member of type SourceSpan
-macro_rules! impl_spanned {
-    ($t:ident, $member:ident) => {
+macro_rules! impl_ast_node {
+    ($t:ident) => {
         impl<X: Debug + Clone> Spanned for $t<X> {
             fn span(&self) -> &SourceSpan {
-                &self.$member
+                &self.span
+            }
+        }
+
+        impl<X: Debug + Clone> XData<X> for $t<X> {
+            fn xdata(&self) -> &X {
+                &self.xdata
             }
         }
     };
+}
 
-    ($t:ident) => {
-        impl_spanned!($t, span);
+macro_rules! impl_ast_traits {
+    ($($member:ident),*) => {
+        $(impl_ast_node!{ $member })*
+
+        impl<X: Debug + Clone> Spanned for Ast<X> {
+            fn span(&self) -> &SourceSpan {
+                match self {
+                    $(Ast::$member(a) => a.span()),*
+                }
+            }
+        }
+
+        impl<X: Debug + Clone> XData<X> for Ast<X> {
+            fn xdata(&self) -> &X {
+                match self {
+                    $(Ast::$member(a) => a.xdata()),*
+                }
+            }
+        }
     };
 }
 
-impl_spanned!(Program);
-impl_spanned!(Expr);
-impl_spanned!(DefType);
-impl_spanned!(ExprCall);
-impl_spanned!(StmtIf);
-impl_spanned!(Block);
-impl_spanned!(DefFunction);
-impl_spanned!(Ident);
-impl_spanned!(LiteralInteger);
+impl_ast_traits!(
+    Program,
+    Expr,
+    DefType,
+    ExprCall,
+    StmtIf,
+    StmtLet,
+    Block,
+    DefFunction,
+    Ident,
+    LiteralInteger,
+    LiteralBool,
+    Repaired
+);

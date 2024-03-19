@@ -1,3 +1,5 @@
+cargo-features = ["codegen-backend"]
+
 [package]
 name = "howlite"
 version = "0.1.0"
@@ -37,3 +39,7 @@ required-features = ["cli"]
 [[bin]]
 name = "hlt-dbg-ast"
 required-features = ["cli", "json"]
+
+[profile.dev]
+debug = 0
+codegen-backend = "cranelift"

@@ -10,7 +10,7 @@ use super::{
     CompileError,
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Declarations {
     pub types: HashMap<String, TypeInfo>,
     pub functions: HashMap<String, FunctionDeclaration>,

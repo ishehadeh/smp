@@ -228,7 +228,7 @@ impl FrameCompiler {
     }
 
     pub fn add_store_bool_imm(&mut self, value: bool) -> VReg {
-        let r = self.allocate_register(TypeInfo::Scalar(ScalarType::Boolean));
+        let r = self.allocate_register(TypeInfo::Scalar(ScalarType::Boolean(None)));
         self.frame
             .operations
             .push(IrOp::IStoreImm(r, if value { 1 } else { 0 }));
