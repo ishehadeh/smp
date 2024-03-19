@@ -7,4 +7,11 @@ pub enum TypeError {
         rhs: TypeInfo,
         op: InfixOp,
     },
+    UnknownVariable {
+        name: String,
+    },
+    BadFunctionReturnType {
+        expected: TypeInfo,
+        returned: TypeInfo,
+    },
 }
