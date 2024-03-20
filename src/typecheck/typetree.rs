@@ -30,6 +30,14 @@ impl TypeTreeXData {
         }
     }
 
+    // get the current value type or declared type if there is no value type
+    pub fn current_type(&self) -> &TypeInfo {
+        match &self.value_type {
+            Some(a) => a,
+            None => &self.declared_type,
+        }
+    }
+
     pub fn new_value(declared_type: TypeInfo, value: TypeInfo) -> TypeTreeXData {
         TypeTreeXData {
             declared_type,
@@ -221,6 +229,28 @@ impl TypeInterpreter {
                 op,
             }),
         }
+    }
+
+    pub fn type_from_conditional(
+        &mut self,
+        node: &ast::Expr<TypeTreeXData>,
+    ) -> Option<(String, TypeInfo, TypeInfo)> {
+        let (ident, expr, is_expr_rhs) = match (node.lhs.as_ref(), node.rhs.as_ref()) {
+            (lhs, TypeTree::Ident(ident)) => (ident, lhs, false),
+            (TypeTree::Ident(ident), rhs) => (ident, rhs, true),
+            _ => return None,
+        };
+
+        let (cond_true, cond_false) = match node.op {
+            InfixOp::Add => todo!(),
+            InfixOp::Sub => todo!(),
+            InfixOp::Div => todo!(),
+            InfixOp::Mul => todo!(),
+            InfixOp::CmpEqual => (expr.xdata().current_type(), ident.xdata().current_type()),
+            InfixOp::CmpNotEqual => (ident.xdata().current_type(), expr.xdata().current_type()),
+        };
+
+        Some((ident.symbol.clone(), cond_true.clone(), cond_false.clone()))
     }
 
     pub fn eval_expr(&mut self, expr: ast::Expr) -> ast::Expr<TypeTreeXData> {
