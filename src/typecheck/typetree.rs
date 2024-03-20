@@ -15,15 +15,45 @@ pub struct TypeTreeXData {
     pub declared_type: TypeInfo,
     pub value_type: Option<TypeInfo>,
     pub error: Option<TypeError>,
+    pub cond_true: HashMap<String, TypeInfo>,
+    pub cond_false: HashMap<String, TypeInfo>,
+}
+
+impl TypeTreeXData {
+    pub fn new(declared_type: TypeInfo) -> TypeTreeXData {
+        TypeTreeXData {
+            declared_type,
+            value_type: None,
+            error: None,
+            cond_false: Default::default(),
+            cond_true: Default::default(),
+        }
+    }
+
+    pub fn new_value(declared_type: TypeInfo, value: TypeInfo) -> TypeTreeXData {
+        TypeTreeXData {
+            declared_type,
+            value_type: Some(value),
+            error: None,
+            cond_false: Default::default(),
+            cond_true: Default::default(),
+        }
+    }
+
+    pub fn new_error(declared_type: TypeInfo, error: TypeError) -> TypeTreeXData {
+        TypeTreeXData {
+            declared_type,
+            value_type: None,
+            error: Some(error),
+            cond_false: Default::default(),
+            cond_true: Default::default(),
+        }
+    }
 }
 
 impl Default for TypeTreeXData {
     fn default() -> TypeTreeXData {
-        TypeTreeXData {
-            declared_type: TypeInfo::Unit,
-            value_type: None,
-            error: None,
-        }
+        TypeTreeXData::new(TypeInfo::Unit)
     }
 }
 
@@ -62,13 +92,12 @@ impl TypeInterpreter {
             }
         }
 
-        TypeTreeXData {
-            declared_type: TypeInfo::Unit,
-            value_type: None,
-            error: Some(TypeError::UnknownVariable {
+        TypeTreeXData::new_error(
+            TypeInfo::Unit,
+            TypeError::UnknownVariable {
                 name: name.to_string(),
-            }),
-        }
+            },
+        )
     }
 
     pub fn eval_ast(&mut self, ast: Ast) -> TypeTree {
@@ -97,11 +126,7 @@ impl TypeInterpreter {
 
         ast::LiteralInteger {
             span: i.span,
-            xdata: TypeTreeXData {
-                declared_type: ty.clone(),
-                value_type: Some(ty),
-                error: None,
-            },
+            xdata: TypeTreeXData::new_value(ty.clone(), ty),
             value: i.value,
         }
     }
@@ -110,11 +135,7 @@ impl TypeInterpreter {
         let ty = TypeInfo::bool_valued(i.value);
         ast::LiteralBool {
             span: i.span,
-            xdata: TypeTreeXData {
-                declared_type: ty.clone(),
-                value_type: Some(ty),
-                error: None,
-            },
+            xdata: TypeTreeXData::new_value(ty.clone(), ty),
             value: i.value,
         }
     }
@@ -136,6 +157,8 @@ impl TypeInterpreter {
                 declared_type: return_ty,
                 error,
                 value_type: None,
+                cond_false: Default::default(),
+                cond_true: Default::default(),
             },
             name: f.name,
             params: f.params,
@@ -213,7 +236,7 @@ impl TypeInterpreter {
         let decl =
             Self::apply_infix_op_on_type(expr.op, &lhs_ty.declared_type, &rhs_ty.declared_type);
         let value_type = val_ty_tuple
-            .and_then(|(lhs, rhs)| Self::apply_infix_op_on_type(expr.op, &lhs, &rhs).ok());
+            .and_then(|(lhs, rhs)| Self::apply_infix_op_on_type(expr.op, lhs, rhs).ok());
 
         ast::Expr {
             span: expr.span,
@@ -221,6 +244,8 @@ impl TypeInterpreter {
                 error: decl.clone().err(),
                 declared_type: decl.unwrap_or(TypeInfo::Unit),
                 value_type,
+                cond_false: Default::default(),
+                cond_true: Default::default(),
             },
             lhs: Box::new(lhs),
             rhs: Box::new(rhs),
