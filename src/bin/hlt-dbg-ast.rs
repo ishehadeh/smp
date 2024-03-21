@@ -1,5 +1,7 @@
 use clap::{Parser, ValueEnum};
 use core::fmt;
+use howlite::parser::Ast;
+use howlite::typecheck::typetree::TypeInterpreter;
 use std::fs;
 use std::io;
 use std::io::stdout;
@@ -31,26 +33,39 @@ pub struct Args {
 
     /// file to parse, defaults to stdin
     file: Option<PathBuf>,
+
+    #[arg(short, long, default_value_t = false)]
+    typed: bool,
+}
+
+fn write_ast<X>(args: &Args, ast: Ast<X>)
+where
+    X: serde::Serialize + std::fmt::Debug + Clone,
+{
+    match args.format {
+        Format::Text => {
+            println!("{:#?}", ast);
+        }
+        Format::Json => {
+            serde_json::to_writer_pretty(stdout(), &ast).unwrap();
+            stdout().flush().unwrap();
+        }
+    }
 }
 
 pub fn main() {
     let args = Args::parse();
     let mut program = String::new();
-    if let Some(file) = args.file {
+    if let Some(ref file) = args.file {
         program = fs::read_to_string(file).unwrap();
     } else {
         io::stdin().read_to_string(&mut program).unwrap();
     };
     let parse_result = howlite::parser::parse(&program);
-
-    match args.format {
-        Format::Text => {
-            println!("ast = {:#?}", parse_result.ast);
-            println!("errors = {:#?}", parse_result.errors);
-        }
-        Format::Json => {
-            serde_json::to_writer_pretty(stdout(), &parse_result).unwrap();
-            stdout().flush().unwrap();
-        }
-    }
+    if args.typed {
+        let mut type_interp = TypeInterpreter::new();
+        write_ast(&args, type_interp.eval_ast(parse_result.ast))
+    } else {
+        write_ast(&args, parse_result.ast)
+    };
 }

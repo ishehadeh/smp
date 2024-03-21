@@ -1,123 +1,217 @@
 {
-  "ast": {
-    "type": "Program",
-    "data": {
-      "span": {
-        "start": 0,
-        "end": 76
-      },
-      "xdata": null,
-      "definitions": [
-        {
-          "type": "DefFunction",
-          "data": {
-            "span": {
-              "start": 0,
-              "end": 76
-            },
-            "xdata": null,
-            "name": "add",
-            "params": [
-              {
-                "name": "a",
-                "typ": {
-                  "type": "IntegerRange",
-                  "data": {
-                    "inclusive_low": "0",
-                    "inclusive_high": "100"
-                  }
-                }
-              },
-              {
-                "name": "b",
-                "typ": {
-                  "type": "IntegerRange",
-                  "data": {
-                    "inclusive_low": "0",
-                    "inclusive_high": "100"
-                  }
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 76
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 0,
+            "end": 76
+          },
+          "xdata": {
+            "declared_type": {
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 200
                 }
               }
-            ],
-            "return_type": {
-              "type": "IntegerRange",
-              "data": {
-                "inclusive_low": "0",
-                "inclusive_high": "200"
-              }
             },
-            "body": {
-              "type": "Block",
-              "data": {
-                "span": {
-                  "start": 56,
-                  "end": 75
+            "value_type": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 200
+                    }
+                  }
                 },
-                "xdata": null,
-                "returns": true,
-                "statements": [
-                  {
-                    "type": "Expr",
-                    "data": {
-                      "span": {
-                        "start": 62,
-                        "end": 74
-                      },
-                      "xdata": null,
-                      "lhs": {
-                        "type": "Ident",
-                        "data": {
-                          "span": {
-                            "start": 62,
-                            "end": 63
-                          },
-                          "xdata": null,
-                          "symbol": "a"
+                "returned": "Unit"
+              }
+            },
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "add",
+          "params": [
+            {
+              "name": "a",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "100"
+                }
+              }
+            },
+            {
+              "name": "b",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "100"
+                }
+              }
+            }
+          ],
+          "return_type": {
+            "type": "IntegerRange",
+            "data": {
+              "inclusive_low": "0",
+              "inclusive_high": "200"
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 56,
+                "end": 75
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": {
+                  "BadExpression": {
+                    "lhs": "Unit",
+                    "rhs": "Unit",
+                    "op": "Add"
+                  }
+                },
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": true,
+              "statements": [
+                {
+                  "type": "Expr",
+                  "data": {
+                    "span": {
+                      "start": 62,
+                      "end": 74
+                    },
+                    "xdata": {
+                      "declared_type": "Unit",
+                      "value_type": null,
+                      "error": {
+                        "BadExpression": {
+                          "lhs": "Unit",
+                          "rhs": "Unit",
+                          "op": "Add"
                         }
                       },
-                      "op": "Add",
-                      "rhs": {
-                        "type": "Expr",
-                        "data": {
-                          "span": {
-                            "start": 67,
-                            "end": 72
-                          },
-                          "xdata": null,
-                          "lhs": {
-                            "type": "Ident",
-                            "data": {
-                              "span": {
-                                "start": 67,
-                                "end": 68
-                              },
-                              "xdata": null,
-                              "symbol": "b"
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "lhs": {
+                      "type": "Ident",
+                      "data": {
+                        "span": {
+                          "start": 62,
+                          "end": 63
+                        },
+                        "xdata": {
+                          "declared_type": "Unit",
+                          "value_type": null,
+                          "error": {
+                            "UnknownVariable": {
+                              "name": "a"
                             }
                           },
-                          "op": "Sub",
-                          "rhs": {
-                            "type": "Ident",
-                            "data": {
-                              "span": {
-                                "start": 71,
-                                "end": 72
-                              },
-                              "xdata": null,
-                              "symbol": "a"
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "symbol": "a"
+                      }
+                    },
+                    "op": "Add",
+                    "rhs": {
+                      "type": "Expr",
+                      "data": {
+                        "span": {
+                          "start": 67,
+                          "end": 72
+                        },
+                        "xdata": {
+                          "declared_type": "Unit",
+                          "value_type": null,
+                          "error": {
+                            "BadExpression": {
+                              "lhs": "Unit",
+                              "rhs": "Unit",
+                              "op": "Sub"
                             }
+                          },
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "lhs": {
+                          "type": "Ident",
+                          "data": {
+                            "span": {
+                              "start": 67,
+                              "end": 68
+                            },
+                            "xdata": {
+                              "declared_type": "Unit",
+                              "value_type": null,
+                              "error": {
+                                "UnknownVariable": {
+                                  "name": "b"
+                                }
+                              },
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "symbol": "b"
+                          }
+                        },
+                        "op": "Sub",
+                        "rhs": {
+                          "type": "Ident",
+                          "data": {
+                            "span": {
+                              "start": 71,
+                              "end": 72
+                            },
+                            "xdata": {
+                              "declared_type": "Unit",
+                              "value_type": null,
+                              "error": {
+                                "UnknownVariable": {
+                                  "name": "a"
+                                }
+                              },
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "symbol": "a"
                           }
                         }
                       }
                     }
                   }
-                ]
-              }
+                }
+              ]
             }
           }
         }
-      ]
-    }
-  },
-  "errors": []
+      }
+    ]
+  }
 }

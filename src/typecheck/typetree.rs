@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, default};
 
 use crate::{
     ir::compiler::Declarations,
@@ -8,8 +8,9 @@ use crate::{
     },
 };
 
-use super::{IntegerType, ScalarType, TypeError, TypeInfo};
+use super::{ScalarType, TypeError, TypeInfo};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct TypeTreeXData {
     pub declared_type: TypeInfo,
@@ -69,7 +70,7 @@ pub type TypeTree = Ast<TypeTreeXData>;
 
 #[derive(Default, Clone, Debug)]
 pub struct TypeInterpreter {
-    declarations: Declarations,
+    _declarations: Declarations,
     scopes: Vec<TypeScope>,
 }
 
@@ -125,7 +126,15 @@ impl TypeInterpreter {
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
             Ast::StmtLet(_) => todo!(),
             Ast::DefType(_) => todo!(),
-            Ast::Program(_) => todo!(),
+            Ast::Program(p) => Ast::Program(ast::Program {
+                span: p.span,
+                xdata: Default::default(),
+                definitions: p
+                    .definitions
+                    .into_iter()
+                    .map(|a| self.eval_ast(a))
+                    .collect(),
+            }),
         }
     }
 
@@ -176,6 +185,8 @@ impl TypeInterpreter {
     }
 
     pub fn eval_block(&mut self, b: ast::Block) -> ast::Block<TypeTreeXData> {
+        self.push_scope();
+
         let statements: Vec<_> = b.statements.into_iter().map(|s| self.eval_ast(s)).collect();
 
         let xdata = if b.returns {
@@ -187,6 +198,7 @@ impl TypeInterpreter {
             Default::default()
         };
 
+        self.pop_scope();
         ast::Block {
             span: b.span,
             xdata,
