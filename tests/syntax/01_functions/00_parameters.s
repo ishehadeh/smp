@@ -1,12 +1,4 @@
 .text
-.globl __libc_start_main
-__libc_start_main:
-addi sp, sp, -4
-sw fp, 0(sp)
-jal zero,main
-lw fp, 0(sp)
-addi sp, sp, 4
-jr ra
 .globl main
 main:
 addi sp, sp, -4
@@ -50,5 +42,13 @@ lw s7, 8(sp)
 lw s6, 4(sp)
 lw s5, 0(sp)
 addi sp, sp, 16
+jr ra
+.globl __libc_start_main
+__libc_start_main:
+addi sp, sp, -4
+sw fp, 0(sp)
+jal zero,main
+lw fp, 0(sp)
+addi sp, sp, 4
 jr ra
 

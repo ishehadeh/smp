@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::{ScalarType, TypeError, TypeInfo};
+use super::{IntegerType, ScalarType, TypeError, TypeInfo};
 
 #[derive(Clone, Debug)]
 pub struct TypeTreeXData {
@@ -237,25 +237,49 @@ impl TypeInterpreter {
 
     pub fn type_from_conditional(
         &mut self,
-        node: &ast::Expr<TypeTreeXData>,
-    ) -> Option<(String, TypeInfo, TypeInfo)> {
-        let (ident, expr, is_expr_rhs) = match (node.lhs.as_ref(), node.rhs.as_ref()) {
+        op: InfixOp,
+        lhs: &ast::Ast<TypeTreeXData>,
+        rhs: &ast::Ast<TypeTreeXData>,
+    ) -> (HashMap<String, TypeInfo>, HashMap<String, TypeInfo>) {
+        let (ident, expr, is_expr_rhs) = match (lhs, rhs) {
             (lhs, TypeTree::Ident(ident)) => (ident, lhs, false),
             (TypeTree::Ident(ident), rhs) => (ident, rhs, true),
-            _ => return None,
+            _ => return Default::default(),
         };
 
-        let (cond_true, cond_false) = match node.op {
-            InfixOp::Add => todo!(),
-            InfixOp::Sub => todo!(),
-            InfixOp::Div => todo!(),
-            InfixOp::Mul => todo!(),
-            InfixOp::CmpEqual => (expr.xdata().current_type(), ident.xdata().current_type()),
-            InfixOp::CmpNotEqual => (ident.xdata().current_type(), expr.xdata().current_type()),
-            InfixOp::CmpLess => todo!(),
+        let expr_ty = expr.xdata().current_type();
+        let ident_ty = ident.xdata().current_type();
+        let (cond_true, cond_false, should_flip) = match op {
+            InfixOp::Mul | InfixOp::Div | InfixOp::Add | InfixOp::Sub => return Default::default(),
+            InfixOp::CmpEqual => (expr_ty.clone(), ident_ty.clone(), false),
+            InfixOp::CmpNotEqual => (ident_ty.clone(), expr_ty.clone(), false),
+            InfixOp::CmpLess => {
+                if let TypeInfo::Scalar(ScalarType::Integer(x)) = expr_ty {
+                    let less_ty = TypeInfo::integer(i32::MIN, x.hi - 1);
+                    let ge_ty = TypeInfo::integer(x.lo, i32::MAX);
+                    (
+                        ident_ty.intersect(&less_ty),
+                        ident_ty.intersect(&ge_ty),
+                        true,
+                    )
+                } else {
+                    return Default::default();
+                }
+            }
         };
 
-        Some((ident.symbol.clone(), cond_true.clone(), cond_false.clone()))
+        // output of the above match assumes the variable is on the left and expr is on the right
+        // if that isn't the case (is_expr_rhs == false) and the result is inverted if the operatorands are switched
+        // (should_flip) then flip invert the conditions
+        let (cond_true, cond_false) = if should_flip && !is_expr_rhs {
+            (cond_true, cond_false)
+        } else {
+            (cond_false, cond_true)
+        };
+        (
+            HashMap::from([(ident.symbol.clone(), cond_true)]),
+            HashMap::from([(ident.symbol.clone(), cond_false)]),
+        )
     }
 
     pub fn eval_expr(&mut self, expr: ast::Expr) -> ast::Expr<TypeTreeXData> {
@@ -273,14 +297,16 @@ impl TypeInterpreter {
         let value_type = val_ty_tuple
             .and_then(|(lhs, rhs)| Self::apply_infix_op_on_type(expr.op, lhs, rhs).ok());
 
+        let (cond_true, cond_false) = self.type_from_conditional(expr.op, &lhs, &rhs);
+
         ast::Expr {
             span: expr.span,
             xdata: TypeTreeXData {
                 error: decl.clone().err(),
                 declared_type: decl.unwrap_or(TypeInfo::Unit),
                 value_type,
-                cond_false: Default::default(),
-                cond_true: Default::default(),
+                cond_false,
+                cond_true,
             },
             lhs: Box::new(lhs),
             rhs: Box::new(rhs),
