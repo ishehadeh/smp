@@ -237,6 +237,9 @@
                           },
                           "error": null,
                           "cond_true": {
+                            "i": "Unit"
+                          },
+                          "cond_false": {
                             "i": {
                               "Scalar": {
                                 "Integer": {
@@ -245,9 +248,6 @@
                                 }
                               }
                             }
-                          },
-                          "cond_false": {
-                            "i": "Unit"
                           }
                         },
                         "lhs": {

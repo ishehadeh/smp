@@ -300,7 +300,7 @@ impl TypeInterpreter {
         // output of the above match assumes the variable is on the left and expr is on the right
         // if that isn't the case (is_expr_rhs == false) and the result is inverted if the operatorands are switched
         // (should_flip) then flip invert the conditions
-        let (cond_true, cond_false) = if should_flip && !is_expr_rhs {
+        let (cond_true, cond_false) = if should_flip && is_expr_rhs {
             (cond_true, cond_false)
         } else {
             (cond_false, cond_true)
