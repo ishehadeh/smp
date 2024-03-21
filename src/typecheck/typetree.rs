@@ -180,9 +180,9 @@ impl TypeInterpreter {
         let return_ty = TypeInfo::from_ast(&f.return_type);
 
         self.pop_scope();
-        let error = if !body_type_tree.xdata().declared_type.is_subset(&return_ty) {
+        let error = if !body_type_tree.xdata().current_type().is_subset(&return_ty) {
             Some(TypeError::BadFunctionReturnType {
-                returned: body_type_tree.xdata().declared_type.clone(),
+                returned: body_type_tree.xdata().current_type().clone(),
                 expected: return_ty.clone(),
             })
         } else {
@@ -325,7 +325,7 @@ impl TypeInterpreter {
             _ => None,
         };
         let decl =
-            Self::apply_infix_op_on_type(expr.op, &lhs_ty.declared_type, &rhs_ty.declared_type);
+            Self::apply_infix_op_on_type(expr.op, lhs_ty.current_type(), &rhs_ty.current_type());
         let value_type = val_ty_tuple
             .and_then(|(lhs, rhs)| Self::apply_infix_op_on_type(expr.op, lhs, rhs).ok());
 
@@ -361,7 +361,7 @@ impl TypeInterpreter {
         };
         let xdata = TypeTreeXData {
             declared_type: binding_type,
-            value_type: typed_value_expr.xdata().value_type.clone(),
+            value_type: Some(typed_value_expr.xdata().current_type().clone()),
             error,
             cond_false: Default::default(),
             cond_true: Default::default(),
@@ -380,11 +380,11 @@ impl TypeInterpreter {
         let typed_cond = self.eval_ast(*i.condition);
         let error = if !typed_cond
             .xdata()
-            .declared_type
+            .current_type()
             .is_subset(&TypeInfo::bool())
         {
             Some(TypeError::ExpectedCondition {
-                recieved: typed_cond.xdata().declared_type.clone(),
+                recieved: typed_cond.xdata().current_type().clone(),
             })
         } else {
             None
@@ -394,7 +394,8 @@ impl TypeInterpreter {
         self.push_scope();
         for (var, value_type) in typed_cond.xdata().cond_true.iter() {
             let mut xdata = self.get_var(&var);
-            xdata.value_type = Some(value_type.clone())
+            xdata.value_type = Some(value_type.clone());
+            self.set_var(var, xdata)
         }
         let body = self.eval_ast(*i.body);
         self.pop_scope();
@@ -404,7 +405,8 @@ impl TypeInterpreter {
             self.push_scope();
             for (var, value_type) in typed_cond.xdata().cond_false.iter() {
                 let mut xdata = self.get_var(&var);
-                xdata.value_type = Some(value_type.clone())
+                xdata.value_type = Some(value_type.clone());
+                self.set_var(var, xdata)
             }
             let else_ = self.eval_ast(*old_else);
             self.pop_scope();
@@ -413,7 +415,7 @@ impl TypeInterpreter {
             None
         };
 
-        let declared_type: TypeInfo = if let Some(else_) = &else_ {
+        let typ: TypeInfo = if let Some(else_) = &else_ {
             TypeInfo::union([
                 else_.xdata().current_type().clone(),
                 body.xdata().current_type().clone(),
@@ -425,8 +427,8 @@ impl TypeInterpreter {
         ast::StmtIf {
             span: i.span,
             xdata: TypeTreeXData {
-                declared_type,
-                value_type: None,
+                declared_type: typ.clone(),
+                value_type: Some(typ),
                 error,
                 cond_true: Default::default(),
                 cond_false: Default::default(),

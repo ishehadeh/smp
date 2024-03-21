@@ -269,8 +269,8 @@
                                       "declared_type": {
                                         "Scalar": {
                                           "Integer": {
-                                            "lo": 0,
-                                            "hi": 20
+                                            "lo": 4,
+                                            "hi": 4
                                           }
                                         }
                                       },
