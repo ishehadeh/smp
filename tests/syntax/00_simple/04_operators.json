@@ -1,0 +1,278 @@
+{
+  "ast": {
+    "type": "Program",
+    "data": {
+      "span": {
+        "start": 0,
+        "end": 100
+      },
+      "xdata": null,
+      "definitions": [
+        {
+          "type": "DefFunction",
+          "data": {
+            "span": {
+              "start": 0,
+              "end": 100
+            },
+            "xdata": null,
+            "name": "main",
+            "params": [],
+            "return_type": {
+              "type": "TypeReference",
+              "data": {
+                "name": "unit",
+                "parameters": null
+              }
+            },
+            "body": {
+              "type": "Block",
+              "data": {
+                "span": {
+                  "start": 18,
+                  "end": 100
+                },
+                "xdata": null,
+                "returns": false,
+                "statements": [
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 24,
+                        "end": 29
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 24,
+                            "end": 25
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      },
+                      "op": "Add",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 28,
+                            "end": 29
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 35,
+                        "end": 40
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 35,
+                            "end": 36
+                          },
+                          "xdata": null,
+                          "value": 2
+                        }
+                      },
+                      "op": "Div",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 39,
+                            "end": 40
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 46,
+                        "end": 51
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 46,
+                            "end": 47
+                          },
+                          "xdata": null,
+                          "value": 2
+                        }
+                      },
+                      "op": "Sub",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 50,
+                            "end": 51
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 57,
+                        "end": 62
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 57,
+                            "end": 58
+                          },
+                          "xdata": null,
+                          "value": 2
+                        }
+                      },
+                      "op": "Mul",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 61,
+                            "end": 62
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 68,
+                        "end": 73
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 68,
+                            "end": 69
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      },
+                      "op": "CmpLess",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 72,
+                            "end": 73
+                          },
+                          "xdata": null,
+                          "value": 2
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 79,
+                        "end": 85
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 79,
+                            "end": 80
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      },
+                      "op": "CmpEqual",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 84,
+                            "end": 85
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Expr",
+                    "data": {
+                      "span": {
+                        "start": 91,
+                        "end": 97
+                      },
+                      "xdata": null,
+                      "lhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 91,
+                            "end": 92
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      },
+                      "op": "CmpNotEqual",
+                      "rhs": {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 96,
+                            "end": 97
+                          },
+                          "xdata": null,
+                          "value": 1
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "errors": []
+}

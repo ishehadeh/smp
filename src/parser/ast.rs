@@ -10,6 +10,7 @@ pub enum InfixOp {
     Mul,
     CmpNotEqual,
     CmpEqual,
+    CmpLess,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

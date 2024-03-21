@@ -262,6 +262,7 @@ impl FrameCompiler {
             InfixOp::Mul => self.frame.operations.push(IrOp::IMul(result, rhs, lhs)),
             InfixOp::CmpNotEqual => self.frame.operations.push(IrOp::ISub(result, rhs, lhs)),
             InfixOp::CmpEqual => todo!(),
+            InfixOp::CmpLess => todo!(),
         }
 
         Ok(result)

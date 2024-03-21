@@ -41,6 +41,7 @@ extern {
         "=" => Token::OperatorAssign,
         "==" => Token::OperatorCmpEqual,
         "!=" => Token::OperatorCmpNotEqual,
+        "<" => Token::OperatorCmpLess,
 
         " " => Token::Whitespace(<&'input str>),
     }
@@ -283,6 +284,7 @@ pub InfixOp: InfixOp = {
     "/" => InfixOp::Div,
     "!=" => InfixOp::CmpNotEqual,
     "==" => InfixOp::CmpEqual,
+    "<" => InfixOp::CmpLess,
 }
 
 pub LiteralInteger: ast::LiteralInteger = {

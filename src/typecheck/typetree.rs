@@ -202,7 +202,10 @@ impl TypeInterpreter {
     ) -> Result<TypeInfo, TypeError> {
         match (lhs, rhs) {
             (TypeInfo::Scalar(_), TypeInfo::Scalar(_))
-                if matches!(op, InfixOp::CmpEqual | InfixOp::CmpNotEqual) =>
+                if matches!(
+                    op,
+                    InfixOp::CmpEqual | InfixOp::CmpNotEqual | InfixOp::CmpLess
+                ) =>
             {
                 Ok(TypeInfo::bool())
             }
@@ -220,6 +223,7 @@ impl TypeInterpreter {
                     // these cases SHOULD have been covered above
                     InfixOp::CmpNotEqual => unreachable!(),
                     InfixOp::CmpEqual => unreachable!(),
+                    InfixOp::CmpLess => todo!(),
                 })
             }
 
@@ -248,6 +252,7 @@ impl TypeInterpreter {
             InfixOp::Mul => todo!(),
             InfixOp::CmpEqual => (expr.xdata().current_type(), ident.xdata().current_type()),
             InfixOp::CmpNotEqual => (ident.xdata().current_type(), expr.xdata().current_type()),
+            InfixOp::CmpLess => todo!(),
         };
 
         Some((ident.symbol.clone(), cond_true.clone(), cond_false.clone()))

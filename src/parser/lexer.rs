@@ -58,6 +58,9 @@ pub enum Token<'input> {
     #[token("!=")]
     OperatorCmpNotEqual,
 
+    #[token("<")]
+    OperatorCmpLess,
+
     #[token("+")]
     OperatorAdd,
     #[token("-")]
