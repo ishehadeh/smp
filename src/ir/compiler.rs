@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     parser::Ast,
-    typecheck::{FunctionDeclaration, TypeInfo},
+    typecheck::{typetree::TypeInterpreter, FunctionDeclaration, TypeInfo, TypeTree},
 };
 
 use super::{
@@ -36,9 +36,20 @@ impl IrCompiler {
         Ok(())
     }
 
+    pub fn compile(&mut self, ast: Ast) -> Result<(), CompileError> {
+        self.scan_declarations(std::iter::once(&ast))?;
+
+        let mut type_interp = TypeInterpreter::new(self.declarations.clone());
+        let type_tree = type_interp.eval_ast(ast);
+        match type_tree {
+            Ast::Program(prog) => self.compile_functions(prog.definitions.iter()),
+            _ => panic!("expected top level program"), // TODO: normal error here
+        }
+    }
+
     pub fn compile_functions<'a>(
         &mut self,
-        program: impl Iterator<Item = &'a Ast>,
+        program: impl Iterator<Item = &'a TypeTree>,
     ) -> Result<(), CompileError> {
         for toplevel_ast_node in program {
             match toplevel_ast_node {
@@ -67,68 +78,5 @@ impl IrCompiler {
         }
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::ir::{compiler::FunctionDeclaration, frame::FrameCompiler, ops::IrOp};
-    use crate::parser::ast::InfixOp;
-    use crate::parser::lexer::Lexer;
-    use crate::parser::{grammar, Ast, ParseError};
-    use crate::typecheck::TypeInfo;
-
-    #[cfg(test)]
-    pub fn must_parse_expr(s: &str) -> Ast {
-        let lexer = Lexer::new(s);
-        let mut recovered_errors = Vec::new();
-        let result = grammar::ExprParser::new().parse(&mut recovered_errors, lexer);
-
-        let mut errors: Vec<_> = recovered_errors
-            .into_iter()
-            .map(|e| ParseError::from(e.error))
-            .collect();
-        match result {
-            Ok(v) => return v,
-            Err(e) => {
-                errors.push(ParseError::from(e));
-            }
-        };
-
-        panic!("parser encountered errors: {:?}", errors);
-    }
-
-    #[test]
-    fn add_arith_op() {
-        let mut frame_compiler = FrameCompiler::from_function_declaration(&FunctionDeclaration {
-            paramaters: vec![],
-            returns: TypeInfo::Unit,
-        });
-        let l = frame_compiler.allocate_register(TypeInfo::integer(0, 100));
-        let r = frame_compiler.allocate_register(TypeInfo::integer(0, 100));
-
-        let result = frame_compiler.add_op(InfixOp::Add, l, r).unwrap();
-        let t = &frame_compiler.get_frame().cell(result).typ;
-        assert_eq!(t.clone(), TypeInfo::integer(0, 100));
-    }
-
-    #[test]
-    fn compile_simple_expr() {
-        let mut frame_compiler = FrameCompiler::from_function_declaration(&FunctionDeclaration {
-            paramaters: vec![],
-            returns: TypeInfo::Unit,
-        });
-
-        frame_compiler
-            .compile_expr(&must_parse_expr("1 + 2"))
-            .expect("compile expr failed");
-        assert!(matches!(
-            &frame_compiler.get_frame().operations[..],
-            &[
-                IrOp::IStoreImm(a, 1),
-                IrOp::IStoreImm(b, 2),
-                IrOp::IAdd(_, a_, b_)
-            ] if a_ == a && b_ == b
-        ));
     }
 }

@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 
 use crate::{
-    parser::{ast::InfixOp, Ast},
-    typecheck::{FunctionDeclaration, ScalarType, TypeInfo},
+    parser::{
+        ast::{InfixOp, XData},
+        Ast,
+    },
+    typecheck::{FunctionDeclaration, ScalarType, TypeInfo, TypeTree},
     util::idvec::IdVec,
 };
 
@@ -125,7 +128,7 @@ impl FrameCompiler {
         None
     }
 
-    pub fn compile_expr(&mut self, expr: &Ast) -> Result<VReg, CompileError> {
+    pub fn compile_expr(&mut self, expr: &TypeTree) -> Result<VReg, CompileError> {
         // TODO maybe pass in the result reg, so we're not constantly allocating registers?
         match expr {
             Ast::LiteralInteger(x) => Ok(self.add_store_integer_imm(x.value)),
@@ -171,7 +174,7 @@ impl FrameCompiler {
                 Ok(r)
             }
             Ast::StmtLet(stmt_let) => {
-                let var_typ = TypeInfo::from_ast(&stmt_let.value_type);
+                let var_typ = stmt_let.xdata().current_type().clone();
                 let value_reg = self.compile_expr(&stmt_let.value)?;
                 let value_typ = &self.get_frame().cell(value_reg).typ;
 
@@ -193,7 +196,7 @@ impl FrameCompiler {
         }
     }
 
-    pub fn compile(&mut self, expr: &Ast) -> Result<(), CompileError> {
+    pub fn compile(&mut self, expr: &TypeTree) -> Result<(), CompileError> {
         let result = self.compile_expr(expr)?;
 
         // unify body result and return type.

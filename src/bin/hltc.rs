@@ -36,17 +36,9 @@ fn main() {
     let result: howlite::parser::ParseResult = howlite::parser::parse(&program);
 
     let mut ircompiler = IrCompiler::new();
-    match result.ast {
-        Ast::Program(program) => {
-            ircompiler
-                .scan_declarations(program.definitions.iter())
-                .expect("failed to compile from ast to ir");
-            ircompiler
-                .compile_functions(program.definitions.iter())
-                .expect("failde to compile functions")
-        }
-        _ => panic!("expected top-level program"),
-    };
+    ircompiler
+        .compile(result.ast)
+        .expect("failde to compile functions");
 
     let IrCompiler { functions, .. } = ircompiler;
 

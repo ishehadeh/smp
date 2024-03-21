@@ -1,9 +1,25 @@
 .text
-.globl __libc_start_main
-__libc_start_main:
+.globl main
+main:
 addi sp, sp, -4
 sw fp, 0(sp)
-jal zero,main
+li a1, 0
+li a2, 1
+li a3, 1
+li a4, 0
+li a5, 1
+li a6, 1
+li a7, 0
+li s11, 1
+mv a0, a1
+mv a1, a2
+mv a2, a3
+mv a3, a4
+mv a4, a5
+mv a5, a6
+mv a6, a7
+mv a7, s11
+jal zero,many_many_params
 lw fp, 0(sp)
 addi sp, sp, 4
 jr ra
@@ -27,27 +43,11 @@ lw s6, 4(sp)
 lw s5, 0(sp)
 addi sp, sp, 16
 jr ra
-.globl main
-main:
+.globl __libc_start_main
+__libc_start_main:
 addi sp, sp, -4
 sw fp, 0(sp)
-li a1, 0
-li a2, 1
-li a3, 1
-li a4, 0
-li a5, 1
-li a6, 1
-li a7, 0
-li s11, 1
-mv a0, a1
-mv a1, a2
-mv a2, a3
-mv a3, a4
-mv a4, a5
-mv a5, a6
-mv a6, a7
-mv a7, s11
-jal zero,many_many_params
+jal zero,main
 lw fp, 0(sp)
 addi sp, sp, 4
 jr ra
