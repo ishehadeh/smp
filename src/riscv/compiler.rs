@@ -8,6 +8,7 @@ use crate::ir::IrOp;
 use crate::typecheck::TypeInfo;
 use crate::util::bidihashmap::BidiHashMap;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 // source https://www.allaboutcircuits.com/technical-articles/introductions-to-risc-v-instruction-set-understanding-this-open-instruction-set-architecture/
 pub enum Register {
