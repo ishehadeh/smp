@@ -1,4 +1,4 @@
-use std::{collections::HashMap, default};
+use std::collections::HashMap;
 
 use crate::{
     ir::compiler::Declarations,
@@ -6,6 +6,7 @@ use crate::{
         ast::{self, InfixOp, XData},
         Ast,
     },
+    span::Spanned,
 };
 
 use super::{ScalarType, TypeError, TypeInfo};
@@ -109,6 +110,14 @@ impl TypeInterpreter {
         )
     }
 
+    pub fn set_var(&mut self, name: &str, data: TypeTreeXData) {
+        let top = self
+            .scopes
+            .last_mut()
+            .expect("no scopes! (should be unreachable)");
+        top.variables.insert(name.to_string(), data);
+    }
+
     pub fn eval_ast(&mut self, ast: Ast) -> TypeTree {
         match ast {
             Ast::LiteralInteger(i) => Ast::LiteralInteger(TypeInterpreter::eval_literal_integer(i)),
@@ -121,10 +130,10 @@ impl TypeInterpreter {
             Ast::Repaired(_) => todo!(),
             Ast::DefFunction(f) => Ast::DefFunction(self.eval_def_function(f)),
             Ast::Block(b) => Ast::Block(self.eval_block(b)),
-            Ast::StmtIf(_) => todo!(),
+            Ast::StmtIf(i) => Ast::StmtIf(self.eval_stmt_if(i)),
             Ast::ExprCall(_) => todo!(),
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
-            Ast::StmtLet(_) => todo!(),
+            Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
             Ast::DefType(_) => todo!(),
             Ast::Program(p) => Ast::Program(ast::Program {
                 span: p.span,
@@ -158,8 +167,16 @@ impl TypeInterpreter {
     }
 
     pub fn eval_def_function(&mut self, f: ast::DefFunction) -> ast::DefFunction<TypeTreeXData> {
+        self.push_scope();
+
+        for p in &f.params {
+            self.set_var(&p.name, TypeTreeXData::new(TypeInfo::from_ast(&p.typ)))
+        }
+
         let body_type_tree = self.eval_ast(*f.body);
         let return_ty = TypeInfo::from_ast(&f.return_type);
+
+        self.pop_scope();
         let error = if !body_type_tree.xdata().declared_type.is_subset(&return_ty) {
             Some(TypeError::BadFunctionReturnType {
                 returned: body_type_tree.xdata().declared_type.clone(),
@@ -323,6 +340,97 @@ impl TypeInterpreter {
             lhs: Box::new(lhs),
             rhs: Box::new(rhs),
             op: expr.op,
+        }
+    }
+
+    fn eval_stmt_let(&mut self, l: ast::StmtLet) -> ast::StmtLet<TypeTreeXData> {
+        let binding_type = TypeInfo::from_ast(&l.value_type);
+        let typed_value_expr = self.eval_ast(*l.value);
+        let value_type = typed_value_expr.xdata().current_type().clone();
+        let error = if !value_type.is_subset(&binding_type) {
+            Some(TypeError::BadAssignment {
+                binding_type: binding_type.clone(),
+                value_type,
+                binding_name: l.name.clone(),
+            })
+        } else {
+            None
+        };
+        let xdata = TypeTreeXData {
+            declared_type: binding_type,
+            value_type: typed_value_expr.xdata().value_type.clone(),
+            error,
+            cond_false: Default::default(),
+            cond_true: Default::default(),
+        };
+        self.set_var(&l.name, xdata.clone());
+        ast::StmtLet {
+            span: l.span,
+            xdata,
+            name: l.name,
+            value_type: l.value_type,
+            value: Box::new(typed_value_expr),
+        }
+    }
+
+    fn eval_stmt_if(&mut self, i: ast::StmtIf) -> ast::StmtIf<TypeTreeXData> {
+        let typed_cond = self.eval_ast(*i.condition);
+        let error = if !typed_cond
+            .xdata()
+            .declared_type
+            .is_subset(&TypeInfo::bool())
+        {
+            Some(TypeError::ExpectedCondition {
+                recieved: typed_cond.xdata().declared_type.clone(),
+            })
+        } else {
+            None
+        };
+
+        // eval body
+        self.push_scope();
+        for (var, value_type) in typed_cond.xdata().cond_true.iter() {
+            let mut xdata = self.get_var(&var);
+            xdata.value_type = Some(value_type.clone())
+        }
+        let body = self.eval_ast(*i.body);
+        self.pop_scope();
+
+        // eval else
+        let else_ = if let Some(old_else) = i.else_ {
+            self.push_scope();
+            for (var, value_type) in typed_cond.xdata().cond_false.iter() {
+                let mut xdata = self.get_var(&var);
+                xdata.value_type = Some(value_type.clone())
+            }
+            let else_ = self.eval_ast(*old_else);
+            self.pop_scope();
+            Some(Box::new(else_))
+        } else {
+            None
+        };
+
+        let declared_type: TypeInfo = if let Some(else_) = &else_ {
+            TypeInfo::union([
+                else_.xdata().current_type().clone(),
+                body.xdata().current_type().clone(),
+            ])
+        } else {
+            body.xdata().current_type().clone()
+        };
+
+        ast::StmtIf {
+            span: i.span,
+            xdata: TypeTreeXData {
+                declared_type,
+                value_type: None,
+                error,
+                cond_true: Default::default(),
+                cond_false: Default::default(),
+            },
+            condition: Box::new(typed_cond),
+            body: Box::new(body),
+            else_,
         }
     }
 }

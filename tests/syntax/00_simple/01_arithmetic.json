@@ -30,19 +30,7 @@
               }
             },
             "value_type": null,
-            "error": {
-              "BadFunctionReturnType": {
-                "expected": {
-                  "Scalar": {
-                    "Integer": {
-                      "lo": 0,
-                      "hi": 200
-                    }
-                  }
-                },
-                "returned": "Unit"
-              }
-            },
+            "error": null,
             "cond_true": {},
             "cond_false": {}
           },
@@ -84,15 +72,16 @@
                 "end": 75
               },
               "xdata": {
-                "declared_type": "Unit",
-                "value_type": null,
-                "error": {
-                  "BadExpression": {
-                    "lhs": "Unit",
-                    "rhs": "Unit",
-                    "op": "Add"
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 200
+                    }
                   }
                 },
+                "value_type": null,
+                "error": null,
                 "cond_true": {},
                 "cond_false": {}
               },
@@ -106,15 +95,16 @@
                       "end": 74
                     },
                     "xdata": {
-                      "declared_type": "Unit",
-                      "value_type": null,
-                      "error": {
-                        "BadExpression": {
-                          "lhs": "Unit",
-                          "rhs": "Unit",
-                          "op": "Add"
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 200
+                          }
                         }
                       },
+                      "value_type": null,
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -126,13 +116,16 @@
                           "end": 63
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "UnknownVariable": {
-                              "name": "a"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 100
+                              }
                             }
                           },
+                          "value_type": null,
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -148,15 +141,16 @@
                           "end": 72
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "BadExpression": {
-                              "lhs": "Unit",
-                              "rhs": "Unit",
-                              "op": "Sub"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": -100,
+                                "hi": 100
+                              }
                             }
                           },
+                          "value_type": null,
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -168,13 +162,16 @@
                               "end": 68
                             },
                             "xdata": {
-                              "declared_type": "Unit",
-                              "value_type": null,
-                              "error": {
-                                "UnknownVariable": {
-                                  "name": "b"
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 100
+                                  }
                                 }
                               },
+                              "value_type": null,
+                              "error": null,
                               "cond_true": {},
                               "cond_false": {}
                             },
@@ -190,13 +187,16 @@
                               "end": 72
                             },
                             "xdata": {
-                              "declared_type": "Unit",
-                              "value_type": null,
-                              "error": {
-                                "UnknownVariable": {
-                                  "name": "a"
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 100
+                                  }
                                 }
                               },
+                              "value_type": null,
+                              "error": null,
                               "cond_true": {},
                               "cond_false": {}
                             },

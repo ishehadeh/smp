@@ -8,6 +8,14 @@ pub enum TypeError {
         rhs: TypeInfo,
         op: InfixOp,
     },
+    BadAssignment {
+        binding_type: TypeInfo,
+        value_type: TypeInfo,
+        binding_name: String,
+    },
+    ExpectedCondition {
+        recieved: TypeInfo,
+    },
     UnknownVariable {
         name: String,
     },
