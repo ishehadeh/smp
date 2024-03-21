@@ -31,38 +31,8 @@ impl IrCompiler {
         &mut self,
         program: impl Iterator<Item = &'a Ast>,
     ) -> Result<(), CompileError> {
-        for toplevel_ast_node in program {
-            match toplevel_ast_node {
-                Ast::DefFunction(func) => {
-                    // TODO: params, return type
-                    self.declarations.functions.insert(
-                        func.name.clone(),
-                        FunctionDeclaration {
-                            paramaters: func
-                                .params
-                                .iter()
-                                .map(|p| (p.name.clone(), TypeInfo::from_ast(&p.typ)))
-                                .collect(),
-                            returns: TypeInfo::from_ast(&func.return_type),
-                        },
-                    );
-                }
-
-                // enumerate ignored items to make force future additions to the ast to be considered here before compiling
-                Ast::LiteralInteger(_)
-                | Ast::LiteralBool(_)
-                | Ast::Ident(_)
-                | Ast::Repaired(_)
-                | Ast::Block(_)
-                | Ast::StmtIf(_)
-                | Ast::ExprCall(_)
-                | Ast::StmtLet(_)
-                | Ast::DefType(_)
-                | Ast::Expr(_)
-                | Ast::Program(_) => continue,
-            }
-        }
-
+        // this function was refactored out of the struct, it should probably be removed at some point
+        self.declarations = crate::util::ast::scan_declarations(program);
         Ok(())
     }
 

@@ -2,6 +2,7 @@ use clap::{Parser, ValueEnum};
 use core::fmt;
 use howlite::parser::Ast;
 use howlite::typecheck::typetree::TypeInterpreter;
+use howlite::util::ast::scan_declarations;
 use std::fs;
 use std::io;
 use std::io::stdout;
@@ -63,7 +64,8 @@ pub fn main() {
     };
     let parse_result = howlite::parser::parse(&program);
     if args.typed {
-        let mut type_interp = TypeInterpreter::new();
+        let decl = scan_declarations(std::iter::once(&parse_result.ast));
+        let mut type_interp = TypeInterpreter::new(decl);
         write_ast(&args, type_interp.eval_ast(parse_result.ast))
     } else {
         write_ast(&args, parse_result.ast)

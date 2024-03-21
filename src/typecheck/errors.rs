@@ -19,6 +19,9 @@ pub enum TypeError {
     UnknownVariable {
         name: String,
     },
+    UnknownFunction {
+        name: String,
+    },
     BadFunctionReturnType {
         expected: TypeInfo,
         returned: TypeInfo,

@@ -1,0 +1,858 @@
+{
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 294
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 0,
+            "end": 64
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": "Unit",
+                "returned": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 8
+                    }
+                  }
+                }
+              }
+            },
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "main",
+          "params": [],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "unit",
+              "parameters": null
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 18,
+                "end": 62
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 8
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": true,
+              "statements": [
+                {
+                  "type": "ExprCall",
+                  "data": {
+                    "span": {
+                      "start": 24,
+                      "end": 57
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 8
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "function_name": "many_many_params",
+                    "paramaters": [
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 41,
+                            "end": 42
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 0
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 43,
+                            "end": 44
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 1
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 45,
+                            "end": 46
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 1
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 47,
+                            "end": 48
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 0
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 49,
+                            "end": 50
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 1
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 51,
+                            "end": 52
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 1
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 53,
+                            "end": 54
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 0
+                        }
+                      },
+                      {
+                        "type": "LiteralInteger",
+                        "data": {
+                          "span": {
+                            "start": 55,
+                            "end": 56
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 1,
+                                  "hi": 1
+                                }
+                              }
+                            },
+                            "error": null,
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "value": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 64,
+            "end": 112
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "__libc_start_main",
+          "params": [],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "unit",
+              "parameters": null
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 95,
+                "end": 110
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": false,
+              "statements": [
+                {
+                  "type": "ExprCall",
+                  "data": {
+                    "span": {
+                      "start": 101,
+                      "end": 107
+                    },
+                    "xdata": {
+                      "declared_type": "Unit",
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "function_name": "main",
+                    "paramaters": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 112,
+            "end": 294
+          },
+          "xdata": {
+            "declared_type": {
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 8
+                }
+              }
+            },
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "many_many_params",
+          "params": [
+            {
+              "name": "a",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "b",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "c",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "d",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "e",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "f",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            },
+            {
+              "name": "g",
+              "typ": {
+                "type": "IntegerRange",
+                "data": {
+                  "inclusive_low": "0",
+                  "inclusive_high": "1"
+                }
+              }
+            }
+          ],
+          "return_type": {
+            "type": "IntegerRange",
+            "data": {
+              "inclusive_low": "0",
+              "inclusive_high": "8"
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 251,
+                "end": 294
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 2
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": true,
+              "statements": [
+                {
+                  "type": "Expr",
+                  "data": {
+                    "span": {
+                      "start": 257,
+                      "end": 293
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 2
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "lhs": {
+                      "type": "Ident",
+                      "data": {
+                        "span": {
+                          "start": 257,
+                          "end": 258
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 1
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "symbol": "a"
+                      }
+                    },
+                    "op": "Add",
+                    "rhs": {
+                      "type": "Expr",
+                      "data": {
+                        "span": {
+                          "start": 262,
+                          "end": 291
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 2
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "lhs": {
+                          "type": "Ident",
+                          "data": {
+                            "span": {
+                              "start": 262,
+                              "end": 263
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 1
+                                  }
+                                }
+                              },
+                              "value_type": null,
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "symbol": "b"
+                          }
+                        },
+                        "op": "Add",
+                        "rhs": {
+                          "type": "Expr",
+                          "data": {
+                            "span": {
+                              "start": 267,
+                              "end": 290
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 2
+                                  }
+                                }
+                              },
+                              "value_type": null,
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "lhs": {
+                              "type": "Ident",
+                              "data": {
+                                "span": {
+                                  "start": 267,
+                                  "end": 268
+                                },
+                                "xdata": {
+                                  "declared_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 0,
+                                        "hi": 1
+                                      }
+                                    }
+                                  },
+                                  "value_type": null,
+                                  "error": null,
+                                  "cond_true": {},
+                                  "cond_false": {}
+                                },
+                                "symbol": "c"
+                              }
+                            },
+                            "op": "Add",
+                            "rhs": {
+                              "type": "Expr",
+                              "data": {
+                                "span": {
+                                  "start": 272,
+                                  "end": 289
+                                },
+                                "xdata": {
+                                  "declared_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 0,
+                                        "hi": 2
+                                      }
+                                    }
+                                  },
+                                  "value_type": null,
+                                  "error": null,
+                                  "cond_true": {},
+                                  "cond_false": {}
+                                },
+                                "lhs": {
+                                  "type": "Ident",
+                                  "data": {
+                                    "span": {
+                                      "start": 272,
+                                      "end": 273
+                                    },
+                                    "xdata": {
+                                      "declared_type": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 1
+                                          }
+                                        }
+                                      },
+                                      "value_type": null,
+                                      "error": null,
+                                      "cond_true": {},
+                                      "cond_false": {}
+                                    },
+                                    "symbol": "d"
+                                  }
+                                },
+                                "op": "Add",
+                                "rhs": {
+                                  "type": "Expr",
+                                  "data": {
+                                    "span": {
+                                      "start": 277,
+                                      "end": 288
+                                    },
+                                    "xdata": {
+                                      "declared_type": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 2
+                                          }
+                                        }
+                                      },
+                                      "value_type": null,
+                                      "error": null,
+                                      "cond_true": {},
+                                      "cond_false": {}
+                                    },
+                                    "lhs": {
+                                      "type": "Ident",
+                                      "data": {
+                                        "span": {
+                                          "start": 277,
+                                          "end": 278
+                                        },
+                                        "xdata": {
+                                          "declared_type": {
+                                            "Scalar": {
+                                              "Integer": {
+                                                "lo": 0,
+                                                "hi": 1
+                                              }
+                                            }
+                                          },
+                                          "value_type": null,
+                                          "error": null,
+                                          "cond_true": {},
+                                          "cond_false": {}
+                                        },
+                                        "symbol": "e"
+                                      }
+                                    },
+                                    "op": "Add",
+                                    "rhs": {
+                                      "type": "Expr",
+                                      "data": {
+                                        "span": {
+                                          "start": 282,
+                                          "end": 287
+                                        },
+                                        "xdata": {
+                                          "declared_type": {
+                                            "Scalar": {
+                                              "Integer": {
+                                                "lo": 0,
+                                                "hi": 2
+                                              }
+                                            }
+                                          },
+                                          "value_type": null,
+                                          "error": null,
+                                          "cond_true": {},
+                                          "cond_false": {}
+                                        },
+                                        "lhs": {
+                                          "type": "Ident",
+                                          "data": {
+                                            "span": {
+                                              "start": 282,
+                                              "end": 283
+                                            },
+                                            "xdata": {
+                                              "declared_type": {
+                                                "Scalar": {
+                                                  "Integer": {
+                                                    "lo": 0,
+                                                    "hi": 1
+                                                  }
+                                                }
+                                              },
+                                              "value_type": null,
+                                              "error": null,
+                                              "cond_true": {},
+                                              "cond_false": {}
+                                            },
+                                            "symbol": "f"
+                                          }
+                                        },
+                                        "op": "Add",
+                                        "rhs": {
+                                          "type": "Ident",
+                                          "data": {
+                                            "span": {
+                                              "start": 286,
+                                              "end": 287
+                                            },
+                                            "xdata": {
+                                              "declared_type": {
+                                                "Scalar": {
+                                                  "Integer": {
+                                                    "lo": 0,
+                                                    "hi": 1
+                                                  }
+                                                }
+                                              },
+                                              "value_type": null,
+                                              "error": null,
+                                              "cond_true": {},
+                                              "cond_false": {}
+                                            },
+                                            "symbol": "g"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

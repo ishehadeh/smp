@@ -71,7 +71,7 @@ pub type TypeTree = Ast<TypeTreeXData>;
 
 #[derive(Default, Clone, Debug)]
 pub struct TypeInterpreter {
-    _declarations: Declarations,
+    declarations: Declarations,
     scopes: Vec<TypeScope>,
 }
 
@@ -82,8 +82,11 @@ pub struct TypeScope {
 }
 
 impl TypeInterpreter {
-    pub fn new() -> TypeInterpreter {
-        TypeInterpreter::default()
+    pub fn new(declarations: Declarations) -> TypeInterpreter {
+        TypeInterpreter {
+            scopes: vec![Default::default()],
+            declarations,
+        }
     }
 
     pub fn push_scope(&mut self) {
@@ -131,7 +134,7 @@ impl TypeInterpreter {
             Ast::DefFunction(f) => Ast::DefFunction(self.eval_def_function(f)),
             Ast::Block(b) => Ast::Block(self.eval_block(b)),
             Ast::StmtIf(i) => Ast::StmtIf(self.eval_stmt_if(i)),
-            Ast::ExprCall(_) => todo!(),
+            Ast::ExprCall(c) => Ast::ExprCall(self.eval_expr_call(c)),
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
             Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
             Ast::DefType(_) => todo!(),
@@ -431,6 +434,34 @@ impl TypeInterpreter {
             condition: Box::new(typed_cond),
             body: Box::new(body),
             else_,
+        }
+    }
+
+    fn eval_expr_call(&mut self, c: ast::ExprCall) -> ast::ExprCall<TypeTreeXData> {
+        let typed_parameters = c.paramaters.into_iter().map(|p| self.eval_ast(p)).collect();
+        let decl = match self.declarations.functions.get(&c.function_name) {
+            Some(d) => d,
+            None => {
+                return ast::ExprCall {
+                    xdata: TypeTreeXData::new_error(
+                        TypeInfo::Unit,
+                        TypeError::UnknownFunction {
+                            name: c.function_name.clone(),
+                        },
+                    ),
+                    span: c.span,
+                    function_name: c.function_name,
+                    paramaters: typed_parameters,
+                }
+            }
+        };
+
+        // TODO: type check params
+        ast::ExprCall {
+            xdata: TypeTreeXData::new(decl.returns.clone()),
+            span: c.span,
+            function_name: c.function_name,
+            paramaters: typed_parameters,
         }
     }
 }
