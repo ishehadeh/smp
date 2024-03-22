@@ -5,7 +5,13 @@ use std::{
     path::PathBuf,
 };
 
-use howlite::{ir::compiler::IrCompiler, parser::Ast, riscv::compiler::RiscVCompiler};
+use howlite::{
+    ir::compiler::IrCompiler,
+    parser::Ast,
+    riscv::{compiler::RiscVCompiler, ttcompiler::Compiler},
+    typecheck::typetree::TypeInterpreter,
+    util::ast::scan_declarations,
+};
 
 const DEBUG_PRELUDE: &str = r"
 .globl __hw_breakpoint

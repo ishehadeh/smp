@@ -1,6 +1,7 @@
 use clap::{Parser, ValueEnum};
 use core::fmt;
 use howlite::parser::Ast;
+use howlite::riscv::ttcompiler::Compiler;
 use howlite::typecheck::typetree::TypeInterpreter;
 use howlite::util::ast::scan_declarations;
 use std::fs;
@@ -25,6 +26,23 @@ impl fmt::Display for Format {
     }
 }
 
+#[derive(ValueEnum, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Pass {
+    Parse,
+    Type,
+    Compile,
+}
+
+impl fmt::Display for Pass {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Parse => f.write_str("parse"),
+            Self::Type => f.write_str("type"),
+            Self::Compile => f.write_str("compile"),
+        }
+    }
+}
+
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
 pub struct Args {
@@ -35,8 +53,8 @@ pub struct Args {
     /// file to parse, defaults to stdin
     file: Option<PathBuf>,
 
-    #[arg(short, long, default_value_t = false)]
-    typed: bool,
+    #[arg(short, long, default_value_t = Pass::Parse )]
+    pass: Pass,
 }
 
 fn write_ast<X>(args: &Args, ast: Ast<X>)
@@ -63,11 +81,19 @@ pub fn main() {
         io::stdin().read_to_string(&mut program).unwrap();
     };
     let parse_result = howlite::parser::parse(&program);
-    if args.typed {
+    if matches!(args.pass, Pass::Compile | Pass::Type) {
         let decl = scan_declarations(std::iter::once(&parse_result.ast));
         let mut type_interp = TypeInterpreter::new(decl);
-        write_ast(&args, type_interp.eval_ast(parse_result.ast))
+        let type_tree = type_interp.eval_ast(parse_result.ast);
+
+        if args.pass == Pass::Compile {
+            let mut compiler = Compiler::new();
+            let riscv_tree = compiler.eval_ast(type_tree);
+            write_ast(&args, riscv_tree)
+        } else {
+            write_ast(&args, type_tree)
+        }
     } else {
         write_ast(&args, parse_result.ast)
-    };
+    }
 }

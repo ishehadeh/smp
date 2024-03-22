@@ -23,11 +23,18 @@ pub struct CompilerXData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ValueRef {
+    None,
     Immediate(i16),
     Register(Register),
 
     // stack offset from the frame pointer
     Stack(i16),
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug)]
+pub struct Variable {
+    pub cells: Vec<ValueRef>,
 }
 
 pub type CompilerTree = Ast<CompilerXData>;
@@ -42,7 +49,7 @@ pub struct Compiler {
 #[derive(Default, Clone, Debug)]
 
 pub struct TypeScope {
-    pub variables: HashMap<String, ValueRef>,
+    pub variables: HashMap<String, Variable>,
 }
 
 impl Compiler {
@@ -89,6 +96,7 @@ impl Compiler {
 
     pub fn write_slot(out: &mut String, slot: ValueRef, value: &[u8]) {
         match slot {
+            ValueRef::None => panic!("cannot write to null ref"),
             ValueRef::Immediate(_) => panic!("slot is read-only, this should be unreachable"),
             ValueRef::Register(r) => {
                 assert_eq!(value.len(), 4);
@@ -118,6 +126,7 @@ impl Compiler {
 
     pub fn load_register(&mut self, out: &mut String, reg: Register, slot: ValueRef) {
         match slot {
+            ValueRef::None => panic!("cannot load reg with null value"),
             ValueRef::Stack(offset) => {
                 writeln!(out, "lw {}, ({})fp", reg.to_abi_name(), offset).expect("write failed");
             }
@@ -135,16 +144,21 @@ impl Compiler {
         if let ValueRef::Register(reg) = slot {
             reg
         } else {
-            self.load_register(out, Register::T0, slot);
-            Register::T0
+            let next_reg = self
+                .register_stack
+                .pop_front()
+                .unwrap_or_else(|| todo!("handle no free registers"));
+
+            self.load_register(out, next_reg, slot);
+            next_reg
         }
     }
 
     // retrieve a copy of a variable's type data, or return an error and with declt type Unit if no such variable exists
-    pub fn get_var(&self, name: &str) -> ValueRef {
+    pub fn get_var(&self, name: &str, cell: usize) -> ValueRef {
         for scope in self.scopes.iter().rev() {
             if let Some(v) = scope.variables.get(name) {
-                return v.clone();
+                return v.cells[cell].clone();
             }
         }
 
@@ -157,12 +171,13 @@ impl Compiler {
         }
     }
 
-    pub fn set_var(&mut self, name: &str, data: ValueRef) {
+    pub fn set_var<D: Into<Vec<ValueRef>>>(&mut self, name: &str, data: D) {
         let top = self
             .scopes
             .last_mut()
             .expect("no scopes! (should be unreachable)");
-        top.variables.insert(name.to_string(), data);
+        top.variables
+            .insert(name.to_string(), Variable { cells: data.into() });
     }
 
     pub fn eval_ast(&mut self, ast: Ast<TypeTreeXData>) -> Ast<CompilerXData> {
@@ -172,7 +187,8 @@ impl Compiler {
             Ast::Ident(i) => Ast::Ident(ast::Ident {
                 span: i.span,
                 xdata: CompilerXData {
-                    result: self.get_var(&i.symbol),
+                    // TODO use type data to determine which cell is needed
+                    result: self.get_var(&i.symbol, 0),
                     operations: String::new(),
                 },
                 symbol: i.symbol,
@@ -185,7 +201,18 @@ impl Compiler {
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
             Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
             Ast::DefType(_) => todo!(),
-            Ast::Program(p) => todo!(),
+            Ast::Program(p) => Ast::Program(ast::Program {
+                span: p.span,
+                xdata: CompilerXData {
+                    result: ValueRef::None,
+                    operations: String::new(),
+                },
+                definitions: p
+                    .definitions
+                    .into_iter()
+                    .map(|a| self.eval_ast(a))
+                    .collect(),
+            }),
         }
     }
 
@@ -297,13 +324,64 @@ impl Compiler {
     }
 
     fn eval_def_function(
-        &self,
+        &mut self,
         f: ast::DefFunction<TypeTreeXData>,
     ) -> ast::DefFunction<CompilerXData> {
-        todo!()
+        self.push_scope();
+        let mut arg_register = vec![
+            Register::A0,
+            Register::A1,
+            Register::A2,
+            Register::A3,
+            Register::A4,
+            Register::A5,
+            Register::A6,
+            Register::A7,
+        ];
+        arg_register.reverse();
+        for param in &f.params {
+            // TODO complex parameter types
+            self.set_var(
+                &param.name,
+                vec![ValueRef::Register(
+                    arg_register.pop().expect("unsupported: stack vars"),
+                )],
+            )
+        }
+        let body = self.eval_ast(*f.body);
+        self.pop_scope();
+        ast::DefFunction {
+            span: f.span,
+            xdata: CompilerXData {
+                result: body.xdata().result,
+                operations: String::new(),
+            },
+            name: f.name,
+            params: f.params,
+            return_type: f.return_type,
+            body: Box::new(body),
+        }
     }
 
-    fn eval_block(&self, b: ast::Block<TypeTreeXData>) -> ast::Block<CompilerXData> {
-        todo!()
+    fn eval_block(&mut self, b: ast::Block<TypeTreeXData>) -> ast::Block<CompilerXData> {
+        self.push_scope();
+        let statements: Vec<_> = b.statements.into_iter().map(|s| self.eval_ast(s)).collect();
+
+        let result = statements
+            .last()
+            .map(|s| s.xdata().result)
+            .unwrap_or(ValueRef::None);
+
+        self.pop_scope();
+
+        ast::Block {
+            span: b.span,
+            xdata: CompilerXData {
+                result,
+                operations: String::new(),
+            },
+            returns: b.returns,
+            statements,
+        }
     }
 }
