@@ -9,7 +9,7 @@ use crate::{
         ast::{self, InfixOp, XData},
         Ast,
     },
-    typecheck::typetree::TypeTreeXData,
+    typecheck::{typetree::TypeTreeXData, TypeInfo},
 };
 use std::fmt::Write;
 
@@ -304,7 +304,35 @@ impl Compiler {
     }
 
     fn eval_expr_call(&mut self, c: ast::ExprCall<TypeTreeXData>) -> EvalResult {
-        todo!()
+        let arg_regs = [
+            Register::A0,
+            Register::A1,
+            Register::A2,
+            Register::A3,
+            Register::A4,
+            Register::A5,
+            Register::A6,
+            Register::A7,
+        ];
+
+        // take her to help borrow checker
+        let return_ty = c.xdata().declared_type.clone();
+        for (arg_reg_i, arg) in c.paramaters.into_iter().enumerate() {
+            let result = self.eval_ast(arg);
+            self.load_register(arg_regs[arg_reg_i], result.result.unwrap());
+        }
+        writeln!(&mut self.out, "jal {}", &c.function_name);
+        if return_ty != TypeInfo::Unit {
+            EvalResult {
+                result: Some(ValueRef::Register(arg_regs[0])),
+                registers: HashSet::new(),
+            }
+        } else {
+            EvalResult {
+                result: None,
+                registers: HashSet::new(),
+            }
+        }
     }
 
     fn eval_def_function(&mut self, f: ast::DefFunction<TypeTreeXData>) -> EvalResult {

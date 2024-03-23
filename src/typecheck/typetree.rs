@@ -6,7 +6,6 @@ use crate::{
         ast::{self, InfixOp, XData},
         Ast,
     },
-    span::Spanned,
 };
 
 use super::{ScalarType, TypeError, TypeInfo};
