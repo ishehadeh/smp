@@ -300,7 +300,37 @@ impl Compiler {
     }
 
     fn eval_stmt_if(&mut self, i: ast::StmtIf<TypeTreeXData>) -> EvalResult {
-        todo!()
+        let res = self.eval_ast(*i.condition);
+        let cond_reg = self.slot_to_register(res.result.unwrap());
+        let end_label = self.gen_label();
+        if let Some(ast_else_) = i.else_ {
+            let false_label = self.gen_label();
+
+            writeln!(
+                &mut self.out,
+                "beqz {}, {}",
+                false_label,
+                cond_reg.to_abi_name()
+            );
+            let res_true = self.eval_ast(*i.body);
+            writeln!(&mut self.out, "j {}", end_label);
+            writeln!(&mut self.out, "{}:", false_label);
+            let res_false = self.eval_ast(*ast_else_);
+        } else {
+            writeln!(
+                &mut self.out,
+                "beqz {}, {}",
+                end_label,
+                cond_reg.to_abi_name()
+            );
+            let res_true = self.eval_ast(*i.body);
+        };
+        writeln!(&mut self.out, "{}:", end_label);
+
+        EvalResult {
+            result: None, // TODO,
+            registers: HashSet::new(),
+        }
     }
 
     fn eval_expr_call(&mut self, c: ast::ExprCall<TypeTreeXData>) -> EvalResult {
