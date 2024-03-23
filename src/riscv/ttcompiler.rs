@@ -294,7 +294,9 @@ impl Compiler {
     }
 
     fn eval_stmt_let(&mut self, l: ast::StmtLet<TypeTreeXData>) -> EvalResult {
-        todo!()
+        let result = self.eval_ast(*l.value);
+        self.set_var(&l.name, result.result.unwrap().clone());
+        result
     }
 
     fn eval_stmt_if(&mut self, i: ast::StmtIf<TypeTreeXData>) -> EvalResult {
@@ -332,7 +334,8 @@ impl Compiler {
     fn eval_block(&mut self, b: ast::Block<TypeTreeXData>) -> EvalResult {
         self.push_scope();
 
-        b.statements
+        let res = b
+            .statements
             .into_iter()
             .map(|s| self.eval_ast(s))
             .last()
@@ -340,6 +343,8 @@ impl Compiler {
             .unwrap_or(EvalResult {
                 result: None,
                 registers: HashSet::new(),
-            })
+            });
+        self.pop_scope();
+        res
     }
 }
