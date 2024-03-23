@@ -30,7 +30,6 @@ impl fmt::Display for Format {
 pub enum Pass {
     Parse,
     Type,
-    Compile,
 }
 
 impl fmt::Display for Pass {
@@ -38,7 +37,6 @@ impl fmt::Display for Pass {
         match self {
             Self::Parse => f.write_str("parse"),
             Self::Type => f.write_str("type"),
-            Self::Compile => f.write_str("compile"),
         }
     }
 }
@@ -81,18 +79,12 @@ pub fn main() {
         io::stdin().read_to_string(&mut program).unwrap();
     };
     let parse_result = howlite::parser::parse(&program);
-    if matches!(args.pass, Pass::Compile | Pass::Type) {
+    if matches!(args.pass, Pass::Type) {
         let decl = scan_declarations(std::iter::once(&parse_result.ast));
         let mut type_interp = TypeInterpreter::new(decl);
         let type_tree = type_interp.eval_ast(parse_result.ast);
 
-        if args.pass == Pass::Compile {
-            let mut compiler = Compiler::new();
-            let riscv_tree = compiler.eval_ast(type_tree);
-            write_ast(&args, riscv_tree)
-        } else {
-            write_ast(&args, type_tree)
-        }
+        write_ast(&args, type_tree)
     } else {
         write_ast(&args, parse_result.ast)
     }

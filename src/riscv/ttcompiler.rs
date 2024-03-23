@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     sync::atomic::AtomicUsize,
 };
 
@@ -31,25 +31,27 @@ pub enum ValueRef {
     Stack(i16),
 }
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Debug)]
-pub struct Variable {
-    pub cells: Vec<ValueRef>,
-}
-
 pub type CompilerTree = Ast<CompilerXData>;
 
 #[derive(Default, Clone, Debug)]
 pub struct Compiler {
-    scopes: Vec<TypeScope>,
+    scopes: Vec<Scope>,
     register_stack: VecDeque<Register>,
     stack_offset: usize,
+    /// TODO: turn this into a write at some point
+    pub out: String,
 }
 
 #[derive(Default, Clone, Debug)]
 
-pub struct TypeScope {
-    pub variables: HashMap<String, Variable>,
+pub struct Scope {
+    pub variables: HashMap<String, ValueRef>,
+}
+
+#[derive(Default, Clone, Debug)]
+pub struct EvalResult {
+    pub result: Option<ValueRef>,
+    pub registers: HashSet<Register>,
 }
 
 impl Compiler {
@@ -70,7 +72,12 @@ impl Compiler {
                 Register::S11,
             ]),
             stack_offset: 0,
+            out: String::new(),
         }
+    }
+
+    pub fn text(&self) -> &str {
+        &self.out
     }
 
     pub fn get_slot(&mut self, size: usize) -> ValueRef {
@@ -87,7 +94,7 @@ impl Compiler {
     }
 
     pub fn push_scope(&mut self) {
-        self.scopes.push(TypeScope::default())
+        self.scopes.push(Scope::default())
     }
 
     pub fn pop_scope(&mut self) {
@@ -124,23 +131,29 @@ impl Compiler {
         save_ref
     }
 
-    pub fn load_register(&mut self, out: &mut String, reg: Register, slot: ValueRef) {
+    pub fn load_register(&mut self, reg: Register, slot: ValueRef) {
         match slot {
             ValueRef::None => panic!("cannot load reg with null value"),
             ValueRef::Stack(offset) => {
-                writeln!(out, "lw {}, ({})fp", reg.to_abi_name(), offset).expect("write failed");
+                writeln!(&mut self.out, "lw {}, ({})fp", reg.to_abi_name(), offset)
+                    .expect("write failed");
             }
             ValueRef::Immediate(imm) => {
-                writeln!(out, "li {}, {}", reg.to_abi_name(), imm).expect("write failed");
+                writeln!(&mut self.out, "li {}, {}", reg.to_abi_name(), imm).expect("write failed");
             }
             ValueRef::Register(other) => {
-                writeln!(out, "mv {}, {}", reg.to_abi_name(), other.to_abi_name())
-                    .expect("write failed");
+                writeln!(
+                    &mut self.out,
+                    "mv {}, {}",
+                    reg.to_abi_name(),
+                    other.to_abi_name()
+                )
+                .expect("write failed");
             }
         }
     }
 
-    pub fn slot_to_register(&mut self, out: &mut String, slot: ValueRef) -> Register {
+    pub fn slot_to_register(&mut self, slot: ValueRef) -> Register {
         if let ValueRef::Register(reg) = slot {
             reg
         } else {
@@ -149,16 +162,16 @@ impl Compiler {
                 .pop_front()
                 .unwrap_or_else(|| todo!("handle no free registers"));
 
-            self.load_register(out, next_reg, slot);
+            self.load_register(next_reg, slot);
             next_reg
         }
     }
 
     // retrieve a copy of a variable's type data, or return an error and with declt type Unit if no such variable exists
-    pub fn get_var(&self, name: &str, cell: usize) -> ValueRef {
+    pub fn get_var(&self, name: &str) -> ValueRef {
         for scope in self.scopes.iter().rev() {
             if let Some(v) = scope.variables.get(name) {
-                return v.cells[cell].clone();
+                return v.clone();
             }
         }
 
@@ -171,85 +184,64 @@ impl Compiler {
         }
     }
 
-    pub fn set_var<D: Into<Vec<ValueRef>>>(&mut self, name: &str, data: D) {
+    pub fn set_var(&mut self, name: &str, data: ValueRef) {
         let top = self
             .scopes
             .last_mut()
             .expect("no scopes! (should be unreachable)");
-        top.variables
-            .insert(name.to_string(), Variable { cells: data.into() });
+        top.variables.insert(name.to_string(), data);
     }
 
-    pub fn eval_ast(&mut self, ast: Ast<TypeTreeXData>) -> Ast<CompilerXData> {
+    pub fn eval_ast(&mut self, ast: Ast<TypeTreeXData>) -> EvalResult {
         match ast {
-            Ast::LiteralInteger(i) => Ast::LiteralInteger(self.eval_literal_integer(i)),
-            Ast::LiteralBool(b) => Ast::LiteralBool(Compiler::eval_literal_bool(b)),
-            Ast::Ident(i) => Ast::Ident(ast::Ident {
-                span: i.span,
-                xdata: CompilerXData {
-                    // TODO use type data to determine which cell is needed
-                    result: self.get_var(&i.symbol, 0),
-                    operations: String::new(),
-                },
-                symbol: i.symbol,
-            }),
+            Ast::LiteralInteger(i) => self.eval_literal_integer(i),
+            Ast::LiteralBool(b) => Compiler::eval_literal_bool(b),
+            Ast::Ident(i) => EvalResult {
+                result: Some(self.get_var(&i.symbol)),
+                registers: HashSet::new(),
+            },
             Ast::Repaired(_) => todo!(),
-            Ast::DefFunction(f) => Ast::DefFunction(self.eval_def_function(f)),
-            Ast::Block(b) => Ast::Block(self.eval_block(b)),
-            Ast::StmtIf(i) => Ast::StmtIf(self.eval_stmt_if(i)),
-            Ast::ExprCall(c) => Ast::ExprCall(self.eval_expr_call(c)),
-            Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
-            Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
+            Ast::DefFunction(f) => self.eval_def_function(f),
+            Ast::Block(b) => self.eval_block(b),
+            Ast::StmtIf(i) => self.eval_stmt_if(i),
+            Ast::ExprCall(c) => self.eval_expr_call(c),
+            Ast::Expr(e) => self.eval_expr(e),
+            Ast::StmtLet(l) => self.eval_stmt_let(l),
             Ast::DefType(_) => todo!(),
-            Ast::Program(p) => Ast::Program(ast::Program {
-                span: p.span,
-                xdata: CompilerXData {
-                    result: ValueRef::None,
-                    operations: String::new(),
-                },
-                definitions: p
-                    .definitions
-                    .into_iter()
-                    .map(|a| self.eval_ast(a))
-                    .collect(),
-            }),
+            Ast::Program(p) => {
+                p.definitions.into_iter().for_each(|a| {
+                    self.eval_ast(a);
+                });
+                EvalResult {
+                    result: None,
+                    registers: HashSet::new(),
+                }
+            }
         }
     }
 
-    pub fn eval_literal_integer(
-        &mut self,
-        i: ast::LiteralInteger<TypeTreeXData>,
-    ) -> ast::LiteralInteger<CompilerXData> {
-        let xdata = if i.value.abs() < 2048 {
-            CompilerXData {
-                result: ValueRef::Immediate(i.value as i16),
-                operations: String::new(),
+    pub fn eval_literal_integer(&mut self, i: ast::LiteralInteger<TypeTreeXData>) -> EvalResult {
+        if i.value.abs() < 2048 {
+            EvalResult {
+                result: Some(ValueRef::Immediate(i.value as i16)),
+                registers: HashSet::new(),
             }
         } else {
             let result = self.get_slot(4);
             let mut operations = String::new();
-            Compiler::write_slot(&mut operations, result, &i.value.to_le_bytes());
+            Compiler::write_slot(&mut self.out, result, &i.value.to_le_bytes());
 
-            CompilerXData { result, operations }
-        };
-
-        ast::LiteralInteger {
-            span: i.span,
-            xdata,
-            value: i.value,
+            EvalResult {
+                result: Some(result),
+                registers: HashSet::new(),
+            }
         }
     }
 
-    pub fn eval_literal_bool(
-        i: ast::LiteralBool<TypeTreeXData>,
-    ) -> ast::LiteralBool<CompilerXData> {
-        ast::LiteralBool {
-            span: i.span,
-            xdata: CompilerXData {
-                result: ValueRef::Immediate(i.value as i16),
-                operations: String::new(),
-            },
-            value: i.value,
+    pub fn eval_literal_bool(i: ast::LiteralBool<TypeTreeXData>) -> EvalResult {
+        EvalResult {
+            result: Some(ValueRef::Immediate(i.value as i16)),
+            registers: HashSet::new(),
         }
     }
 
@@ -260,23 +252,19 @@ impl Compiler {
         format!(".L{}", label_num)
     }
 
-    pub fn eval_expr(&mut self, expr: ast::Expr<TypeTreeXData>) -> ast::Expr<CompilerXData> {
+    pub fn eval_expr(&mut self, expr: ast::Expr<TypeTreeXData>) -> EvalResult {
         let lhs = self.eval_ast(*expr.lhs);
         let rhs = self.eval_ast(*expr.rhs);
 
         let mut operations = String::new();
 
-        let lreg = self.slot_to_register(&mut operations, lhs.xdata().result);
-        let rreg = self.slot_to_register(&mut operations, rhs.xdata().result);
+        let lreg = self.slot_to_register(lhs.result.expect(""));
+        let rreg = self.slot_to_register(rhs.result.expect(""));
         let lreg_s = lreg.to_abi_name();
         let rreg_s: &str = rreg.to_abi_name();
         let mut arith = |name: &str| {
-            writeln!(
-                &mut operations,
-                "{} {}, {}, {}",
-                name, lreg_s, lreg_s, rreg_s
-            )
-            .expect("write failed")
+            writeln!(&mut self.out, "{} {}, {}, {}", name, lreg_s, lreg_s, rreg_s)
+                .expect("write failed")
         };
 
         match expr.op {
@@ -286,49 +274,39 @@ impl Compiler {
             InfixOp::Mul => arith("mul"),
             InfixOp::CmpNotEqual => {
                 arith("sub");
-                writeln!(&mut operations, "snez {}, {}", lreg_s, lreg_s).expect("write_failed");
+                writeln!(&mut self.out, "snez {}, {}", lreg_s, lreg_s).expect("write_failed");
             }
             InfixOp::CmpEqual => {
                 arith("sub");
-                writeln!(&mut operations, "seqz {}, {}", lreg_s, lreg_s).expect("write_failed");
+                writeln!(&mut self.out, "seqz {}, {}", lreg_s, lreg_s).expect("write_failed");
             }
             InfixOp::CmpLess => {
-                writeln!(&mut operations, "slt {}, {}, {}", lreg_s, lreg_s, rreg_s)
+                writeln!(&mut self.out, "slt {}, {}, {}", lreg_s, lreg_s, rreg_s)
                     .expect("write_failed");
             }
         }
         self.register_stack.push_front(rreg);
 
-        ast::Expr {
-            span: expr.span,
-            xdata: CompilerXData {
-                result: ValueRef::Register(lreg),
-                operations,
-            },
-            lhs: Box::new(lhs),
-            op: expr.op,
-            rhs: Box::new(rhs),
+        EvalResult {
+            result: Some(ValueRef::Register(lreg)),
+            registers: HashSet::new(),
         }
     }
 
-    fn eval_stmt_let(&mut self, l: ast::StmtLet<TypeTreeXData>) -> ast::StmtLet<CompilerXData> {
+    fn eval_stmt_let(&mut self, l: ast::StmtLet<TypeTreeXData>) -> EvalResult {
         todo!()
     }
 
-    fn eval_stmt_if(&mut self, i: ast::StmtIf<TypeTreeXData>) -> ast::StmtIf<CompilerXData> {
+    fn eval_stmt_if(&mut self, i: ast::StmtIf<TypeTreeXData>) -> EvalResult {
         todo!()
     }
 
-    fn eval_expr_call(&mut self, c: ast::ExprCall<TypeTreeXData>) -> ast::ExprCall<CompilerXData> {
+    fn eval_expr_call(&mut self, c: ast::ExprCall<TypeTreeXData>) -> EvalResult {
         todo!()
     }
 
-    fn eval_def_function(
-        &mut self,
-        f: ast::DefFunction<TypeTreeXData>,
-    ) -> ast::DefFunction<CompilerXData> {
-        self.push_scope();
-        let mut arg_register = vec![
+    fn eval_def_function(&mut self, f: ast::DefFunction<TypeTreeXData>) -> EvalResult {
+        let arg_regs = [
             Register::A0,
             Register::A1,
             Register::A2,
@@ -338,50 +316,30 @@ impl Compiler {
             Register::A6,
             Register::A7,
         ];
-        arg_register.reverse();
-        for param in &f.params {
-            // TODO complex parameter types
-            self.set_var(
-                &param.name,
-                vec![ValueRef::Register(
-                    arg_register.pop().expect("unsupported: stack vars"),
-                )],
-            )
+        self.push_scope();
+        writeln!(&mut self.out, "{}:", f.name);
+        for (arg_reg_i, p) in f.params.iter().enumerate() {
+            self.set_var(&p.name, ValueRef::Register(arg_regs[arg_reg_i]));
         }
-        let body = self.eval_ast(*f.body);
+        self.eval_ast(*f.body);
         self.pop_scope();
-        ast::DefFunction {
-            span: f.span,
-            xdata: CompilerXData {
-                result: body.xdata().result,
-                operations: String::new(),
-            },
-            name: f.name,
-            params: f.params,
-            return_type: f.return_type,
-            body: Box::new(body),
+        EvalResult {
+            result: None,
+            registers: HashSet::new(),
         }
     }
 
-    fn eval_block(&mut self, b: ast::Block<TypeTreeXData>) -> ast::Block<CompilerXData> {
+    fn eval_block(&mut self, b: ast::Block<TypeTreeXData>) -> EvalResult {
         self.push_scope();
-        let statements: Vec<_> = b.statements.into_iter().map(|s| self.eval_ast(s)).collect();
 
-        let result = statements
+        b.statements
+            .into_iter()
+            .map(|s| self.eval_ast(s))
             .last()
-            .map(|s| s.xdata().result)
-            .unwrap_or(ValueRef::None);
-
-        self.pop_scope();
-
-        ast::Block {
-            span: b.span,
-            xdata: CompilerXData {
-                result,
-                operations: String::new(),
-            },
-            returns: b.returns,
-            statements,
-        }
+            .clone()
+            .unwrap_or(EvalResult {
+                result: None,
+                registers: HashSet::new(),
+            })
     }
 }

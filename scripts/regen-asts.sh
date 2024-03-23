@@ -6,7 +6,7 @@ root="$(dirname $(dirname $(readlink -f "$0")))"
 gen_ast() {
     basename="$(dirname $1)/$(basename "$1" .hlt)"
     if [ -z "$NO_AST" ]; then
-        "$root/target/debug/hlt-dbg-ast" --typed --format json "$1" >"$basename.json" || echo "[$1] hlt-dbg-ast failed"
+        "$root/target/debug/hlt-dbg-ast" --pass type --format json "$1" >"$basename.json" || echo "[$1] hlt-dbg-ast failed"
     fi
 
     if [ -z "$NO_COMPILE" ]; then

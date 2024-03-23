@@ -39,20 +39,14 @@ fn main() {
     } else {
         io::stdin().read_to_string(&mut program).unwrap();
     };
-    let result: howlite::parser::ParseResult = howlite::parser::parse(&program);
+    let parse_result: howlite::parser::ParseResult = howlite::parser::parse(&program);
 
-    let mut ircompiler = IrCompiler::new();
-    ircompiler
-        .compile(result.ast)
-        .expect("failde to compile functions");
+    let decl = scan_declarations(std::iter::once(&parse_result.ast));
+    let mut type_interp = TypeInterpreter::new(decl);
+    let type_tree = type_interp.eval_ast(parse_result.ast);
 
-    let IrCompiler { functions, .. } = ircompiler;
-
-    let mut compiler = RiscVCompiler::new();
-    for (func_name, func_ir) in functions.iter() {
-        compiler.compile_frame(func_name, func_ir)
-    }
-
+    let mut compiler = Compiler::new();
+    compiler.eval_ast(type_tree);
     println!(".text\n{}", compiler.text());
 
     if args.debug {
