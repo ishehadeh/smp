@@ -403,7 +403,11 @@ impl Compiler {
         for (arg_reg_i, p) in f.params.iter().enumerate() {
             self.set_var(&p.name, ValueRef::Register(arg_regs[arg_reg_i]));
         }
-        self.eval_ast(f.body.as_ref());
+        let res = self.eval_ast(f.body.as_ref());
+        if let Some(out) = res.result {
+            self.load_register(Register::A0, out);
+        }
+        writeln!(&mut self.out, "ret").expect("write failed");
         self.pop_scope();
         EvalResult {
             result: None,

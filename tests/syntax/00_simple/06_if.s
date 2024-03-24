@@ -13,4 +13,6 @@ li s5, 1
 sub s4, s4, s5
 mv s2, s4
 .L0:
+mv a0, s2
+ret
 

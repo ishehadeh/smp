@@ -23,4 +23,6 @@ li s7, 1
 li s8, 1
 sub s7, s7, s8
 snez s7, s7
+mv a0, s7
+ret
 
