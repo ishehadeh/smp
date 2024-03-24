@@ -153,15 +153,19 @@ impl Compiler {
             }
         }
     }
+    pub fn get_register(&mut self) -> Register {
+        let next_reg = self
+            .register_stack
+            .pop_front()
+            .unwrap_or_else(|| todo!("handle no free registers"));
 
+        next_reg
+    }
     pub fn slot_to_register(&mut self, slot: ValueRef) -> Register {
         if let ValueRef::Register(reg) = slot {
             reg
         } else {
-            let next_reg = self
-                .register_stack
-                .pop_front()
-                .unwrap_or_else(|| todo!("handle no free registers"));
+            let next_reg = self.get_register();
 
             self.load_register(next_reg, slot);
             next_reg
@@ -278,9 +282,15 @@ impl Compiler {
         let rreg = self.slot_to_register(rhs.result.expect(""));
         let lreg_s = lreg.to_abi_name();
         let rreg_s: &str = rreg.to_abi_name();
+        let res_reg = self.get_register();
+        let res_reg_s = res_reg.to_abi_name();
         let mut arith = |name: &str| {
-            writeln!(&mut self.out, "{} {}, {}, {}", name, lreg_s, lreg_s, rreg_s)
-                .expect("write failed")
+            writeln!(
+                &mut self.out,
+                "{} {}, {}, {}",
+                name, res_reg_s, lreg_s, rreg_s
+            )
+            .expect("write failed")
         };
 
         match expr.op {
@@ -290,21 +300,21 @@ impl Compiler {
             InfixOp::Mul => arith("mul"),
             InfixOp::CmpNotEqual => {
                 arith("sub");
-                writeln!(&mut self.out, "snez {}, {}", lreg_s, lreg_s).expect("write_failed");
+                writeln!(&mut self.out, "snez {}, {}", res_reg_s, lreg_s).expect("write_failed");
             }
             InfixOp::CmpEqual => {
                 arith("sub");
-                writeln!(&mut self.out, "seqz {}, {}", lreg_s, lreg_s).expect("write_failed");
+                writeln!(&mut self.out, "seqz {}, {}", res_reg_s, lreg_s).expect("write_failed");
             }
             InfixOp::CmpLess => {
-                writeln!(&mut self.out, "slt {}, {}, {}", lreg_s, lreg_s, rreg_s)
+                writeln!(&mut self.out, "slt {}, {}, {}", res_reg_s, lreg_s, rreg_s)
                     .expect("write_failed");
             }
         }
         self.register_stack.push_front(rreg);
 
         EvalResult {
-            result: Some(ValueRef::Register(lreg)),
+            result: Some(ValueRef::Register(res_reg)),
             registers: HashSet::new(),
         }
     }
@@ -399,6 +409,7 @@ impl Compiler {
             Register::A7,
         ];
         self.push_scope();
+        writeln!(&mut self.out, ".globl {}", f.name).expect("write failed");
         writeln!(&mut self.out, "{}:", f.name).expect("write failed");
         for (arg_reg_i, p) in f.params.iter().enumerate() {
             self.set_var(&p.name, ValueRef::Register(arg_regs[arg_reg_i]));

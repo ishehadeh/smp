@@ -1,7 +1,6 @@
 use clap::{Parser, ValueEnum};
 use core::fmt;
 use howlite::parser::Ast;
-use howlite::riscv::ttcompiler::Compiler;
 use howlite::typecheck::typetree::TypeInterpreter;
 use howlite::util::ast::scan_declarations;
 use std::fs;

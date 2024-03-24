@@ -1,4 +1,5 @@
 .text
+.globl main
 main:
 li a0, 0
 li a1, 1
@@ -11,16 +12,18 @@ li a7, 1
 jal many_many_params
 mv a0, a0
 ret
+.globl __libc_start_main
 __libc_start_main:
 jal main
 ret
+.globl many_many_params
 many_many_params:
-add a5, a5, a6
-add a4, a4, a5
-add a3, a3, a4
-add a2, a2, a3
-add a1, a1, a2
-add a0, a0, a1
-mv a0, a0
+add s1, a5, a6
+add a6, a4, s1
+add s1, a3, a6
+add a6, a2, s1
+add s1, a1, a6
+add a6, a0, s1
+mv a0, a6
 ret
 
