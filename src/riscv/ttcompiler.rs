@@ -335,14 +335,14 @@ impl Compiler {
 
             writeln!(
                 &mut self.out,
-                "beqz {}, {}",
+                "beq {}, zero, {}",
+                cond_reg.to_abi_name(),
                 false_label,
-                cond_reg.to_abi_name()
             )
             .expect("write failed");
             let res_true = self.eval_ast(i.body.as_ref());
-            writeln!(&mut self.out, "j {}", end_label).expect("write failed");
             self.move_slot(if_result, res_true.result.unwrap());
+            writeln!(&mut self.out, "j {}", end_label).expect("write failed");
             writeln!(&mut self.out, "{}:", false_label).expect("write failed");
             let res_false = self.eval_ast(ast_else_.as_ref());
             self.move_slot(if_result, res_false.result.unwrap());
@@ -350,9 +350,9 @@ impl Compiler {
         } else {
             writeln!(
                 &mut self.out,
-                "beqz {}, {}",
+                "beqz {}, zero, {}",
+                cond_reg.to_abi_name(),
                 end_label,
-                cond_reg.to_abi_name()
             )
             .expect("write failed");
             self.eval_ast(i.body.as_ref()).result.unwrap()
