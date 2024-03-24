@@ -1,6 +1,5 @@
 use super::lexer::Token;
 use crate::span::SourceSpan;
-///
 use lalrpop_util::ParseError as LalrpopError;
 use thiserror::Error;
 

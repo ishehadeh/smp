@@ -23,7 +23,6 @@ pub struct CompilerXData {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ValueRef {
-    None,
     Immediate(i16),
     Register(Register),
 
@@ -101,17 +100,20 @@ impl Compiler {
         self.scopes.pop().expect("no scope to pop");
     }
 
-    pub fn write_slot(out: &mut String, slot: ValueRef, value: &[u8]) {
+    pub fn write_slot(&mut self, slot: ValueRef, value: &[u8]) {
         match slot {
-            ValueRef::None => panic!("cannot write to null ref"),
             ValueRef::Immediate(_) => panic!("slot is read-only, this should be unreachable"),
             ValueRef::Register(r) => {
-                assert_eq!(value.len(), 4);
+                assert!(value.len() <= 4);
+                let mut padded_value: [u8; 4] = [0; 4];
+                for (i, x) in value.iter().enumerate() {
+                    padded_value[i] = *x;
+                }
                 writeln!(
-                    out,
+                    &mut self.out,
                     "li {}, {}",
                     r.to_abi_name(),
-                    u32::from_le_bytes(value.try_into().unwrap())
+                    u32::from_le_bytes(padded_value)
                 )
                 .expect("write failed");
             }
@@ -133,7 +135,6 @@ impl Compiler {
 
     pub fn load_register(&mut self, reg: Register, slot: ValueRef) {
         match slot {
-            ValueRef::None => panic!("cannot load reg with null value"),
             ValueRef::Stack(offset) => {
                 writeln!(&mut self.out, "lw {}, ({})fp", reg.to_abi_name(), offset)
                     .expect("write failed");
@@ -192,7 +193,25 @@ impl Compiler {
         top.variables.insert(name.to_string(), data);
     }
 
-    pub fn eval_ast(&mut self, ast: Ast<TypeTreeXData>) -> EvalResult {
+    pub fn move_slot(&mut self, target: ValueRef, source: ValueRef) {
+        match (target, source) {
+            (ValueRef::Immediate(_), _) => panic!("cannot write to immediate slot"),
+            (dest, ValueRef::Immediate(val)) => self.write_slot(dest, &val.to_le_bytes()),
+            (ValueRef::Register(r_dest), source) => self.load_register(r_dest, source),
+            (ValueRef::Stack(offset_dest), source) => {
+                let r_src = self.slot_to_register(source);
+                writeln!(
+                    &mut self.out,
+                    "sw {}, ({})fp",
+                    r_src.to_abi_name(),
+                    offset_dest
+                )
+                .expect("write failed");
+            }
+        }
+    }
+
+    pub fn eval_ast(&mut self, ast: &Ast<TypeTreeXData>) -> EvalResult {
         match ast {
             Ast::LiteralInteger(i) => self.eval_literal_integer(i),
             Ast::LiteralBool(b) => Compiler::eval_literal_bool(b),
@@ -209,7 +228,7 @@ impl Compiler {
             Ast::StmtLet(l) => self.eval_stmt_let(l),
             Ast::DefType(_) => todo!(),
             Ast::Program(p) => {
-                p.definitions.into_iter().for_each(|a| {
+                p.definitions.iter().for_each(|a| {
                     self.eval_ast(a);
                 });
                 EvalResult {
@@ -220,7 +239,7 @@ impl Compiler {
         }
     }
 
-    pub fn eval_literal_integer(&mut self, i: ast::LiteralInteger<TypeTreeXData>) -> EvalResult {
+    pub fn eval_literal_integer(&mut self, i: &ast::LiteralInteger<TypeTreeXData>) -> EvalResult {
         if i.value.abs() < 2048 {
             EvalResult {
                 result: Some(ValueRef::Immediate(i.value as i16)),
@@ -228,8 +247,7 @@ impl Compiler {
             }
         } else {
             let result = self.get_slot(4);
-            let mut operations = String::new();
-            Compiler::write_slot(&mut self.out, result, &i.value.to_le_bytes());
+            self.write_slot(result, &i.value.to_le_bytes());
 
             EvalResult {
                 result: Some(result),
@@ -238,7 +256,7 @@ impl Compiler {
         }
     }
 
-    pub fn eval_literal_bool(i: ast::LiteralBool<TypeTreeXData>) -> EvalResult {
+    pub fn eval_literal_bool(i: &ast::LiteralBool<TypeTreeXData>) -> EvalResult {
         EvalResult {
             result: Some(ValueRef::Immediate(i.value as i16)),
             registers: HashSet::new(),
@@ -252,11 +270,9 @@ impl Compiler {
         format!(".L{}", label_num)
     }
 
-    pub fn eval_expr(&mut self, expr: ast::Expr<TypeTreeXData>) -> EvalResult {
-        let lhs = self.eval_ast(*expr.lhs);
-        let rhs = self.eval_ast(*expr.rhs);
-
-        let mut operations = String::new();
+    pub fn eval_expr(&mut self, expr: &ast::Expr<TypeTreeXData>) -> EvalResult {
+        let lhs = self.eval_ast(expr.lhs.as_ref());
+        let rhs = self.eval_ast(expr.rhs.as_ref());
 
         let lreg = self.slot_to_register(lhs.result.expect(""));
         let rreg = self.slot_to_register(rhs.result.expect(""));
@@ -293,17 +309,18 @@ impl Compiler {
         }
     }
 
-    fn eval_stmt_let(&mut self, l: ast::StmtLet<TypeTreeXData>) -> EvalResult {
-        let result = self.eval_ast(*l.value);
+    fn eval_stmt_let(&mut self, l: &ast::StmtLet<TypeTreeXData>) -> EvalResult {
+        let result = self.eval_ast(l.value.as_ref());
         self.set_var(&l.name, result.result.unwrap().clone());
         result
     }
 
-    fn eval_stmt_if(&mut self, i: ast::StmtIf<TypeTreeXData>) -> EvalResult {
-        let res = self.eval_ast(*i.condition);
+    fn eval_stmt_if(&mut self, i: &ast::StmtIf<TypeTreeXData>) -> EvalResult {
+        let res = self.eval_ast(i.condition.as_ref());
         let cond_reg = self.slot_to_register(res.result.unwrap());
         let end_label = self.gen_label();
-        if let Some(ast_else_) = i.else_ {
+        let result = if let Some(ast_else_) = &i.else_ {
+            let if_result = self.get_slot(i.xdata().current_type().get_size());
             let false_label = self.gen_label();
 
             writeln!(
@@ -311,29 +328,34 @@ impl Compiler {
                 "beqz {}, {}",
                 false_label,
                 cond_reg.to_abi_name()
-            );
-            let res_true = self.eval_ast(*i.body);
-            writeln!(&mut self.out, "j {}", end_label);
-            writeln!(&mut self.out, "{}:", false_label);
-            let res_false = self.eval_ast(*ast_else_);
+            )
+            .expect("write failed");
+            let res_true = self.eval_ast(i.body.as_ref());
+            writeln!(&mut self.out, "j {}", end_label).expect("write failed");
+            self.move_slot(if_result, res_true.result.unwrap());
+            writeln!(&mut self.out, "{}:", false_label).expect("write failed");
+            let res_false = self.eval_ast(ast_else_.as_ref());
+            self.move_slot(if_result, res_false.result.unwrap());
+            if_result
         } else {
             writeln!(
                 &mut self.out,
                 "beqz {}, {}",
                 end_label,
                 cond_reg.to_abi_name()
-            );
-            let res_true = self.eval_ast(*i.body);
+            )
+            .expect("write failed");
+            self.eval_ast(i.body.as_ref()).result.unwrap()
         };
-        writeln!(&mut self.out, "{}:", end_label);
+        writeln!(&mut self.out, "{}:", end_label).expect("write failed");
 
         EvalResult {
-            result: None, // TODO,
+            result: Some(result), // TODO,
             registers: HashSet::new(),
         }
     }
 
-    fn eval_expr_call(&mut self, c: ast::ExprCall<TypeTreeXData>) -> EvalResult {
+    fn eval_expr_call(&mut self, c: &ast::ExprCall<TypeTreeXData>) -> EvalResult {
         let arg_regs = [
             Register::A0,
             Register::A1,
@@ -347,11 +369,11 @@ impl Compiler {
 
         // take her to help borrow checker
         let return_ty = c.xdata().declared_type.clone();
-        for (arg_reg_i, arg) in c.paramaters.into_iter().enumerate() {
-            let result = self.eval_ast(arg);
+        for (arg_reg_i, arg) in c.paramaters.iter().enumerate() {
+            let result = self.eval_ast(&arg);
             self.load_register(arg_regs[arg_reg_i], result.result.unwrap());
         }
-        writeln!(&mut self.out, "jal {}", &c.function_name);
+        writeln!(&mut self.out, "jal {}", &c.function_name).expect("write failed");
         if return_ty != TypeInfo::Unit {
             EvalResult {
                 result: Some(ValueRef::Register(arg_regs[0])),
@@ -365,7 +387,7 @@ impl Compiler {
         }
     }
 
-    fn eval_def_function(&mut self, f: ast::DefFunction<TypeTreeXData>) -> EvalResult {
+    fn eval_def_function(&mut self, f: &ast::DefFunction<TypeTreeXData>) -> EvalResult {
         let arg_regs = [
             Register::A0,
             Register::A1,
@@ -377,11 +399,11 @@ impl Compiler {
             Register::A7,
         ];
         self.push_scope();
-        writeln!(&mut self.out, "{}:", f.name);
+        writeln!(&mut self.out, "{}:", f.name).expect("write failed");
         for (arg_reg_i, p) in f.params.iter().enumerate() {
             self.set_var(&p.name, ValueRef::Register(arg_regs[arg_reg_i]));
         }
-        self.eval_ast(*f.body);
+        self.eval_ast(f.body.as_ref());
         self.pop_scope();
         EvalResult {
             result: None,
@@ -389,12 +411,12 @@ impl Compiler {
         }
     }
 
-    fn eval_block(&mut self, b: ast::Block<TypeTreeXData>) -> EvalResult {
+    fn eval_block(&mut self, b: &ast::Block<TypeTreeXData>) -> EvalResult {
         self.push_scope();
 
         let res = b
             .statements
-            .into_iter()
+            .iter()
             .map(|s| self.eval_ast(s))
             .last()
             .clone()

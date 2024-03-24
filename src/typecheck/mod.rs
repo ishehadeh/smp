@@ -163,7 +163,8 @@ impl TypeInfo {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
             TypeInfo::Scalar(ScalarType::Boolean(None)) => 1,
             TypeInfo::Scalar(ScalarType::Boolean(_)) | TypeInfo::Unit => 0,
-            _ => todo!(),
+            TypeInfo::Union(u) => u.types.iter().map(|x| x.get_size()).max().unwrap_or(0),
+            a => panic!("unimplemented: TypeInfo::get_size() => {:?}", a),
         }
     }
 
