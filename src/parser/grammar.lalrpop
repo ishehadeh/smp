@@ -188,6 +188,7 @@ pub ExprCall: ast::ExprCall = {
 }
 
 pub Expr: Ast = {
+    <a:StmtLet>  => Ast::StmtLet(a),
     // notice only trailing whitespace is used to reduce ambiguities
     <l: @L> <lhs:AtomicExpr> <op:InfixOp> " "? <rhs:ErrNoExplicitExprGrouping> <r: @R>  => Ast::Expr(ast::Expr {
         span: (l, r).into(),
@@ -213,8 +214,6 @@ pub StmtLet: ast::StmtLet = {
 }
 
 pub Stmt: Ast = {
-    <a:StmtLet> => Ast::StmtLet(a),
-    <a:StmtIf> => Ast::StmtIf(a),
     <a:Expr> => a,
 }
 
@@ -265,6 +264,7 @@ pub ErrNoExplicitExprGrouping: Ast = {
 };
 
 pub AtomicExpr: Ast = {
+    <a:StmtIf> => Ast::StmtIf(a),
     <n:LiteralInteger> " "? => Ast::LiteralInteger(n),
     <n:LiteralBool> " "? => Ast::LiteralBool(n),
     <i:Ident> " "? => Ast::Ident(i),
