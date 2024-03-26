@@ -1,9 +1,19 @@
-type fib_int = int 0 to 10000000;
 
-func fib(n: fib_int): fib_int {
-    if n != 0 {
+func fib(n: int 0 to 10000000): int 0 to 10000000 {
+    if 1 < n {
         fib(n - 2) + fib(n - 1)
     } else {
-        0
+        n
     }
+}
+
+func __libc_start_main(): unit {
+    main();
+    __hw_breakpoint();
+}
+
+
+func main(): unit {
+    fib(9);
+    __hw_breakpoint();
 }

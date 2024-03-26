@@ -13,7 +13,8 @@ const DEBUG_PRELUDE: &str = r"
 .globl __hw_breakpoint
 __hw_breakpoint:
     ebreak
-    jr ra
+    ret
+
 ";
 
 #[derive(Parser, Debug, Clone)]
@@ -42,8 +43,8 @@ fn main() {
     let type_tree = type_interp.eval_ast(parse_result.ast);
 
     let mut compiler = Compiler::new();
-    compiler.eval_ast(&type_tree);
-    println!(".text\n{}", compiler.text());
+    let result = compiler.eval_ast(&type_tree);
+    println!(".text\n{}", result.buffer.get_text());
 
     if args.debug {
         println!("\n{}", DEBUG_PRELUDE)
