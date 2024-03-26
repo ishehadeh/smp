@@ -1,6 +1,12 @@
 .text
 .globl main
 main:
-li a0, 5
-ret
+addi sp, sp, -8
+sw ra, 0(sp)
+sw fp, 4(sp)
+addi a0, zero, 5
+lw ra, 0(sp)
+lw fp, 4(sp)
+addi sp, sp, 8
+jr ra
 

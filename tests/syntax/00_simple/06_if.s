@@ -1,19 +1,31 @@
 .text
 .globl main
 main:
-li s1, 1
-beqz .L1, s1
-li s3, 1
-li s4, 1
-add s5, s3, s4
+addi sp, sp, -20
+sw s2, 0(sp)
+sw s3, 4(sp)
+sw s1, 8(sp)
+sw ra, 12(sp)
+sw fp, 16(sp)
+addi s1, zero, 1
+beq s1, zero, .L1
+addi s1, zero, 1
+addi s2, zero, 1
+add s3, s1, s2
+mv s1, s3
 j .L0
-mv s2, s5
 .L1:
-li s4, 1
-li s6, 1
-sub s7, s4, s6
-mv s2, s7
+addi s1, zero, 1
+addi s2, zero, 1
+sub s3, s1, s2
+mv s1, s3
 .L0:
-mv a0, s2
-ret
+mv a0, s1
+lw s2, 0(sp)
+lw s3, 4(sp)
+lw s1, 8(sp)
+lw ra, 12(sp)
+lw fp, 16(sp)
+addi sp, sp, 20
+jr ra
 
