@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use super::compiler::Register;
+use super::Register;
 use std::fmt::Write;
 
 #[derive(Clone, Debug, Default)]

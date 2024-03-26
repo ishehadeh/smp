@@ -1,10 +1,15 @@
 use std::collections::HashMap;
 
 use crate::{
-    ir::compiler::Declarations,
     parser::Ast,
     typecheck::{FunctionDeclaration, TypeInfo},
 };
+
+#[derive(Debug, Clone, Default)]
+pub struct Declarations {
+    pub types: HashMap<String, TypeInfo>,
+    pub functions: HashMap<String, FunctionDeclaration>,
+}
 
 pub fn scan_declarations<'a>(program: impl Iterator<Item = &'a Ast>) -> Declarations {
     let mut functions = HashMap::new();

@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use crate::{
-    ir::compiler::Declarations,
     parser::{
         ast::{self, InfixOp, XData},
         Ast,
     },
+    util::ast::Declarations,
 };
 
 use super::{ScalarType, TypeError, TypeInfo};

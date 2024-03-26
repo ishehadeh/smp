@@ -1,4 +1,3 @@
-pub mod ir;
 pub mod parser;
 pub mod riscv;
 pub mod span;

@@ -1,11 +1,9 @@
 use std::{
-    borrow::BorrowMut,
     collections::{HashMap, HashSet, VecDeque},
-    iter, result,
     sync::atomic::AtomicUsize,
 };
 
-use super::{asmgen::AssemblyWriter, compiler::Register};
+use super::{asmgen::AssemblyWriter, Register};
 use crate::{
     parser::{
         ast::{self, InfixOp, XData},
@@ -13,7 +11,6 @@ use crate::{
     },
     typecheck::{typetree::TypeTreeXData, TypeInfo},
 };
-use std::fmt::Write;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
