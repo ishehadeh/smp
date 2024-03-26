@@ -1,0 +1,212 @@
+{
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 63
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefType",
+        "data": {
+          "span": {
+            "start": 0,
+            "end": 22
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "A",
+          "typ": {
+            "type": "IntegerRange",
+            "data": {
+              "inclusive_low": "0",
+              "inclusive_high": "100"
+            }
+          }
+        }
+      },
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 24,
+            "end": 63
+          },
+          "xdata": {
+            "declared_type": {
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 100
+                }
+              }
+            },
+            "value_type": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
+                  }
+                },
+                "returned": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 200
+                    }
+                  }
+                }
+              }
+            },
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "add_A",
+          "params": [
+            {
+              "name": "a",
+              "typ": {
+                "type": "TypeReference",
+                "data": {
+                  "name": "A",
+                  "parameters": null
+                }
+              }
+            },
+            {
+              "name": "b",
+              "typ": {
+                "type": "TypeReference",
+                "data": {
+                  "name": "A",
+                  "parameters": null
+                }
+              }
+            }
+          ],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "A",
+              "parameters": null
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 50,
+                "end": 63
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 200
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": true,
+              "statements": [
+                {
+                  "type": "Expr",
+                  "data": {
+                    "span": {
+                      "start": 56,
+                      "end": 62
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 200
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "lhs": {
+                      "type": "Ident",
+                      "data": {
+                        "span": {
+                          "start": 56,
+                          "end": 57
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 100
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "symbol": "a"
+                      }
+                    },
+                    "op": "Add",
+                    "rhs": {
+                      "type": "Ident",
+                      "data": {
+                        "span": {
+                          "start": 60,
+                          "end": 61
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 100
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "symbol": "b"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

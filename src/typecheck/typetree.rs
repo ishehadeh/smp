@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     parser::{
-        ast::{self, InfixOp, XData},
+        ast::{self, AnonType, InfixOp, XData},
         Ast,
     },
     util::ast::Declarations,
@@ -78,6 +78,7 @@ pub struct TypeInterpreter {
 
 pub struct TypeScope {
     pub variables: HashMap<String, TypeTreeXData>,
+    pub types: HashMap<String, TypeInfo>,
 }
 
 impl TypeInterpreter {
@@ -136,7 +137,15 @@ impl TypeInterpreter {
             Ast::ExprCall(c) => Ast::ExprCall(self.eval_expr_call(c)),
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
             Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
-            Ast::DefType(_) => todo!(),
+            Ast::DefType(t) => {
+                // handled when scanning decls
+                Ast::DefType(ast::DefType {
+                    span: t.span,
+                    xdata: Default::default(),
+                    name: t.name,
+                    typ: t.typ,
+                })
+            }
             Ast::Program(p) => Ast::Program(ast::Program {
                 span: p.span,
                 xdata: Default::default(),
@@ -170,13 +179,13 @@ impl TypeInterpreter {
 
     pub fn eval_def_function(&mut self, f: ast::DefFunction) -> ast::DefFunction<TypeTreeXData> {
         self.push_scope();
-
         for p in &f.params {
-            self.set_var(&p.name, TypeTreeXData::new(TypeInfo::from_ast(&p.typ)))
+            let typ = self.declarations.eval_anon_type(&p.typ);
+            self.set_var(&p.name, TypeTreeXData::new(typ))
         }
 
         let body_type_tree = self.eval_ast(*f.body);
-        let return_ty = TypeInfo::from_ast(&f.return_type);
+        let return_ty = self.declarations.eval_anon_type(&f.return_type);
 
         self.pop_scope();
         let error = if !body_type_tree.xdata().current_type().is_subset(&return_ty) {
@@ -346,7 +355,7 @@ impl TypeInterpreter {
     }
 
     fn eval_stmt_let(&mut self, l: ast::StmtLet) -> ast::StmtLet<TypeTreeXData> {
-        let binding_type = TypeInfo::from_ast(&l.value_type);
+        let binding_type = self.declarations.eval_anon_type(&l.value_type);
         let typed_value_expr = self.eval_ast(*l.value);
         let value_type = typed_value_expr.xdata().current_type().clone();
         let error = if !value_type.is_subset(&binding_type) {

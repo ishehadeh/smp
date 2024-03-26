@@ -309,7 +309,7 @@ impl Compiler {
             Ast::ExprCall(c) => self.eval_expr_call(c),
             Ast::Expr(e) => self.eval_expr(e),
             Ast::StmtLet(l) => self.eval_stmt_let(l),
-            Ast::DefType(_) => todo!(),
+            Ast::DefType(_) => EvalResult::default(), // handled when scanning decls
             Ast::Program(p) => {
                 let mut buffer = AssemblyWriter::new();
                 p.definitions.iter().for_each(|a| {

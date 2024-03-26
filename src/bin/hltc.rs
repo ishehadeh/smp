@@ -6,7 +6,7 @@ use std::{
 };
 
 use howlite::{
-    riscv::ttcompiler::Compiler, typecheck::typetree::TypeInterpreter, util::ast::scan_declarations,
+    riscv::ttcompiler::Compiler, typecheck::typetree::TypeInterpreter, util::ast::Declarations,
 };
 
 const DEBUG_PRELUDE: &str = r"
@@ -38,7 +38,7 @@ fn main() {
     };
     let parse_result: howlite::parser::ParseResult = howlite::parser::parse(&program);
 
-    let decl = scan_declarations(std::iter::once(&parse_result.ast));
+    let decl = Declarations::from_ast(&parse_result.ast);
     let mut type_interp = TypeInterpreter::new(decl);
     let type_tree = type_interp.eval_ast(parse_result.ast);
 
