@@ -1,9 +1,9 @@
 use std::{
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{HashSet, VecDeque},
     sync::atomic::AtomicUsize,
 };
 
-use super::{asmgen::AssemblyWriter, Register};
+use super::{asmgen::AssemblyWriter, scope::ScopeManager, Register, Slot, Value};
 use crate::{
     parser::{
         ast::{self, InfixOp, XData},
@@ -19,21 +19,11 @@ pub struct CompilerXData {
     operations: String,
 }
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Slot {
-    Immediate(i16),
-    Register(Register),
-
-    // stack offset from the frame pointer
-    Stack(usize),
-}
-
 pub type CompilerTree = Ast<CompilerXData>;
 
 #[derive(Default, Clone, Debug)]
 pub struct Compiler {
-    scopes: Vec<Scope>,
+    scopes: ScopeManager,
     register_stack: VecDeque<Register>,
     stack: StackState,
 }
@@ -71,7 +61,7 @@ impl StackState {
             }
         }
 
-        if let Some((offset, size)) = offset_size {
+        if let Some((offset, _)) = offset_size {
             offset
         } else {
             let offset = self.bytes.len();
@@ -92,21 +82,15 @@ impl StackState {
 }
 
 #[derive(Default, Clone, Debug)]
-
-pub struct Scope {
-    pub variables: HashMap<String, Slot>,
-}
-
-#[derive(Default, Clone, Debug)]
 pub struct EvalResult {
-    pub result: Option<Slot>,
+    pub result: Option<Value>,
     pub buffer: AssemblyWriter,
 }
 
 impl Compiler {
     pub fn new() -> Compiler {
         Compiler {
-            scopes: vec![Default::default()],
+            scopes: Default::default(),
             register_stack: VecDeque::from([
                 Register::S1,
                 Register::S2,
@@ -132,15 +116,7 @@ impl Compiler {
         }
 
         let offset = self.stack.alloc(size);
-        Slot::Stack(offset)
-    }
-
-    pub fn push_scope(&mut self) {
-        self.scopes.push(Scope::default())
-    }
-
-    pub fn pop_scope(&mut self) {
-        self.scopes.pop().expect("no scope to pop");
+        Slot::Stack { offset, size }
     }
 
     pub fn write_slot(&mut self, buffer: &mut AssemblyWriter, slot: Slot, value: &[u8]) {
@@ -154,7 +130,7 @@ impl Compiler {
                 }
                 buffer.li(r, u32::from_le_bytes(padded_value))
             }
-            Slot::Stack(_offset) => {
+            Slot::Stack { .. } => {
                 todo!("write_slot for ValueRef::Stack")
             }
         }
@@ -163,8 +139,13 @@ impl Compiler {
     // save a register on the stack pass the returned ValueRef to load_register to restore it
     pub fn save_register(&mut self, buffer: &mut AssemblyWriter, reg: Register) -> Slot {
         // add space in the frame for the stored register
-        let offset = self.stack.alloc(4);
-        let save_ref = Slot::Stack(offset);
+        const REGISTER_WIDTH: usize = 4;
+
+        let offset = self.stack.alloc(REGISTER_WIDTH);
+        let save_ref = Slot::Stack {
+            offset,
+            size: REGISTER_WIDTH,
+        };
         assert!(offset < 2048);
         buffer.sw(reg, offset as i16, Register::Sp);
         save_ref
@@ -172,8 +153,9 @@ impl Compiler {
 
     pub fn load_register(&mut self, buffer: &mut AssemblyWriter, dest: Register, slot: Slot) {
         match slot {
-            Slot::Stack(offset) => {
+            Slot::Stack { offset, size } => {
                 assert!(offset < 2048);
+                assert!(size <= 4);
                 buffer.lw(dest, offset as i16, Register::Sp);
             }
             Slot::Immediate(imm) => {
@@ -187,19 +169,16 @@ impl Compiler {
 
     pub fn get_var_regs(&self) -> HashSet<Register> {
         self.scopes
-            .iter()
-            .flat_map(|x| {
-                x.variables
-                    .values()
-                    .filter_map(|x| {
-                        if let Slot::Register(r) = x {
-                            Some(r)
-                        } else {
-                            None
-                        }
-                    })
-                    .copied()
+            .all_values()
+            .flat_map(|v| v.slots())
+            .filter_map(|x| {
+                if let Slot::Register(r) = x {
+                    Some(r)
+                } else {
+                    None
+                }
             })
+            .copied()
             .collect()
     }
 
@@ -248,37 +227,10 @@ impl Compiler {
         }
     }
 
-    // retrieve a copy of a variable's type data, or return an error and with declt type Unit if no such variable exists
-    pub fn get_var(&self, name: &str) -> Slot {
-        for scope in self.scopes.iter().rev() {
-            if let Some(v) = scope.variables.get(name) {
-                return v.clone();
-            }
-        }
-
-        panic!("variable not found, this likely indicates a bug in the compiler.\n All missing variables should be caught in the type checker")
-    }
-
     pub fn free_slot(&mut self, slot: Slot) {
         if let Slot::Register(r) = slot {
             self.register_stack.push_back(r);
         }
-    }
-
-    pub fn set_var(&mut self, name: &str, data: Slot) {
-        let top = self
-            .scopes
-            .last_mut()
-            .expect("no scopes! (should be unreachable)");
-        top.variables.insert(name.to_string(), data);
-    }
-
-    pub fn del_var(&mut self, name: &str) {
-        let top = self
-            .scopes
-            .last_mut()
-            .expect("no scopes! (should be unreachable)");
-        top.variables.remove(name);
     }
 
     pub fn move_slot(&mut self, state: &mut AssemblyWriter, target: Slot, source: Slot) {
@@ -286,7 +238,13 @@ impl Compiler {
             (Slot::Immediate(_), _) => panic!("cannot write to immediate slot"),
             (dest, Slot::Immediate(val)) => self.write_slot(state, dest, &val.to_le_bytes()),
             (Slot::Register(r_dest), source) => self.load_register(state, r_dest, source),
-            (Slot::Stack(offset_dest), source) => {
+            (
+                Slot::Stack {
+                    offset: offset_dest,
+                    size: size_dest,
+                },
+                source,
+            ) => {
                 let r_src = self.slot_to_register(state, &[], source);
                 assert!(offset_dest < 2048);
                 state.sw(r_src, offset_dest as i16, Register::Fp);
@@ -299,7 +257,7 @@ impl Compiler {
             Ast::LiteralInteger(i) => self.eval_literal_integer(i),
             Ast::LiteralBool(b) => Compiler::eval_literal_bool(b),
             Ast::Ident(i) => EvalResult {
-                result: Some(self.get_var(&i.symbol)),
+                result: Some(self.scopes.must_get(&i.symbol).clone()),
                 buffer: Default::default(),
             },
             Ast::Repaired(_) => todo!(),
@@ -328,7 +286,7 @@ impl Compiler {
         let mut buffer = AssemblyWriter::default();
         if i.value.abs() < 2048 {
             EvalResult {
-                result: Some(Slot::Immediate(i.value as i16)),
+                result: Some(Slot::Immediate(i.value as i16).into()),
                 buffer,
             }
         } else {
@@ -336,7 +294,7 @@ impl Compiler {
             self.write_slot(&mut buffer, result, &i.value.to_le_bytes());
 
             EvalResult {
-                result: Some(result),
+                result: Some(result.into()),
                 buffer,
             }
         }
@@ -344,7 +302,7 @@ impl Compiler {
 
     pub fn eval_literal_bool(i: &ast::LiteralBool<TypeTreeXData>) -> EvalResult {
         EvalResult {
-            result: Some(Slot::Immediate(i.value as i16)),
+            result: Some(Slot::Immediate(i.value as i16).into()),
             buffer: Default::default(),
         }
     }
@@ -361,15 +319,23 @@ impl Compiler {
         // slot to make sure the left register isn't overwritten by the rhs
         // this is a big hack, it really needs to be rethought
         let hold_var_name = self.gen_label();
-        self.set_var(&hold_var_name, lhs.result.unwrap());
+        self.scopes.set(&hold_var_name, lhs.result.clone().unwrap());
 
         let rhs = self.eval_ast(expr.rhs.as_ref());
 
-        self.del_var(&hold_var_name);
+        self.scopes.unset(&hold_var_name);
 
         let mut buffer = AssemblyWriter::from([lhs.buffer, rhs.buffer].into_iter());
-        let lreg = self.slot_to_register(&mut buffer, &[], lhs.result.expect(""));
-        let rreg = self.slot_to_register(&mut buffer, &[], rhs.result.expect(""));
+        let lhs_val = lhs.result.expect("lhs in expression had no result");
+        let lhs_slot = lhs_val
+            .as_slot()
+            .expect("expected a word-sized scalar on expression lhs");
+        let rhs_val = rhs.result.expect("rhs in expression had no result");
+        let rhs_slot = rhs_val
+            .as_slot()
+            .expect("expected a word-sized scalar on expression rhs");
+        let lreg = self.slot_to_register(&mut buffer, &[], *lhs_slot);
+        let rreg = self.slot_to_register(&mut buffer, &[], *rhs_slot);
 
         let res_reg = self.get_register(&buffer, &[lreg]);
 
@@ -392,14 +358,14 @@ impl Compiler {
         }
 
         EvalResult {
-            result: Some(Slot::Register(res_reg)),
+            result: Some(Slot::Register(res_reg).into()),
             buffer,
         }
     }
 
     fn eval_stmt_let(&mut self, l: &ast::StmtLet<TypeTreeXData>) -> EvalResult {
         let result = self.eval_ast(l.value.as_ref());
-        self.set_var(&l.name, result.result.unwrap().clone());
+        self.scopes.set(&l.name, result.result.clone().unwrap());
         result
     }
 
@@ -407,7 +373,12 @@ impl Compiler {
         let res = self.eval_ast(i.condition.as_ref());
 
         let mut buffer = AssemblyWriter::new();
-        let cond_reg = self.slot_to_register(&mut buffer, &[], res.result.unwrap());
+        let cond_slot = *res
+            .result
+            .unwrap()
+            .as_slot()
+            .expect("condition resulted in a value tuple, this should be unreachable");
+        let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot);
         let end_label = self.gen_label();
         buffer.include_ref(&res.buffer);
         let result = if let Some(ast_else_) = &i.else_ {
@@ -417,17 +388,36 @@ impl Compiler {
             buffer.beq(cond_reg, Register::Zero, &false_label);
 
             let res_true = self.eval_ast(i.body.as_ref());
+            let res_false = self.eval_ast(ast_else_.as_ref());
+
             buffer.include(res_true.buffer);
-            self.move_slot(&mut buffer, if_result, res_true.result.unwrap());
+            self.move_slot(
+                &mut buffer,
+                if_result,
+                res_true
+                    .result
+                    .unwrap()
+                    .as_slot()
+                    .copied()
+                    .expect("TODO: support tuple types as if results"),
+            );
 
             buffer.j(&end_label);
             buffer.label(&false_label);
 
-            let res_false = self.eval_ast(ast_else_.as_ref());
             buffer.include(res_false.buffer);
-            self.move_slot(&mut buffer, if_result, res_false.result.unwrap());
+            self.move_slot(
+                &mut buffer,
+                if_result,
+                res_false
+                    .result
+                    .unwrap()
+                    .as_slot()
+                    .copied()
+                    .expect("TODO: support tuple types as if results"),
+            );
 
-            if_result
+            if_result.into()
         } else {
             buffer.beq(cond_reg, Register::Zero, &end_label);
             let res_true = self.eval_ast(i.body.as_ref());
@@ -468,7 +458,10 @@ impl Compiler {
         for (arg_reg_i, arg) in c.paramaters.iter().enumerate() {
             let result = self.eval_ast(&arg);
             arg_evals_buffer.include(result.buffer);
-            if let Some(slot) = result.result {
+            if let Some(arg_val) = result.result {
+                let slot = *arg_val
+                    .as_slot()
+                    .expect("TODO: allow tuple types as function args ");
                 self.load_register(&mut arg_evals_buffer, arg_regs[arg_reg_i], slot);
                 if arg_regs_to_save.contains(&arg_regs[arg_reg_i]) {
                     let slot = self.save_register(&mut buffer, arg_regs[arg_reg_i]);
@@ -492,7 +485,7 @@ impl Compiler {
             buffer.include(epilog_buffer);
 
             EvalResult {
-                result: Some(result),
+                result: Some(result.into()),
                 buffer,
             }
         } else {
@@ -518,12 +511,13 @@ impl Compiler {
 
         let mut buffer = AssemblyWriter::new();
 
-        self.push_scope();
+        self.scopes.push();
         buffer.d_globl(&f.name);
         buffer.label(&f.name);
 
         for (arg_reg_i, p) in f.params.iter().enumerate() {
-            self.set_var(&p.name, Slot::Register(arg_regs[arg_reg_i]));
+            self.scopes
+                .set(&p.name, Slot::Register(arg_regs[arg_reg_i]).into());
         }
         let res = self.eval_ast(f.body.as_ref());
 
@@ -557,23 +551,26 @@ impl Compiler {
 
         buffer.include(res.buffer);
         if let Some(out) = res.result {
-            self.load_register(&mut buffer, Register::A0, out);
+            let out_slot = *out
+                .as_slot()
+                .expect("TODO: support tuple types in function returns");
+            self.load_register(&mut buffer, Register::A0, out_slot);
         }
 
         buffer.include(epilog);
         buffer.addi(Register::Sp, Register::Sp, self.stack.size() as i16);
         buffer.jr(Register::Ra);
 
-        self.pop_scope();
+        self.scopes.pop();
         self.stack.reset();
         EvalResult {
-            result: Some(Slot::Register(Register::A0)),
+            result: Some(Slot::Register(Register::A0).into()),
             buffer,
         }
     }
 
     fn eval_block(&mut self, b: &ast::Block<TypeTreeXData>) -> EvalResult {
-        self.push_scope();
+        self.scopes.push();
         let mut buffer = AssemblyWriter::new();
         let mut result = None;
         for s in &b.statements {
@@ -581,6 +578,7 @@ impl Compiler {
             buffer.include(stmt_result.buffer);
             result = stmt_result.result;
         }
+        self.scopes.pop();
 
         EvalResult { buffer, result }
     }
