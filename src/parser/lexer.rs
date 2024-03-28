@@ -49,6 +49,8 @@ pub enum Token<'input> {
     Colon,
     #[token(",")]
     Comma,
+    #[token(".")]
+    Dot,
 
     #[token("=")]
     OperatorAssign,

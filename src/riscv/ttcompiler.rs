@@ -320,6 +320,7 @@ impl Compiler {
                     buffer,
                 }
             }
+            Ast::FieldAccess(_) => todo!(),
         }
     }
 

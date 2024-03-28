@@ -34,6 +34,7 @@ extern {
         ";" => Token::Semicolon,
         ":" => Token::Colon,
         "," => Token::Comma,
+        "." => Token::Dot,
         "+" => Token::OperatorAdd,
         "-" => Token::OperatorSub,
         "*" => Token::OperatorMul,
@@ -100,7 +101,7 @@ pub DefStructMember: StructMember = {
         }
     },
 
-    <name:"ident"> ":" <typ:AnonType> => {
+    <name:"ident"> ":" " "? <typ:AnonType> => {
         StructMember {
             name: name.to_string(),
             typ,
@@ -267,6 +268,7 @@ pub AtomicExpr: Ast = {
     <a:StmtIf> => Ast::StmtIf(a),
     <n:LiteralInteger> " "? => Ast::LiteralInteger(n),
     <n:LiteralBool> " "? => Ast::LiteralBool(n),
+    <i:FieldAccess> " "? => Ast::FieldAccess(i),
     <i:Ident> " "? => Ast::Ident(i),
     <c:ExprCall> " "? => Ast::ExprCall(c),
     <b:Block> => Ast::Block(b),
@@ -276,6 +278,17 @@ pub AtomicExpr: Ast = {
     // ref: https://github.com/tweag/nickel/blob/f7ffe31697d639ba7d10bcb757a3a8ba73f011a7/core/src/parser/grammar.lalrpop#L431C21-L431C43
     <l: @L> <e: !> <r: @R> => { errors.push(e.clone()); Ast::Repaired(ast::Repaired { xdata: (), span: (l, r).into(), tree: None }) },
 };
+
+pub FieldAccess: ast::FieldAccess = {
+    <l: @L> <object:AtomicExpr> "." <i:Ident> <r: @R> => {
+        ast::FieldAccess {
+            xdata: (),
+            span: (l, r).into(),
+            object: Box::new(object),
+            field: i,
+        }
+    }
+}
 
 pub InfixOp: InfixOp = {
     "+" => InfixOp::Add,

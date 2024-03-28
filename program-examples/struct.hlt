@@ -1,0 +1,13 @@
+func __libc_start_main(): unit {
+    main();
+    __hw_breakpoint();
+}
+
+type T = { a: int 0 to 10, b: int 0 to 10 };
+
+func add_tuple(t: T): int 0 to 20 {
+    return t.a + t.b
+}
+func main(): unit {
+    1 + 1;
+}

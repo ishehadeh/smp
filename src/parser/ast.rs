@@ -86,7 +86,7 @@ pub struct Repaired<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
 
-    pub tree: Option<Box<Ast>>,
+    pub tree: Option<Box<Ast<X>>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -96,7 +96,7 @@ pub struct FieldAccess<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub field: Ident,
-    pub object: Box<Ast>,
+    pub object: Box<Ast<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -1,0 +1,7 @@
+type S = {
+    a: int 0 to 100
+};
+func main(): unit {
+    let t: S = 1;
+    t.a = 1;
+}

@@ -45,7 +45,7 @@ impl Declarations {
                 }
 
                 Ast::DefType(t) => {
-                    let mut typ = decls.eval_anon_type(&t.typ);
+                    let typ = decls.eval_anon_type(&t.typ);
                     decls.types.insert(t.name.clone(), typ);
                 }
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
@@ -57,6 +57,7 @@ impl Declarations {
                 | Ast::StmtIf(_)
                 | Ast::ExprCall(_)
                 | Ast::StmtLet(_)
+                | Ast::FieldAccess(_)
                 | Ast::Expr(_) => continue,
             }
         }

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     parser::{
-        ast::{self, AnonType, InfixOp, XData},
+        ast::{self, AnonType, InfixOp, Repaired, XData},
         Ast,
     },
     util::ast::Declarations,
@@ -130,7 +130,11 @@ impl TypeInterpreter {
                 xdata: self.get_var(&i.symbol),
                 symbol: i.symbol,
             }),
-            Ast::Repaired(_) => todo!(),
+            Ast::Repaired(r) => Ast::Repaired(Repaired {
+                xdata: Default::default(),
+                span: r.span,
+                tree: r.tree.map(|t| Box::new(self.eval_ast(*t))),
+            }),
             Ast::DefFunction(f) => Ast::DefFunction(self.eval_def_function(f)),
             Ast::Block(b) => Ast::Block(self.eval_block(b)),
             Ast::StmtIf(i) => Ast::StmtIf(self.eval_stmt_if(i)),

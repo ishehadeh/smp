@@ -26,4 +26,8 @@ pub enum TypeError {
         expected: TypeInfo,
         returned: TypeInfo,
     },
+    InvalidFieldAccess {
+        object: TypeInfo,
+        symbol: String,
+    },
 }
