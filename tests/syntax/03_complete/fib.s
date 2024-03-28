@@ -2,10 +2,10 @@
 .globl fib
 fib:
 addi sp, sp, -32
-sw s2, 8(sp)
-sw s4, 12(sp)
-sw s1, 16(sp)
-sw s3, 20(sp)
+sw s1, 8(sp)
+sw s2, 12(sp)
+sw s3, 16(sp)
+sw s4, 20(sp)
 sw ra, 24(sp)
 sw fp, 28(sp)
 addi s1, zero, 1
@@ -32,10 +32,10 @@ j .L1
 mv s1, a0
 .L1:
 mv a0, s1
-lw s2, 8(sp)
-lw s4, 12(sp)
-lw s1, 16(sp)
-lw s3, 20(sp)
+lw s1, 8(sp)
+lw s2, 12(sp)
+lw s3, 16(sp)
+lw s4, 20(sp)
 lw ra, 24(sp)
 lw fp, 28(sp)
 addi sp, sp, 32

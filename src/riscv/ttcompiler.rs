@@ -530,13 +530,20 @@ impl Compiler {
         let mut prolog = AssemblyWriter::new();
         let mut epilog = AssemblyWriter::new();
 
-        let mutated_callee_saved_regs = res
+        let mut mutated_callee_saved_regs: Vec<_> = res
             .buffer
             .get_regs_write()
             .iter()
+            .copied()
             .filter(|r| r.is_callee_saved())
-            .chain(&[Register::Ra, Register::Fp])
-            .copied();
+            .collect();
+        // this is literal just so we can get nice diffs between asm outputs of compiler versions
+        // it should be optional or removed
+        mutated_callee_saved_regs.sort();
+
+        // TODO: only push these if a child function is called
+        mutated_callee_saved_regs.push(Register::Ra);
+        mutated_callee_saved_regs.push(Register::Fp);
 
         for r in mutated_callee_saved_regs {
             let offset = self.stack.alloc(4);
