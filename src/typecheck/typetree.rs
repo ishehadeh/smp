@@ -155,6 +155,24 @@ impl TypeInterpreter {
                     .map(|a| self.eval_ast(a))
                     .collect(),
             }),
+            Ast::FieldAccess(f) => Ast::FieldAccess(self.eval_field_access(f)),
+        }
+    }
+
+    pub fn eval_field_access(&mut self, f: ast::FieldAccess) -> ast::FieldAccess<TypeTreeXData> {
+        let object = self.eval_ast(*f.object);
+        let field_ty = object.xdata().current_type().access(&f.field.symbol);
+        ast::FieldAccess {
+            object: Box::new(object),
+            span: f.span,
+            xdata: TypeTreeXData {
+                declared_type: field_ty.clone().unwrap_or(TypeInfo::Unit),
+                value_type: None,
+                error: field_ty.err(),
+                cond_true: Default::default(),
+                cond_false: Default::default(),
+            },
+            field: f.field,
         }
     }
 
