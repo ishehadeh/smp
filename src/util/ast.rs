@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     parser::{ast::AnonType, Ast},
-    typecheck::{FunctionDeclaration, ScalarType, TypeInfo},
+    typecheck::{FunctionDeclaration, RecordCell, RecordType, ScalarType, TypeInfo},
 };
 
 #[derive(Debug, Clone, Default)]
@@ -84,6 +84,22 @@ impl Declarations {
                 parameters: _,
             } => self.types.get(name).expect("type not found!").clone(),
             AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean(None)),
+            AnonType::StructBody { members } => {
+                let mut fields = BTreeSet::new();
+                let mut offset = 0;
+                for m in members {
+                    let ty = self.eval_anon_type(&m.typ);
+                    let ty_size = ty.get_size();
+                    fields.insert(RecordCell {
+                        name: m.name.clone(),
+                        offset: offset,
+                        length: ty_size,
+                        type_info: ty,
+                    });
+                    offset += ty_size
+                }
+                TypeInfo::Record(RecordType { fields })
+            }
             a => panic!("TODO: from_ast for {:?}", a),
         }
     }
