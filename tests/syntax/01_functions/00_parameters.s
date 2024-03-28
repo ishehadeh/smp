@@ -31,12 +31,12 @@ jr ra
 .globl many_many_params
 many_many_params:
 addi sp, sp, -32
-sw s4, 0(sp)
-sw s5, 4(sp)
-sw s1, 8(sp)
+sw s6, 0(sp)
+sw s4, 4(sp)
+sw s5, 8(sp)
 sw s3, 12(sp)
-sw s2, 16(sp)
-sw s6, 20(sp)
+sw s1, 16(sp)
+sw s2, 20(sp)
 sw ra, 24(sp)
 sw fp, 28(sp)
 add s1, a5, a6
@@ -46,12 +46,12 @@ add s4, a2, s3
 add s5, a1, s4
 add s6, a0, s5
 mv a0, s6
-lw s4, 0(sp)
-lw s5, 4(sp)
-lw s1, 8(sp)
+lw s6, 0(sp)
+lw s4, 4(sp)
+lw s5, 8(sp)
 lw s3, 12(sp)
-lw s2, 16(sp)
-lw s6, 20(sp)
+lw s1, 16(sp)
+lw s2, 20(sp)
 lw ra, 24(sp)
 lw fp, 28(sp)
 addi sp, sp, 32
