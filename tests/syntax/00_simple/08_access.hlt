@@ -3,5 +3,5 @@ type S = {
 };
 func main(): unit {
     let t: S = 1;
-    t.a = 1;
+    t.a + 1
 }

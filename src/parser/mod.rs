@@ -1,6 +1,7 @@
 pub mod ast;
 mod errors;
 pub mod lexer;
+mod test;
 
 lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
 
@@ -52,6 +53,30 @@ pub fn parse(s: &str) -> ParseResult {
     let lexer = Lexer::new(s);
     let mut recovered_errors = Vec::new();
     let result = grammar::ProgramParser::new().parse(&mut recovered_errors, lexer);
+
+    let mut errors: Vec<_> = recovered_errors
+        .into_iter()
+        .map(|e| ParseError::from(e.error))
+        .collect();
+    let ast = match result {
+        Ok(v) => v,
+        Err(e) => {
+            errors.push(ParseError::from(e));
+            Ast::Repaired(ast::Repaired {
+                tree: None,
+                xdata: (),
+                span: (0, 0).into(),
+            })
+        }
+    };
+
+    ParseResult::new(ast, errors)
+}
+
+pub fn parse_expr(s: &str) -> ParseResult {
+    let lexer = Lexer::new(s);
+    let mut recovered_errors = Vec::new();
+    let result = grammar::ExprParser::new().parse(&mut recovered_errors, lexer);
 
     let mut errors: Vec<_> = recovered_errors
         .into_iter()

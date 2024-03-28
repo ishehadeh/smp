@@ -14,14 +14,14 @@ pub enum InfixOp {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Param {
     pub name: String,
     pub typ: AnonType,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StructMember {
     pub mutable: bool,
     pub name: String,
@@ -29,7 +29,7 @@ pub struct StructMember {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum AnonType {
     TypeReference {
@@ -55,7 +55,7 @@ pub trait XData<X> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Ast<X: Debug + Clone = ()> {
     // TODO convert this to usize
     LiteralInteger(LiteralInteger<X>),
@@ -81,7 +81,7 @@ pub enum Ast<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Repaired<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -90,7 +90,7 @@ pub struct Repaired<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FieldAccess<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -100,7 +100,7 @@ pub struct FieldAccess<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Expr<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -111,7 +111,7 @@ pub struct Expr<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ExprCall<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -121,7 +121,7 @@ pub struct ExprCall<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StmtLet<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -132,7 +132,7 @@ pub struct StmtLet<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Program<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -141,7 +141,7 @@ pub struct Program<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DefType<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -151,7 +151,7 @@ pub struct DefType<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StmtIf<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -162,7 +162,7 @@ pub struct StmtIf<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Block<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -187,7 +187,7 @@ pub struct Block<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LiteralInteger<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -196,7 +196,7 @@ pub struct LiteralInteger<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LiteralBool<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -205,7 +205,7 @@ pub struct LiteralBool<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Ident<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
@@ -214,7 +214,7 @@ pub struct Ident<X: Debug + Clone = ()> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DefFunction<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
