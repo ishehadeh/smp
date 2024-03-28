@@ -96,6 +96,16 @@ pub struct RecordType {
     pub fields: BTreeSet<RecordCell>,
 }
 
+impl UnionType {
+    pub fn intersect(&self) -> TypeInfo {
+        self.types
+            .iter()
+            .cloned()
+            .reduce(|intersect, next| intersect.intersect(&next))
+            .unwrap_or(TypeInfo::Unit)
+    }
+}
+
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TypeInfo {
@@ -161,10 +171,35 @@ impl TypeInfo {
     pub fn get_size(&self) -> usize {
         match self {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
-            TypeInfo::Scalar(ScalarType::Boolean(None)) => 1,
-            TypeInfo::Scalar(ScalarType::Boolean(_)) | TypeInfo::Unit => 0,
+            TypeInfo::Scalar(ScalarType::Boolean(_)) => 1,
+            TypeInfo::Unit => 0,
             TypeInfo::Union(u) => u.types.iter().map(|x| x.get_size()).max().unwrap_or(0),
+            TypeInfo::Record(r) => r.fields.iter().map(|x| x.length).sum::<usize>(),
             a => panic!("unimplemented: TypeInfo::get_size() => {:?}", a),
+        }
+    }
+
+    pub fn access<S: AsRef<str>>(&self, symbol: S) -> Result<TypeInfo, TypeError> {
+        match self {
+            TypeInfo::Scalar(_) | TypeInfo::Unit => Err(TypeError::InvalidFieldAccess {
+                symbol: symbol.as_ref().to_string(),
+                object: self.clone(),
+            }),
+            TypeInfo::Union(u) => {
+                let union_intersect = u.intersect();
+                union_intersect.access(symbol)
+            }
+            TypeInfo::Record(r) => {
+                let s_ref = symbol.as_ref();
+                r.fields
+                    .iter()
+                    .find(|f| f.name == s_ref)
+                    .map(|f| f.type_info.clone())
+                    .ok_or(TypeError::InvalidFieldAccess {
+                        symbol: s_ref.to_string(),
+                        object: self.clone(),
+                    })
+            }
         }
     }
 
