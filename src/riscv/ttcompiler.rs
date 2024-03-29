@@ -3,13 +3,13 @@ use std::{
     sync::atomic::AtomicUsize,
 };
 
-use super::{asmgen::AssemblyWriter, scope::ScopeManager, Register, Slot, Value};
+use super::{asmgen::AssemblyWriter, scope::ScopeManager, Register, Slot, Value, ValueMap};
 use crate::{
     parser::{
         ast::{self, InfixOp, XData},
         Ast,
     },
-    typecheck::{typetree::TypeTreeXData, TypeInfo},
+    typecheck::{typetree::TypeTreeXData, RecordType, TypeInfo},
 };
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -292,7 +292,7 @@ impl Compiler {
                 object_res.result = Some(field_val);
                 object_res
             }
-            Ast::StructLiteral(_) => todo!(),
+            Ast::StructLiteral(l) => self.eval_literal_struct(l),
         }
     }
 
@@ -318,6 +318,34 @@ impl Compiler {
         EvalResult {
             result: Some(Slot::Immediate(i.value as i16).into()),
             buffer: Default::default(),
+        }
+    }
+
+    pub fn eval_literal_struct(&mut self, l: &ast::StructLiteral<TypeTreeXData>) -> EvalResult {
+        let mut buffer = AssemblyWriter::new();
+        let struct_value_map =
+            if let Value::Map(m) = self.type_info_to_slot(&mut buffer, l.xdata().current_type()) {
+                m
+            } else {
+                unreachable!();
+            };
+        for member in &l.members {
+            let val_result = self.eval_ast(&member.value);
+            let val_result_val = val_result.result.unwrap();
+            let val_slot = val_result_val
+                .as_slot()
+                .expect("TODO: records within records");
+            let struct_slot_val = struct_value_map.values.get(&member.field.symbol).unwrap();
+            let struct_slot = struct_slot_val
+                .as_slot()
+                .expect("TODO: records within records");
+
+            self.move_slot(&mut buffer, *struct_slot, *val_slot);
+        }
+
+        EvalResult {
+            result: Some(struct_value_map.into()),
+            buffer,
         }
     }
 
@@ -376,6 +404,27 @@ impl Compiler {
             result: Some(Slot::Register(res_reg).into()),
             buffer,
         }
+    }
+
+    fn type_info_to_slot(&mut self, buffer: &mut AssemblyWriter, ty: &TypeInfo) -> Value {
+        match ty {
+            TypeInfo::Unit => todo!(),
+            TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
+            TypeInfo::Union(_) => todo!(),
+            TypeInfo::Record(s) => self.struct_to_value(buffer, s),
+        }
+    }
+
+    fn struct_to_value(&mut self, buffer: &mut AssemblyWriter, s: &RecordType) -> Value {
+        let mut val = ValueMap::default();
+        for field in &s.fields {
+            val.values.insert(
+                field.name.clone(),
+                self.type_info_to_slot(buffer, &field.type_info),
+            );
+        }
+
+        val.into()
     }
 
     fn eval_stmt_let(&mut self, l: &ast::StmtLet<TypeTreeXData>) -> EvalResult {

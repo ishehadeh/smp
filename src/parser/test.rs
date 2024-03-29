@@ -68,7 +68,7 @@ fn access_and_add() {
 }
 
 #[test]
-fn struct_literal() {
+fn struct_literal_1() {
     let expected = Ast::StructLiteral(StructLiteral {
         span: (0, 15).into(),
         xdata: (),
@@ -88,4 +88,43 @@ fn struct_literal() {
         }],
     });
     assert_eq!(must_parse_expr("struct{ c = 1 }"), expected);
+}
+
+#[test]
+fn struct_literal_2() {
+    let expected = Ast::StructLiteral(StructLiteral {
+        span: (0, 15).into(),
+        xdata: (),
+        members: vec![
+            ast::StructLiteralMember {
+                span: (8, 14).into(),
+                xdata: (),
+                field: ast::Ident {
+                    span: (8, 9).into(),
+                    xdata: (),
+                    symbol: "a".to_string(),
+                },
+                value: Box::new(Ast::LiteralInteger(ast::LiteralInteger {
+                    span: (12, 13).into(),
+                    xdata: (),
+                    value: 1,
+                })),
+            },
+            ast::StructLiteralMember {
+                span: (8, 14).into(),
+                xdata: (),
+                field: ast::Ident {
+                    span: (8, 9).into(),
+                    xdata: (),
+                    symbol: "b".to_string(),
+                },
+                value: Box::new(Ast::LiteralInteger(ast::LiteralInteger {
+                    span: (12, 13).into(),
+                    xdata: (),
+                    value: 2,
+                })),
+            },
+        ],
+    });
+    assert_eq!(must_parse_expr("struct { a = 1, b = 2 }"), expected);
 }

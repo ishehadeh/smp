@@ -3,11 +3,16 @@ func __libc_start_main(): unit {
     __hw_breakpoint();
 }
 
-type T = { a: int 0 to 10, b: int 0 to 10 };
+type T = {
+    a: int 0 to 10,
+    b: int 0 to 10
+};
 
-func add_tuple(t: T): int 0 to 20 {
-    return t.a + t.b
-}
-func main(): unit {
-    1 + 1;
+func main(): int 0 to 1 {
+    let t: T = struct { a = 1, b = 2 };
+    if t.a < t.b {
+        0
+    } else {
+        1
+    }
 }
