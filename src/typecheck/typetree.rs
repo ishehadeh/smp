@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use crate::{
     parser::{
-        ast::{self, AnonType, InfixOp, Repaired, XData},
+        ast::{self, AnonType, InfixOp, Repaired, StructLiteral, XData},
         Ast,
     },
     util::ast::Declarations,
 };
 
-use super::{ScalarType, TypeError, TypeInfo};
+use super::{RecordCell, RecordType, ScalarType, TypeError, TypeInfo};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
@@ -160,9 +160,56 @@ impl TypeInterpreter {
                     .collect(),
             }),
             Ast::FieldAccess(f) => Ast::FieldAccess(self.eval_field_access(f)),
+            Ast::StructLiteral(s) => Ast::StructLiteral(self.eval_struct_literal(s)),
         }
     }
 
+    pub fn eval_struct_literal(
+        &mut self,
+        s: ast::StructLiteral,
+    ) -> ast::StructLiteral<TypeTreeXData> {
+        let members: Vec<_> = s
+            .members
+            .into_iter()
+            .map(|x| self.eval_struct_literal_member(x))
+            .collect();
+        let struct_ty = TypeInfo::Record(RecordType {
+            fields: members
+                .iter()
+                .map(|x| RecordCell {
+                    name: x.field.symbol.clone(),
+                    offset: 0, // TODO calc offset and length
+                    length: 0,
+                    type_info: x.xdata().current_type().clone(),
+                })
+                .collect(),
+        });
+
+        ast::StructLiteral {
+            span: s.span,
+            xdata: TypeTreeXData {
+                declared_type: struct_ty,
+                value_type: None,
+                error: None,
+                cond_false: Default::default(),
+                cond_true: Default::default(),
+            },
+            members,
+        }
+    }
+
+    pub fn eval_struct_literal_member(
+        &mut self,
+        m: ast::StructLiteralMember,
+    ) -> ast::StructLiteralMember<TypeTreeXData> {
+        let value = self.eval_ast(*m.value);
+        ast::StructLiteralMember {
+            span: m.span,
+            xdata: value.xdata().clone(),
+            field: m.field,
+            value: Box::new(value),
+        }
+    }
     pub fn eval_field_access(&mut self, f: ast::FieldAccess) -> ast::FieldAccess<TypeTreeXData> {
         let object = self.eval_ast(*f.object);
         let field_ty = object.xdata().current_type().access(&f.field.symbol);
@@ -286,6 +333,7 @@ impl TypeInterpreter {
                     InfixOp::CmpNotEqual => unreachable!(),
                     InfixOp::CmpEqual => unreachable!(),
                     InfixOp::CmpLess => todo!(),
+                    InfixOp::Assign => todo!(),
                 })
             }
 
@@ -328,6 +376,7 @@ impl TypeInterpreter {
                     return Default::default();
                 }
             }
+            InfixOp::Assign => todo!(),
         };
 
         // output of the above match assumes the variable is on the left and expr is on the right

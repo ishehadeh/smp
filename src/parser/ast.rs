@@ -11,7 +11,10 @@ pub enum InfixOp {
     CmpNotEqual,
     CmpEqual,
     CmpLess,
+    Assign,
 }
+
+// TODO make Param, StructMember and AnonType a proper part of the AST
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
@@ -73,6 +76,7 @@ pub enum Ast<X: Debug + Clone = ()> {
     ExprCall(ExprCall<X>),
     Expr(Expr<X>),
 
+    StructLiteral(StructLiteral<X>),
     StmtLet(StmtLet<X>),
 
     DefType(DefType<X>),
@@ -225,6 +229,25 @@ pub struct DefFunction<X: Debug + Clone = ()> {
     pub body: Box<Ast<X>>,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct StructLiteralMember<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub field: Ident,
+    pub value: Box<Ast<X>>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct StructLiteral<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub members: Vec<StructLiteralMember<X>>,
+}
+
 /// Implement Spanned for a struct, with the given member of type SourceSpan
 macro_rules! impl_ast_node {
     ($t:ident) => {
@@ -242,11 +265,13 @@ macro_rules! impl_ast_node {
     };
 }
 
+impl_ast_node! { StructLiteralMember }
+
 macro_rules! impl_ast_traits {
-    ($($member:ident),*) => {
+    ($ast_ty:ident : $($member:ident),*) => {
         $(impl_ast_node!{ $member })*
 
-        impl<X: Debug + Clone> Spanned for Ast<X> {
+        impl<X: Debug + Clone> Spanned for $ast_ty<X> {
             fn span(&self) -> &SourceSpan {
                 match self {
                     $(Ast::$member(a) => a.span()),*
@@ -254,7 +279,7 @@ macro_rules! impl_ast_traits {
             }
         }
 
-        impl<X: Debug + Clone> XData<X> for Ast<X> {
+        impl<X: Debug + Clone> XData<X> for $ast_ty<X> {
             fn xdata(&self) -> &X {
                 match self {
                     $(Ast::$member(a) => a.xdata()),*
@@ -264,7 +289,7 @@ macro_rules! impl_ast_traits {
     };
 }
 
-impl_ast_traits!(
+impl_ast_traits!(Ast :
     Program,
     Expr,
     DefType,
@@ -277,5 +302,6 @@ impl_ast_traits!(
     LiteralInteger,
     LiteralBool,
     Repaired,
-    FieldAccess
+    FieldAccess,
+    StructLiteral
 );

@@ -43,6 +43,8 @@ extern {
         "==" => Token::OperatorCmpEqual,
         "!=" => Token::OperatorCmpNotEqual,
         "<" => Token::OperatorCmpLess,
+        "=" => Token::OperatorAssign,
+        "struct" => Token::KeywordStruct,
 
         " " => Token::Whitespace(<&'input str>),
     }
@@ -214,6 +216,30 @@ pub StmtLet: ast::StmtLet = {
     }
 }
 
+pub StructLiteralMember: ast::StructLiteralMember = {
+    <l:@L> <field:Ident> " "? "=" " "? <value:Expr> <r:@R> => {
+        ast::StructLiteralMember {
+            xdata: (),
+            span: (l, r).into(),
+
+            field,
+            value: Box::new(value)
+        }
+    },
+}
+
+
+pub StructLiteral: ast::StructLiteral = {
+    <l: @L> "struct" " "? "{" " "? "}" <r: @R> => ast::StructLiteral { xdata: (), span: (l, r).into(), members: vec![] },
+    <l: @L> "struct" " "? "{" " "? <members: OneOrMore<StructLiteralMember>> "}" <r: @R> => {
+        ast::StructLiteral {
+            xdata: (),
+            span: (l, r).into(),
+            members
+        }
+    }
+}
+
 pub Stmt: Ast = {
     <a:Expr> => a,
 }
@@ -265,9 +291,10 @@ pub ErrNoExplicitExprGrouping: Ast = {
 };
 
 pub AtomicExpr: Ast = {
-    <a:StmtIf> => Ast::StmtIf(a),
     <n:LiteralInteger> " "? => Ast::LiteralInteger(n),
-    <n:LiteralBool> " "? => Ast::LiteralBool(n),
+    <b:LiteralBool> " "? => Ast::LiteralBool(b),
+    <s:StructLiteral> " "? => Ast::StructLiteral(s),
+    <a:StmtIf> => Ast::StmtIf(a),
     <i:FieldAccess> " "? => Ast::FieldAccess(i),
     <i:Ident> " "? => Ast::Ident(i),
     <c:ExprCall> " "? => Ast::ExprCall(c),
@@ -290,6 +317,8 @@ pub FieldAccess: ast::FieldAccess = {
     }
 }
 
+
+
 pub InfixOp: InfixOp = {
     "+" => InfixOp::Add,
     "-" => InfixOp::Sub,
@@ -298,6 +327,7 @@ pub InfixOp: InfixOp = {
     "!=" => InfixOp::CmpNotEqual,
     "==" => InfixOp::CmpEqual,
     "<" => InfixOp::CmpLess,
+    "=" => InfixOp::Assign,
 }
 
 pub LiteralInteger: ast::LiteralInteger = {

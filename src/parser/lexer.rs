@@ -18,6 +18,9 @@ pub enum Token<'input> {
     #[token("false")]
     KeywordFalse,
 
+    #[token("struct")]
+    KeywordStruct,
+
     #[token("type")]
     KeywordType,
     #[token("if")]

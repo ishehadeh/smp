@@ -241,7 +241,7 @@ impl Compiler {
             (
                 Slot::Stack {
                     offset: offset_dest,
-                    size: size_dest,
+                    size: _,
                 },
                 source,
             ) => {
@@ -278,7 +278,21 @@ impl Compiler {
                     buffer,
                 }
             }
-            Ast::FieldAccess(_) => todo!(),
+            Ast::FieldAccess(f) => {
+                let mut object_res = self.eval_ast(&f.object);
+                let field_val = object_res
+                    .result
+                    .expect("cannot use field access on empty result")
+                    .as_map()
+                    .expect("cannot use field access on slot")
+                    .values
+                    .get(&f.field.symbol)
+                    .expect("field not found")
+                    .clone();
+                object_res.result = Some(field_val);
+                object_res
+            }
+            Ast::StructLiteral(_) => todo!(),
         }
     }
 
@@ -355,6 +369,7 @@ impl Compiler {
             InfixOp::CmpLess => {
                 buffer.slt(res_reg, lreg, rreg);
             }
+            InfixOp::Assign => todo!(),
         }
 
         EvalResult {

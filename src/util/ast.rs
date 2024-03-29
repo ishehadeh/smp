@@ -58,6 +58,7 @@ impl Declarations {
                 | Ast::ExprCall(_)
                 | Ast::StmtLet(_)
                 | Ast::FieldAccess(_)
+                | Ast::StructLiteral(_)
                 | Ast::Expr(_) => continue,
             }
         }

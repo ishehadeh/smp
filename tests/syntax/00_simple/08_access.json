@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 85
+      "end": 113
     },
     "xdata": {
       "declared_type": "Unit",
@@ -53,12 +53,24 @@
         "data": {
           "span": {
             "start": 34,
-            "end": 85
+            "end": 113
           },
           "xdata": {
             "declared_type": "Unit",
             "value_type": null,
-            "error": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": "Unit",
+                "returned": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 10,
+                      "hi": 10
+                    }
+                  }
+                }
+              }
+            },
             "cond_true": {},
             "cond_false": {}
           },
@@ -76,18 +88,19 @@
             "data": {
               "span": {
                 "start": 52,
-                "end": 85
+                "end": 113
               },
               "xdata": {
-                "declared_type": "Unit",
-                "value_type": null,
-                "error": {
-                  "BadExpression": {
-                    "lhs": "Unit",
-                    "rhs": "Unit",
-                    "op": "Add"
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 10,
+                      "hi": 10
+                    }
                   }
                 },
+                "value_type": null,
+                "error": null,
                 "cond_true": {},
                 "cond_false": {}
               },
@@ -98,7 +111,7 @@
                   "data": {
                     "span": {
                       "start": 58,
-                      "end": 70
+                      "end": 97
                     },
                     "xdata": {
                       "declared_type": {
@@ -121,11 +134,22 @@
                         }
                       },
                       "value_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 1,
-                            "hi": 1
-                          }
+                        "Record": {
+                          "fields": [
+                            {
+                              "name": "a",
+                              "offset": 0,
+                              "length": 0,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 5,
+                                    "hi": 5
+                                  }
+                                }
+                              }
+                            }
+                          ]
                         }
                       },
                       "error": {
@@ -150,11 +174,22 @@
                             }
                           },
                           "value_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 1,
-                                "hi": 1
-                              }
+                            "Record": {
+                              "fields": [
+                                {
+                                  "name": "a",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 5,
+                                        "hi": 5
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           },
                           "binding_name": "t"
@@ -172,34 +207,105 @@
                       }
                     },
                     "value": {
-                      "type": "LiteralInteger",
+                      "type": "StructLiteral",
                       "data": {
                         "span": {
                           "start": 69,
-                          "end": 70
+                          "end": 97
                         },
                         "xdata": {
                           "declared_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 1,
-                                "hi": 1
-                              }
+                            "Record": {
+                              "fields": [
+                                {
+                                  "name": "a",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 5,
+                                        "hi": 5
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           },
-                          "value_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 1,
-                                "hi": 1
-                              }
-                            }
-                          },
+                          "value_type": null,
                           "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
-                        "value": 1
+                        "members": [
+                          {
+                            "span": {
+                              "start": 86,
+                              "end": 96
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 5,
+                                    "hi": 5
+                                  }
+                                }
+                              },
+                              "value_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 5,
+                                    "hi": 5
+                                  }
+                                }
+                              },
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "field": {
+                              "span": {
+                                "start": 86,
+                                "end": 87
+                              },
+                              "xdata": null,
+                              "symbol": "a"
+                            },
+                            "value": {
+                              "type": "LiteralInteger",
+                              "data": {
+                                "span": {
+                                  "start": 90,
+                                  "end": 91
+                                },
+                                "xdata": {
+                                  "declared_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 5,
+                                        "hi": 5
+                                      }
+                                    }
+                                  },
+                                  "value_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 5,
+                                        "hi": 5
+                                      }
+                                    }
+                                  },
+                                  "error": null,
+                                  "cond_true": {},
+                                  "cond_false": {}
+                                },
+                                "value": 5
+                              }
+                            }
+                          }
+                        ]
                       }
                     }
                   }
@@ -208,19 +314,20 @@
                   "type": "Expr",
                   "data": {
                     "span": {
-                      "start": 76,
-                      "end": 84
+                      "start": 104,
+                      "end": 112
                     },
                     "xdata": {
-                      "declared_type": "Unit",
-                      "value_type": null,
-                      "error": {
-                        "BadExpression": {
-                          "lhs": "Unit",
-                          "rhs": "Unit",
-                          "op": "Add"
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 10,
+                            "hi": 10
+                          }
                         }
                       },
+                      "value_type": null,
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -228,32 +335,27 @@
                       "type": "FieldAccess",
                       "data": {
                         "span": {
-                          "start": 76,
-                          "end": 79
+                          "start": 104,
+                          "end": 107
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "InvalidFieldAccess": {
-                              "object": {
-                                "Scalar": {
-                                  "Integer": {
-                                    "lo": 1,
-                                    "hi": 1
-                                  }
-                                }
-                              },
-                              "symbol": "a"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 5,
+                                "hi": 5
+                              }
                             }
                           },
+                          "value_type": null,
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
                         "field": {
                           "span": {
-                            "start": 78,
-                            "end": 79
+                            "start": 106,
+                            "end": 107
                           },
                           "xdata": null,
                           "symbol": "a"
@@ -262,8 +364,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 76,
-                              "end": 77
+                              "start": 104,
+                              "end": 105
                             },
                             "xdata": {
                               "declared_type": {
@@ -286,11 +388,22 @@
                                 }
                               },
                               "value_type": {
-                                "Scalar": {
-                                  "Integer": {
-                                    "lo": 1,
-                                    "hi": 1
-                                  }
+                                "Record": {
+                                  "fields": [
+                                    {
+                                      "name": "a",
+                                      "offset": 0,
+                                      "length": 0,
+                                      "type_info": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 5,
+                                            "hi": 5
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
                                 }
                               },
                               "error": {
@@ -315,11 +428,22 @@
                                     }
                                   },
                                   "value_type": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 1,
-                                        "hi": 1
-                                      }
+                                    "Record": {
+                                      "fields": [
+                                        {
+                                          "name": "a",
+                                          "offset": 0,
+                                          "length": 0,
+                                          "type_info": {
+                                            "Scalar": {
+                                              "Integer": {
+                                                "lo": 5,
+                                                "hi": 5
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
                                     }
                                   },
                                   "binding_name": "t"
@@ -338,8 +462,8 @@
                       "type": "LiteralInteger",
                       "data": {
                         "span": {
-                          "start": 82,
-                          "end": 83
+                          "start": 110,
+                          "end": 111
                         },
                         "xdata": {
                           "declared_type": {

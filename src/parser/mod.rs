@@ -1,7 +1,6 @@
 pub mod ast;
 mod errors;
 pub mod lexer;
-mod test;
 
 lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
 
@@ -12,8 +11,8 @@ use lalrpop_util::lalrpop_mod;
 
 use self::lexer::Lexer;
 
-// #[cfg(test)]
-// mod test;
+#[cfg(test)]
+mod test;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ParseResult {

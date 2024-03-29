@@ -1,5 +1,7 @@
+use std::vec;
+
 use crate::parser::{
-    ast::{Expr, FieldAccess, Ident, InfixOp},
+    ast::{self, Expr, FieldAccess, Ident, InfixOp, StructLiteral},
     parse, Ast,
 };
 
@@ -63,4 +65,27 @@ fn access_and_add() {
             }))
         })
     );
+}
+
+#[test]
+fn struct_literal() {
+    let expected = Ast::StructLiteral(StructLiteral {
+        span: (0, 15).into(),
+        xdata: (),
+        members: vec![ast::StructLiteralMember {
+            span: (8, 14).into(),
+            xdata: (),
+            field: ast::Ident {
+                span: (8, 9).into(),
+                xdata: (),
+                symbol: "c".to_string(),
+            },
+            value: Box::new(Ast::LiteralInteger(ast::LiteralInteger {
+                span: (12, 13).into(),
+                xdata: (),
+                value: 1,
+            })),
+        }],
+    });
+    assert_eq!(must_parse_expr("struct{ c = 1 }"), expected);
 }
