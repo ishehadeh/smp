@@ -37,6 +37,24 @@
           "name": "add",
           "params": [
             {
+              "span": {
+                "start": 9,
+                "end": 24
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "a",
               "typ": {
                 "type": "IntegerRange",
@@ -47,6 +65,24 @@
               }
             },
             {
+              "span": {
+                "start": 25,
+                "end": 40
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "b",
               "typ": {
                 "type": "IntegerRange",

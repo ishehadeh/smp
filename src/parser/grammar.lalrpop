@@ -69,7 +69,10 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <name:"ident"> " "? ":" " "? <typ:AnonType> " "? => Param {
+    <l: @L> <name:"ident"> " "? ":" " "? <typ:AnonType> <r: @R> " "? => Param {
+        span: (l, r).into(),
+        xdata: (),
+
         name: name.to_string(),
         typ,
     }

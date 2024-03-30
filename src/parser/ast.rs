@@ -18,7 +18,10 @@ pub enum InfixOp {
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
-pub struct Param {
+pub struct Param<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
     pub name: String,
     pub typ: AnonType,
 }
@@ -224,7 +227,7 @@ pub struct DefFunction<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub name: String,
-    pub params: Vec<Param>,
+    pub params: Vec<Param<X>>,
     pub return_type: AnonType,
     pub body: Box<Ast<X>>,
 }
@@ -266,6 +269,7 @@ macro_rules! impl_ast_node {
 }
 
 impl_ast_node! { StructLiteralMember }
+impl_ast_node! { Param }
 
 macro_rules! impl_ast_traits {
     ($ast_ty:ident : $($member:ident),*) => {

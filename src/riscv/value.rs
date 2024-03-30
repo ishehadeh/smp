@@ -1,6 +1,7 @@
-use std::collections::{hash_map::Values, HashMap};
+use std::collections::HashMap;
+use thiserror::Error;
 
-use super::Register;
+use super::{asmgen::AssemblyWriter, Register};
 
 #[derive(Clone, Debug)]
 
@@ -11,6 +12,22 @@ pub enum Value {
 }
 
 impl Value {
+    pub fn is_slot(&self) -> bool {
+        if let Value::Slot(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_map(&self) -> bool {
+        if let Value::Map(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn as_slot(&self) -> Option<&Slot> {
         if let Value::Slot(s) = self {
             Some(s)

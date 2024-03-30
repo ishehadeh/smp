@@ -436,6 +436,24 @@
           "name": "many_many_params",
           "params": [
             {
+              "span": {
+                "start": 134,
+                "end": 147
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "a",
               "typ": {
                 "type": "IntegerRange",
@@ -446,6 +464,24 @@
               }
             },
             {
+              "span": {
+                "start": 149,
+                "end": 162
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "b",
               "typ": {
                 "type": "IntegerRange",
@@ -456,6 +492,24 @@
               }
             },
             {
+              "span": {
+                "start": 164,
+                "end": 177
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "c",
               "typ": {
                 "type": "IntegerRange",
@@ -466,6 +520,24 @@
               }
             },
             {
+              "span": {
+                "start": 179,
+                "end": 192
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "d",
               "typ": {
                 "type": "IntegerRange",
@@ -476,6 +548,24 @@
               }
             },
             {
+              "span": {
+                "start": 194,
+                "end": 207
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "e",
               "typ": {
                 "type": "IntegerRange",
@@ -486,6 +576,24 @@
               }
             },
             {
+              "span": {
+                "start": 209,
+                "end": 222
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "f",
               "typ": {
                 "type": "IntegerRange",
@@ -496,6 +604,24 @@
               }
             },
             {
+              "span": {
+                "start": 224,
+                "end": 237
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "g",
               "typ": {
                 "type": "IntegerRange",

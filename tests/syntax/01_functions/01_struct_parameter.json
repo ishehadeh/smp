@@ -1,0 +1,1019 @@
+{
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 263
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 0,
+            "end": 71
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "__libc_start_main",
+          "params": [],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "unit",
+              "parameters": null
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 31,
+                "end": 69
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": false,
+              "statements": [
+                {
+                  "type": "ExprCall",
+                  "data": {
+                    "span": {
+                      "start": 37,
+                      "end": 43
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 1
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "function_name": "main",
+                    "paramaters": []
+                  }
+                },
+                {
+                  "type": "ExprCall",
+                  "data": {
+                    "span": {
+                      "start": 49,
+                      "end": 66
+                    },
+                    "xdata": {
+                      "declared_type": "Unit",
+                      "value_type": null,
+                      "error": {
+                        "UnknownFunction": {
+                          "name": "__hw_breakpoint"
+                        }
+                      },
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "function_name": "__hw_breakpoint",
+                    "paramaters": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "DefType",
+        "data": {
+          "span": {
+            "start": 71,
+            "end": 123
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "T",
+          "typ": {
+            "type": "StructBody",
+            "data": {
+              "members": [
+                {
+                  "mutable": false,
+                  "name": "a",
+                  "typ": {
+                    "type": "IntegerRange",
+                    "data": {
+                      "inclusive_low": "0",
+                      "inclusive_high": "10"
+                    }
+                  }
+                },
+                {
+                  "mutable": false,
+                  "name": "b",
+                  "typ": {
+                    "type": "IntegerRange",
+                    "data": {
+                      "inclusive_low": "0",
+                      "inclusive_high": "10"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 125,
+            "end": 178
+          },
+          "xdata": {
+            "declared_type": {
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 20
+                }
+              }
+            },
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "add_tuple",
+          "params": [
+            {
+              "span": {
+                "start": 140,
+                "end": 144
+              },
+              "xdata": {
+                "declared_type": {
+                  "Record": {
+                    "fields": [
+                      {
+                        "name": "a",
+                        "offset": 0,
+                        "length": 4,
+                        "type_info": {
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 0,
+                              "hi": 10
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "name": "b",
+                        "offset": 4,
+                        "length": 4,
+                        "type_info": {
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 0,
+                              "hi": 10
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "name": "t",
+              "typ": {
+                "type": "TypeReference",
+                "data": {
+                  "name": "T",
+                  "parameters": null
+                }
+              }
+            }
+          ],
+          "return_type": {
+            "type": "IntegerRange",
+            "data": {
+              "inclusive_low": "0",
+              "inclusive_high": "20"
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 159,
+                "end": 176
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 20
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": true,
+              "statements": [
+                {
+                  "type": "Expr",
+                  "data": {
+                    "span": {
+                      "start": 165,
+                      "end": 175
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 20
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "lhs": {
+                      "type": "FieldAccess",
+                      "data": {
+                        "span": {
+                          "start": 165,
+                          "end": 168
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 10
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "field": {
+                          "span": {
+                            "start": 167,
+                            "end": 168
+                          },
+                          "xdata": null,
+                          "symbol": "a"
+                        },
+                        "object": {
+                          "type": "Ident",
+                          "data": {
+                            "span": {
+                              "start": 165,
+                              "end": 166
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Record": {
+                                  "fields": [
+                                    {
+                                      "name": "a",
+                                      "offset": 0,
+                                      "length": 4,
+                                      "type_info": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 10
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "name": "b",
+                                      "offset": 4,
+                                      "length": 4,
+                                      "type_info": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 10
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "value_type": null,
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "symbol": "t"
+                          }
+                        }
+                      }
+                    },
+                    "op": "Add",
+                    "rhs": {
+                      "type": "FieldAccess",
+                      "data": {
+                        "span": {
+                          "start": 171,
+                          "end": 174
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 10
+                              }
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "field": {
+                          "span": {
+                            "start": 173,
+                            "end": 174
+                          },
+                          "xdata": null,
+                          "symbol": "b"
+                        },
+                        "object": {
+                          "type": "Ident",
+                          "data": {
+                            "span": {
+                              "start": 171,
+                              "end": 172
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Record": {
+                                  "fields": [
+                                    {
+                                      "name": "a",
+                                      "offset": 0,
+                                      "length": 4,
+                                      "type_info": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 10
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "name": "b",
+                                      "offset": 4,
+                                      "length": 4,
+                                      "type_info": {
+                                        "Scalar": {
+                                          "Integer": {
+                                            "lo": 0,
+                                            "hi": 10
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "value_type": null,
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "symbol": "t"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 178,
+            "end": 263
+          },
+          "xdata": {
+            "declared_type": {
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 1
+                }
+              }
+            },
+            "value_type": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
+                "returned": "Unit"
+              }
+            },
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "main",
+          "params": [],
+          "return_type": {
+            "type": "IntegerRange",
+            "data": {
+              "inclusive_low": "0",
+              "inclusive_high": "1"
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 202,
+                "end": 263
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": false,
+              "statements": [
+                {
+                  "type": "StmtLet",
+                  "data": {
+                    "span": {
+                      "start": 208,
+                      "end": 242
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Record": {
+                          "fields": [
+                            {
+                              "name": "a",
+                              "offset": 0,
+                              "length": 4,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 10
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "name": "b",
+                              "offset": 4,
+                              "length": 4,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 10
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "value_type": {
+                        "Record": {
+                          "fields": [
+                            {
+                              "name": "a",
+                              "offset": 0,
+                              "length": 0,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 1,
+                                    "hi": 1
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "name": "b",
+                              "offset": 0,
+                              "length": 0,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 2,
+                                    "hi": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "error": {
+                        "BadAssignment": {
+                          "binding_type": {
+                            "Record": {
+                              "fields": [
+                                {
+                                  "name": "a",
+                                  "offset": 0,
+                                  "length": 4,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 0,
+                                        "hi": 10
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "name": "b",
+                                  "offset": 4,
+                                  "length": 4,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 0,
+                                        "hi": 10
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "value_type": {
+                            "Record": {
+                              "fields": [
+                                {
+                                  "name": "a",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 1,
+                                        "hi": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "name": "b",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 2,
+                                        "hi": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "binding_name": "t"
+                        }
+                      },
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "name": "t",
+                    "value_type": {
+                      "type": "TypeReference",
+                      "data": {
+                        "name": "T",
+                        "parameters": null
+                      }
+                    },
+                    "value": {
+                      "type": "StructLiteral",
+                      "data": {
+                        "span": {
+                          "start": 219,
+                          "end": 242
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Record": {
+                              "fields": [
+                                {
+                                  "name": "a",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 1,
+                                        "hi": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "name": "b",
+                                  "offset": 0,
+                                  "length": 0,
+                                  "type_info": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 2,
+                                        "hi": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "value_type": null,
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "members": [
+                          {
+                            "span": {
+                              "start": 228,
+                              "end": 233
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 1,
+                                    "hi": 1
+                                  }
+                                }
+                              },
+                              "value_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 1,
+                                    "hi": 1
+                                  }
+                                }
+                              },
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "field": {
+                              "span": {
+                                "start": 228,
+                                "end": 229
+                              },
+                              "xdata": null,
+                              "symbol": "a"
+                            },
+                            "value": {
+                              "type": "LiteralInteger",
+                              "data": {
+                                "span": {
+                                  "start": 232,
+                                  "end": 233
+                                },
+                                "xdata": {
+                                  "declared_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 1,
+                                        "hi": 1
+                                      }
+                                    }
+                                  },
+                                  "value_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 1,
+                                        "hi": 1
+                                      }
+                                    }
+                                  },
+                                  "error": null,
+                                  "cond_true": {},
+                                  "cond_false": {}
+                                },
+                                "value": 1
+                              }
+                            }
+                          },
+                          {
+                            "span": {
+                              "start": 235,
+                              "end": 241
+                            },
+                            "xdata": {
+                              "declared_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 2,
+                                    "hi": 2
+                                  }
+                                }
+                              },
+                              "value_type": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 2,
+                                    "hi": 2
+                                  }
+                                }
+                              },
+                              "error": null,
+                              "cond_true": {},
+                              "cond_false": {}
+                            },
+                            "field": {
+                              "span": {
+                                "start": 235,
+                                "end": 236
+                              },
+                              "xdata": null,
+                              "symbol": "b"
+                            },
+                            "value": {
+                              "type": "LiteralInteger",
+                              "data": {
+                                "span": {
+                                  "start": 239,
+                                  "end": 240
+                                },
+                                "xdata": {
+                                  "declared_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 2,
+                                        "hi": 2
+                                      }
+                                    }
+                                  },
+                                  "value_type": {
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 2,
+                                        "hi": 2
+                                      }
+                                    }
+                                  },
+                                  "error": null,
+                                  "cond_true": {},
+                                  "cond_false": {}
+                                },
+                                "value": 2
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "ExprCall",
+                  "data": {
+                    "span": {
+                      "start": 248,
+                      "end": 260
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 20
+                          }
+                        }
+                      },
+                      "value_type": null,
+                      "error": null,
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "function_name": "add_tuple",
+                    "paramaters": [
+                      {
+                        "type": "Ident",
+                        "data": {
+                          "span": {
+                            "start": 258,
+                            "end": 259
+                          },
+                          "xdata": {
+                            "declared_type": {
+                              "Record": {
+                                "fields": [
+                                  {
+                                    "name": "a",
+                                    "offset": 0,
+                                    "length": 4,
+                                    "type_info": {
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 0,
+                                          "hi": 10
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "name": "b",
+                                    "offset": 4,
+                                    "length": 4,
+                                    "type_info": {
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 0,
+                                          "hi": 10
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "value_type": {
+                              "Record": {
+                                "fields": [
+                                  {
+                                    "name": "a",
+                                    "offset": 0,
+                                    "length": 0,
+                                    "type_info": {
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 1,
+                                          "hi": 1
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "name": "b",
+                                    "offset": 0,
+                                    "length": 0,
+                                    "type_info": {
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 2,
+                                          "hi": 2
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "error": {
+                              "BadAssignment": {
+                                "binding_type": {
+                                  "Record": {
+                                    "fields": [
+                                      {
+                                        "name": "a",
+                                        "offset": 0,
+                                        "length": 4,
+                                        "type_info": {
+                                          "Scalar": {
+                                            "Integer": {
+                                              "lo": 0,
+                                              "hi": 10
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "name": "b",
+                                        "offset": 4,
+                                        "length": 4,
+                                        "type_info": {
+                                          "Scalar": {
+                                            "Integer": {
+                                              "lo": 0,
+                                              "hi": 10
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "value_type": {
+                                  "Record": {
+                                    "fields": [
+                                      {
+                                        "name": "a",
+                                        "offset": 0,
+                                        "length": 0,
+                                        "type_info": {
+                                          "Scalar": {
+                                            "Integer": {
+                                              "lo": 1,
+                                              "hi": 1
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "name": "b",
+                                        "offset": 0,
+                                        "length": 0,
+                                        "type_info": {
+                                          "Scalar": {
+                                            "Integer": {
+                                              "lo": 2,
+                                              "hi": 2
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "binding_name": "t"
+                              }
+                            },
+                            "cond_true": {},
+                            "cond_false": {}
+                          },
+                          "symbol": "t"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

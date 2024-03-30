@@ -3,6 +3,8 @@ use std::{
     sync::atomic::AtomicUsize,
 };
 
+use thiserror::Error;
+
 use super::{asmgen::AssemblyWriter, scope::ScopeManager, Register, Slot, Value, ValueMap};
 use crate::{
     parser::{
@@ -12,14 +14,18 @@ use crate::{
     typecheck::{typetree::TypeTreeXData, RecordType, TypeInfo},
 };
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Debug)]
-pub struct CompilerXData {
-    result: Slot,
-    operations: String,
-}
+#[derive(Error, Debug, Clone)]
+pub enum CompileError {
+    #[error("incompatible value types: (dest = {:?}, source = {:?})", dest, src)]
+    IncompatibleValueType { dest: Value, src: Value },
 
-pub type CompilerTree = Ast<CompilerXData>;
+    #[error(
+        "incompatible value map structure: (dest = {:?}, source = {:?})",
+        dest,
+        src
+    )]
+    IncompatibleValueMapStructure { dest: Value, src: Value },
+}
 
 #[derive(Default, Clone, Debug)]
 pub struct Compiler {
@@ -39,6 +45,8 @@ impl StackState {
         self.bytes.clear();
     }
 
+    /// Allocate `size` bytes on the stack and return the offset from the bottom of the stack (in bytes)
+    /// Note that if this address should be subtracted from the frame pointer, since the RISC-V stack grows down
     pub fn alloc(&mut self, size: usize) -> usize {
         let mut first_free_ind = None;
         let mut offset_size = None;
@@ -61,7 +69,12 @@ impl StackState {
             }
         }
 
-        if let Some((offset, _)) = offset_size {
+        if let Some((offset, size)) = offset_size {
+            self.bytes
+                .iter_mut()
+                .skip(offset)
+                .take(size)
+                .for_each(|free| *free = false);
             offset
         } else {
             let offset = self.bytes.len();
@@ -109,6 +122,36 @@ impl Compiler {
         }
     }
 
+    pub fn copy_value(
+        &mut self,
+        state: &mut AssemblyWriter,
+        dest: &Value,
+        src: &Value,
+    ) -> Result<(), CompileError> {
+        match (dest, src) {
+            (Value::Slot(dest), Value::Slot(src)) => {
+                self.copy_slot(state, dest, src);
+                Ok(())
+            }
+            (Value::Map(dest_map), Value::Map(src_map)) => {
+                for (key, src_field) in src_map.values.iter() {
+                    let dest_field = dest_map.values.get(key).ok_or_else(|| {
+                        CompileError::IncompatibleValueMapStructure {
+                            dest: dest.clone(),
+                            src: src.clone(),
+                        }
+                    })?;
+                    self.copy_value(state, dest_field, src_field);
+                }
+                Ok(())
+            }
+            _ => Err(CompileError::IncompatibleValueType {
+                dest: dest.clone(),
+                src: src.clone(),
+            }),
+        }
+    }
+
     pub fn get_slot(&mut self, size: usize) -> Slot {
         if size <= 4 {
             if let Some(r) = self.register_stack.pop_front() {
@@ -123,10 +166,10 @@ impl Compiler {
         }
     }
 
-    pub fn write_slot(&mut self, buffer: &mut AssemblyWriter, slot: Slot, value: &[u8]) {
+    pub fn write_slot(&mut self, buffer: &mut AssemblyWriter, slot: &Slot, value: &[u8]) {
         match slot {
             Slot::Immediate(_) => panic!("slot is read-only, this should be unreachable"),
-            Slot::Register(r) => {
+            &Slot::Register(r) => {
                 assert!(value.len() <= 4);
                 let mut padded_value: [u8; 4] = [0; 4];
                 for (i, x) in value.iter().enumerate() {
@@ -137,7 +180,7 @@ impl Compiler {
             Slot::Indirect { base, offset } => {
                 assert!(value.len() <= 4);
 
-                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, *base);
+                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
                 let r = self.get_register(buffer, &TEMPORARY_REGISTERS);
                 for (i, word) in value.chunks(4).enumerate() {
                     let word_offset = i * 4 + offset;
@@ -171,17 +214,17 @@ impl Compiler {
         save_ref
     }
 
-    pub fn load_register(&mut self, buffer: &mut AssemblyWriter, dest: Register, slot: Slot) {
+    pub fn load_register(&mut self, buffer: &mut AssemblyWriter, dest: Register, slot: &Slot) {
         match slot {
             Slot::Indirect { offset, base } => {
-                assert!(offset < 2048);
-                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, *base);
-                buffer.lw(dest, offset as i16, base_reg);
+                assert!(*offset < 2048);
+                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
+                buffer.lw(dest, *offset as i16, base_reg);
             }
-            Slot::Immediate(imm) => {
+            &Slot::Immediate(imm) => {
                 buffer.addi(dest, Register::Zero, imm);
             }
-            Slot::Register(src) => {
+            &Slot::Register(src) => {
                 buffer.mv(dest, src);
             }
         }
@@ -235,14 +278,14 @@ impl Compiler {
         &mut self,
         state: &mut AssemblyWriter,
         prefer: &[Register],
-        slot: Slot,
+        slot: &Slot,
     ) -> Register {
-        if let Slot::Register(reg) = slot {
+        if let &Slot::Register(reg) = slot {
             reg
         } else {
             let next_reg = self.get_register(state, prefer);
 
-            self.load_register(state, next_reg, slot);
+            self.load_register(state, next_reg, &slot);
             next_reg
         }
     }
@@ -253,11 +296,11 @@ impl Compiler {
         }
     }
 
-    pub fn move_slot(&mut self, state: &mut AssemblyWriter, target: Slot, source: Slot) {
+    pub fn copy_slot(&mut self, state: &mut AssemblyWriter, target: &Slot, source: &Slot) {
         match (target, source) {
             (Slot::Immediate(_), _) => panic!("cannot write to immediate slot"),
             (dest, Slot::Immediate(val)) => self.write_slot(state, dest, &val.to_le_bytes()),
-            (Slot::Register(r_dest), source) => self.load_register(state, r_dest, source),
+            (Slot::Register(r_dest), source) => self.load_register(state, *r_dest, source),
             (
                 Slot::Indirect {
                     offset: offset_dest,
@@ -266,9 +309,10 @@ impl Compiler {
                 source,
             ) => {
                 let r_src = self.slot_to_register(state, &TEMPORARY_REGISTERS, source);
-                let r_dest_base = self.slot_to_register(state, &TEMPORARY_REGISTERS, *base_dest);
-                assert!(offset_dest < 2048);
-                state.sw(r_src, offset_dest as i16, r_dest_base);
+                let r_dest_base =
+                    self.slot_to_register(state, &TEMPORARY_REGISTERS, base_dest.as_ref());
+                assert!(*offset_dest < 2048);
+                state.sw(r_src, *offset_dest as i16, r_dest_base);
             }
         }
     }
@@ -326,7 +370,7 @@ impl Compiler {
             }
         } else {
             let result = self.get_slot(4);
-            self.write_slot(&mut buffer, result.clone(), &i.value.to_le_bytes());
+            self.write_slot(&mut buffer, &result, &i.value.to_le_bytes());
 
             EvalResult {
                 result: Some(result.into()),
@@ -345,7 +389,7 @@ impl Compiler {
     pub fn eval_literal_struct(&mut self, l: &ast::StructLiteral<TypeTreeXData>) -> EvalResult {
         let mut buffer = AssemblyWriter::new();
         let struct_value_map =
-            if let Value::Map(m) = self.type_info_to_slot(&mut buffer, l.xdata().current_type()) {
+            if let Value::Map(m) = self.type_info_to_value(&mut buffer, l.xdata().current_type()) {
                 m
             } else {
                 unreachable!();
@@ -361,7 +405,7 @@ impl Compiler {
                 .as_slot()
                 .expect("TODO: records within records");
 
-            self.move_slot(&mut buffer, struct_slot.clone(), val_slot.clone());
+            self.copy_slot(&mut buffer, struct_slot, val_slot);
         }
 
         EvalResult {
@@ -397,8 +441,8 @@ impl Compiler {
         let rhs_slot = rhs_val
             .as_slot()
             .expect("expected a word-sized scalar on expression rhs");
-        let lreg = self.slot_to_register(&mut buffer, &[], lhs_slot.clone());
-        let rreg = self.slot_to_register(&mut buffer, &[], rhs_slot.clone());
+        let lreg = self.slot_to_register(&mut buffer, &[], lhs_slot);
+        let rreg = self.slot_to_register(&mut buffer, &[], rhs_slot);
 
         let res_reg = self.get_register(&buffer, &[lreg]);
 
@@ -427,7 +471,7 @@ impl Compiler {
         }
     }
 
-    fn type_info_to_slot(&mut self, buffer: &mut AssemblyWriter, ty: &TypeInfo) -> Value {
+    fn type_info_to_value(&mut self, buffer: &mut AssemblyWriter, ty: &TypeInfo) -> Value {
         match ty {
             TypeInfo::Unit => todo!(),
             TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
@@ -436,13 +480,57 @@ impl Compiler {
         }
     }
 
+    fn type_info_to_value_memory(
+        &mut self,
+        buffer: &mut AssemblyWriter,
+        base: Slot,
+        offset: usize,
+        ty: &TypeInfo,
+    ) -> Value {
+        match ty {
+            TypeInfo::Unit => todo!(),
+            TypeInfo::Scalar(_) => Slot::Indirect {
+                base: Box::new(base),
+                offset,
+            }
+            .into(),
+            TypeInfo::Union(_) => todo!(),
+            TypeInfo::Record(s) => self.struct_to_value_memory(buffer, base, offset, s),
+        }
+    }
+
     fn struct_to_value(&mut self, buffer: &mut AssemblyWriter, s: &RecordType) -> Value {
         let mut val = ValueMap::default();
         for field in &s.fields {
             val.values.insert(
                 field.name.clone(),
-                self.type_info_to_slot(buffer, &field.type_info),
+                self.type_info_to_value(buffer, &field.type_info),
             );
+        }
+
+        val.into()
+    }
+
+    fn struct_to_value_memory(
+        &mut self,
+        buffer: &mut AssemblyWriter,
+        base: Slot,
+        offset: usize,
+        s: &RecordType,
+    ) -> Value {
+        let mut val = ValueMap::default();
+        let mut field_offset = offset;
+        for field in &s.fields {
+            val.values.insert(
+                field.name.clone(),
+                self.type_info_to_value_memory(
+                    buffer,
+                    base.clone(),
+                    field_offset,
+                    &field.type_info,
+                ),
+            );
+            field_offset += field.type_info.get_size()
         }
 
         val.into()
@@ -463,7 +551,7 @@ impl Compiler {
             .as_slot()
             .clone()
             .expect("condition resulted in a value tuple, this should be unreachable");
-        let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot.clone());
+        let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot);
         let end_label = self.gen_label();
         buffer.include_ref(&res.buffer);
         let result = if let Some(ast_else_) = &i.else_ {
@@ -476,14 +564,13 @@ impl Compiler {
             let res_false = self.eval_ast(ast_else_.as_ref());
 
             buffer.include(res_true.buffer);
-            self.move_slot(
+            self.copy_slot(
                 &mut buffer,
-                if_result.clone(),
+                &if_result,
                 res_true
                     .result
                     .unwrap()
                     .as_slot()
-                    .cloned()
                     .expect("TODO: support tuple types as if results"),
             );
 
@@ -491,14 +578,13 @@ impl Compiler {
             buffer.label(&false_label);
 
             buffer.include(res_false.buffer);
-            self.move_slot(
+            self.copy_slot(
                 &mut buffer,
-                if_result.clone(),
+                &if_result,
                 res_false
                     .result
                     .unwrap()
                     .as_slot()
-                    .cloned()
                     .expect("TODO: support tuple types as if results"),
             );
 
@@ -540,15 +626,32 @@ impl Compiler {
         let return_ty = c.xdata().declared_type.clone();
         for (arg_reg_i, arg) in c.paramaters.iter().enumerate() {
             let result = self.eval_ast(&arg);
+            let arg_reg = arg_regs[arg_reg_i];
+
             arg_evals_buffer.include(result.buffer);
             if let Some(arg_val) = result.result {
-                let slot = arg_val
-                    .as_slot()
-                    .expect("TODO: allow tuple types as function args ");
-                self.load_register(&mut arg_evals_buffer, arg_regs[arg_reg_i], slot.clone());
-                if arg_regs_to_save.contains(&arg_regs[arg_reg_i]) {
-                    let slot = self.save_register(&mut buffer, arg_regs[arg_reg_i]);
-                    self.load_register(&mut epilog_buffer, arg_regs[arg_reg_i], slot.clone());
+                match arg_val {
+                    Value::Map(_) => {
+                        let arg_ty = arg.xdata().current_type();
+                        let offset = self.stack.alloc(arg_ty.get_size());
+                        // create a new layout for the variable in memory, in the allocated stack space
+                        assert!(offset < 2048);
+                        dbg!(&self.stack);
+                        arg_evals_buffer.addi(arg_reg, Register::Sp, -(offset as i16));
+                        let mem_arg_value = self.type_info_to_value_memory(
+                            &mut arg_evals_buffer,
+                            Slot::Register(arg_reg),
+                            0,
+                            arg_ty,
+                        );
+                        self.copy_value(&mut arg_evals_buffer, &mem_arg_value, &arg_val)
+                            .unwrap();
+                    }
+                    Value::Slot(slot) => self.load_register(&mut arg_evals_buffer, arg_reg, &slot),
+                }
+                if arg_regs_to_save.contains(&arg_reg) {
+                    let slot = self.save_register(&mut buffer, arg_reg);
+                    self.load_register(&mut epilog_buffer, arg_reg, &slot);
                 }
             }
         }
@@ -560,7 +663,7 @@ impl Compiler {
             let result = if arg_regs_to_save.contains(&Register::A0) {
                 // TODO same for a1
                 let result = self.get_slot(4);
-                self.move_slot(&mut buffer, result.clone(), Slot::Register(Register::A0));
+                self.copy_slot(&mut buffer, &result, &Slot::Register(Register::A0));
                 result.clone()
             } else {
                 Slot::Register(Register::A0)
@@ -599,8 +702,17 @@ impl Compiler {
         buffer.label(&f.name);
 
         for (arg_reg_i, p) in f.params.iter().enumerate() {
-            self.scopes
-                .set(&p.name, Slot::Register(arg_regs[arg_reg_i]).into());
+            let arg_reg_slot = Slot::Register(arg_regs[arg_reg_i]);
+            let arg_ty = p.xdata().current_type();
+            let value = match arg_ty {
+                TypeInfo::Unit => continue,
+                TypeInfo::Scalar(_) => arg_reg_slot.into(),
+                TypeInfo::Union(_) => todo!("union function args"),
+                TypeInfo::Record(_) => {
+                    self.type_info_to_value_memory(&mut buffer, arg_reg_slot, 0, arg_ty)
+                }
+            };
+            self.scopes.set(&p.name, value);
         }
         let res = self.eval_ast(f.body.as_ref());
 
@@ -638,7 +750,7 @@ impl Compiler {
                 .as_slot()
                 .expect("TODO: support tuple types in function returns")
                 .clone();
-            self.load_register(&mut buffer, Register::A0, out_slot);
+            self.load_register(&mut buffer, Register::A0, &out_slot);
         }
 
         buffer.include(epilog);

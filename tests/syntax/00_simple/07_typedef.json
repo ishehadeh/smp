@@ -94,6 +94,24 @@
           "name": "add_A",
           "params": [
             {
+              "span": {
+                "start": 35,
+                "end": 39
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "a",
               "typ": {
                 "type": "TypeReference",
@@ -104,6 +122,24 @@
               }
             },
             {
+              "span": {
+                "start": 41,
+                "end": 45
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "b",
               "typ": {
                 "type": "TypeReference",

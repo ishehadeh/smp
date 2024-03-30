@@ -246,11 +246,23 @@ impl TypeInterpreter {
         }
     }
 
+    pub fn eval_param(&mut self, p: ast::Param) -> ast::Param<TypeTreeXData> {
+        let typ = self.declarations.eval_anon_type(&p.typ);
+        ast::Param {
+            span: p.span,
+            xdata: TypeTreeXData::new(typ),
+            name: p.name,
+            typ: p.typ,
+        }
+    }
+
     pub fn eval_def_function(&mut self, f: ast::DefFunction) -> ast::DefFunction<TypeTreeXData> {
         self.push_scope();
-        for p in &f.params {
-            let typ = self.declarations.eval_anon_type(&p.typ);
-            self.set_var(&p.name, TypeTreeXData::new(typ))
+        let mut params: Vec<_> = Vec::new();
+        for p in f.params {
+            let ty_param = self.eval_param(p);
+            self.set_var(&ty_param.name, ty_param.xdata().clone());
+            params.push(ty_param);
         }
 
         let body_type_tree = self.eval_ast(*f.body);
@@ -275,7 +287,7 @@ impl TypeInterpreter {
                 cond_true: Default::default(),
             },
             name: f.name,
-            params: f.params,
+            params: params,
             return_type: f.return_type,
             body: Box::new(body_type_tree),
         }

@@ -70,6 +70,24 @@
           "name": "fib",
           "params": [
             {
+              "span": {
+                "start": 10,
+                "end": 30
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 10000000
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "n",
               "typ": {
                 "type": "IntegerRange",
