@@ -108,6 +108,27 @@ impl AssemblyWriter {
         .expect("write failed")
     }
 
+    pub fn sb(&mut self, rs2: Register, offset: i16, rs1: Register) {
+        assert!(
+            offset < 2047,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        assert!(
+            offset > -2048,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        self.reads.insert(rs1);
+        self.reads.insert(rs2);
+        writeln!(
+            &mut self.buffer,
+            "sb {}, {}({})",
+            rs2.to_abi_name(),
+            offset,
+            rs1.to_abi_name(),
+        )
+        .expect("write failed")
+    }
+
     pub fn lw(&mut self, rd: Register, offset: i16, rs1: Register) {
         assert!(
             offset < 2047,

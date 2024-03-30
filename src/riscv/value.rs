@@ -53,7 +53,7 @@ impl Into<Value> for ValueMap {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 // A way of keeping some value
 pub enum Slot {
     // if the value is immediate, it can be stored in the immediate part of an instruction
@@ -62,13 +62,10 @@ pub enum Slot {
     /// If the value is can fit, it may be stored in a register
     Register(Register),
 
-    /// The value may be kept on the stack
-    Stack {
-        /// stack offset from the frame pointer
+    /// A value stored in memory, relative to the address stored in the 'base' slot
+    Indirect {
+        base: Box<Slot>,
         offset: usize,
-
-        /// size in bytes of the stack allocation
-        size: usize,
     },
 }
 

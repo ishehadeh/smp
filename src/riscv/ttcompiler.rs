@@ -87,6 +87,7 @@ pub struct EvalResult {
     pub buffer: AssemblyWriter,
 }
 
+const TEMPORARY_REGISTERS: [Register; 4] = [Register::T0, Register::T1, Register::T2, Register::T3];
 impl Compiler {
     pub fn new() -> Compiler {
         Compiler {
@@ -116,7 +117,10 @@ impl Compiler {
         }
 
         let offset = self.stack.alloc(size);
-        Slot::Stack { offset, size }
+        Slot::Indirect {
+            offset,
+            base: Box::new(Slot::Register(Register::Sp)),
+        }
     }
 
     pub fn write_slot(&mut self, buffer: &mut AssemblyWriter, slot: Slot, value: &[u8]) {
@@ -130,8 +134,24 @@ impl Compiler {
                 }
                 buffer.li(r, u32::from_le_bytes(padded_value))
             }
-            Slot::Stack { .. } => {
-                todo!("write_slot for ValueRef::Stack")
+            Slot::Indirect { base, offset } => {
+                assert!(value.len() <= 4);
+
+                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, *base);
+                let r = self.get_register(buffer, &TEMPORARY_REGISTERS);
+                for (i, word) in value.chunks(4).enumerate() {
+                    let word_offset = i * 4 + offset;
+                    if word.len() == 4 {
+                        let val: [u8; 4] = word.try_into().unwrap();
+                        buffer.li(r, u32::from_le_bytes(val));
+                        buffer.sb(r, word_offset.try_into().unwrap(), base_reg);
+                    } else {
+                        for (j, byte) in word.iter().enumerate() {
+                            buffer.li(r, *byte as u32);
+                            buffer.sb(r, (word_offset + j).try_into().unwrap(), base_reg);
+                        }
+                    }
+                }
             }
         }
     }
@@ -142,9 +162,9 @@ impl Compiler {
         const REGISTER_WIDTH: usize = 4;
 
         let offset = self.stack.alloc(REGISTER_WIDTH);
-        let save_ref = Slot::Stack {
+        let save_ref = Slot::Indirect {
             offset,
-            size: REGISTER_WIDTH,
+            base: Box::new(Slot::Register(Register::Sp)),
         };
         assert!(offset < 2048);
         buffer.sw(reg, offset as i16, Register::Sp);
@@ -153,10 +173,10 @@ impl Compiler {
 
     pub fn load_register(&mut self, buffer: &mut AssemblyWriter, dest: Register, slot: Slot) {
         match slot {
-            Slot::Stack { offset, size } => {
+            Slot::Indirect { offset, base } => {
                 assert!(offset < 2048);
-                assert!(size <= 4);
-                buffer.lw(dest, offset as i16, Register::Sp);
+                let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, *base);
+                buffer.lw(dest, offset as i16, base_reg);
             }
             Slot::Immediate(imm) => {
                 buffer.addi(dest, Register::Zero, imm);
@@ -239,15 +259,16 @@ impl Compiler {
             (dest, Slot::Immediate(val)) => self.write_slot(state, dest, &val.to_le_bytes()),
             (Slot::Register(r_dest), source) => self.load_register(state, r_dest, source),
             (
-                Slot::Stack {
+                Slot::Indirect {
                     offset: offset_dest,
-                    size: _,
+                    base: base_dest,
                 },
                 source,
             ) => {
-                let r_src = self.slot_to_register(state, &[], source);
+                let r_src = self.slot_to_register(state, &TEMPORARY_REGISTERS, source);
+                let r_dest_base = self.slot_to_register(state, &TEMPORARY_REGISTERS, *base_dest);
                 assert!(offset_dest < 2048);
-                state.sw(r_src, offset_dest as i16, Register::Fp);
+                state.sw(r_src, offset_dest as i16, r_dest_base);
             }
         }
     }
@@ -305,7 +326,7 @@ impl Compiler {
             }
         } else {
             let result = self.get_slot(4);
-            self.write_slot(&mut buffer, result, &i.value.to_le_bytes());
+            self.write_slot(&mut buffer, result.clone(), &i.value.to_le_bytes());
 
             EvalResult {
                 result: Some(result.into()),
@@ -340,7 +361,7 @@ impl Compiler {
                 .as_slot()
                 .expect("TODO: records within records");
 
-            self.move_slot(&mut buffer, *struct_slot, *val_slot);
+            self.move_slot(&mut buffer, struct_slot.clone(), val_slot.clone());
         }
 
         EvalResult {
@@ -376,8 +397,8 @@ impl Compiler {
         let rhs_slot = rhs_val
             .as_slot()
             .expect("expected a word-sized scalar on expression rhs");
-        let lreg = self.slot_to_register(&mut buffer, &[], *lhs_slot);
-        let rreg = self.slot_to_register(&mut buffer, &[], *rhs_slot);
+        let lreg = self.slot_to_register(&mut buffer, &[], lhs_slot.clone());
+        let rreg = self.slot_to_register(&mut buffer, &[], rhs_slot.clone());
 
         let res_reg = self.get_register(&buffer, &[lreg]);
 
@@ -437,12 +458,12 @@ impl Compiler {
         let res = self.eval_ast(i.condition.as_ref());
 
         let mut buffer = AssemblyWriter::new();
-        let cond_slot = *res
-            .result
-            .unwrap()
+        let cond_val = res.result.unwrap();
+        let cond_slot = cond_val
             .as_slot()
+            .clone()
             .expect("condition resulted in a value tuple, this should be unreachable");
-        let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot);
+        let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot.clone());
         let end_label = self.gen_label();
         buffer.include_ref(&res.buffer);
         let result = if let Some(ast_else_) = &i.else_ {
@@ -457,12 +478,12 @@ impl Compiler {
             buffer.include(res_true.buffer);
             self.move_slot(
                 &mut buffer,
-                if_result,
+                if_result.clone(),
                 res_true
                     .result
                     .unwrap()
                     .as_slot()
-                    .copied()
+                    .cloned()
                     .expect("TODO: support tuple types as if results"),
             );
 
@@ -472,12 +493,12 @@ impl Compiler {
             buffer.include(res_false.buffer);
             self.move_slot(
                 &mut buffer,
-                if_result,
+                if_result.clone(),
                 res_false
                     .result
                     .unwrap()
                     .as_slot()
-                    .copied()
+                    .cloned()
                     .expect("TODO: support tuple types as if results"),
             );
 
@@ -514,8 +535,6 @@ impl Compiler {
         let arg_regs_to_save: HashSet<_> = arg_reg_set.intersection(&var_regs).collect();
         let mut buffer = AssemblyWriter::new();
 
-        // take here to help borrow checker
-
         let mut arg_evals_buffer = AssemblyWriter::new();
         let mut epilog_buffer = AssemblyWriter::new();
         let return_ty = c.xdata().declared_type.clone();
@@ -523,13 +542,13 @@ impl Compiler {
             let result = self.eval_ast(&arg);
             arg_evals_buffer.include(result.buffer);
             if let Some(arg_val) = result.result {
-                let slot = *arg_val
+                let slot = arg_val
                     .as_slot()
                     .expect("TODO: allow tuple types as function args ");
-                self.load_register(&mut arg_evals_buffer, arg_regs[arg_reg_i], slot);
+                self.load_register(&mut arg_evals_buffer, arg_regs[arg_reg_i], slot.clone());
                 if arg_regs_to_save.contains(&arg_regs[arg_reg_i]) {
                     let slot = self.save_register(&mut buffer, arg_regs[arg_reg_i]);
-                    self.load_register(&mut epilog_buffer, arg_regs[arg_reg_i], slot);
+                    self.load_register(&mut epilog_buffer, arg_regs[arg_reg_i], slot.clone());
                 }
             }
         }
@@ -541,8 +560,8 @@ impl Compiler {
             let result = if arg_regs_to_save.contains(&Register::A0) {
                 // TODO same for a1
                 let result = self.get_slot(4);
-                self.move_slot(&mut buffer, result, Slot::Register(Register::A0));
-                result
+                self.move_slot(&mut buffer, result.clone(), Slot::Register(Register::A0));
+                result.clone()
             } else {
                 Slot::Register(Register::A0)
             };
@@ -615,9 +634,10 @@ impl Compiler {
 
         buffer.include(res.buffer);
         if let Some(out) = res.result {
-            let out_slot = *out
+            let out_slot = out
                 .as_slot()
-                .expect("TODO: support tuple types in function returns");
+                .expect("TODO: support tuple types in function returns")
+                .clone();
             self.load_register(&mut buffer, Register::A0, out_slot);
         }
 
