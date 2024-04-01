@@ -11,7 +11,7 @@ use crate::{
         ast::{self, InfixOp, XData},
         Ast,
     },
-    typecheck::{typetree::TypeTreeXData, RecordType, TypeInfo},
+    typecheck::{types::RecordType, typetree::TypeTreeXData, TypeInfo},
 };
 
 #[derive(Error, Debug, Clone)]
@@ -615,6 +615,7 @@ impl Compiler {
             Register::A6,
             Register::A7,
         ];
+
         // FIXME: this is so ineficient.
         let var_regs = self.get_var_regs();
         let arg_reg_set = HashSet::from(arg_regs);
@@ -624,9 +625,26 @@ impl Compiler {
         let mut arg_evals_buffer = AssemblyWriter::new();
         let mut epilog_buffer = AssemblyWriter::new();
         let return_ty = c.xdata().declared_type.clone();
+
+        let mut arg_reg_iter = arg_regs.iter().copied();
+        let return_value = if return_ty.get_size() > 8 || return_ty.is_record() {
+            let arg_reg = arg_reg_iter.next().expect("ran out of argument registers");
+            let return_value_offset = self.stack.alloc(return_ty.get_size());
+            arg_evals_buffer.addi(arg_reg, Register::Sp, -(return_value_offset as i16));
+            self.type_info_to_value_memory(
+                &mut buffer,
+                Slot::Register(Register::Sp),
+                return_value_offset,
+                &return_ty,
+            )
+        } else {
+            // TODO: support dword return values
+            Slot::Register(Register::A0).into()
+        };
+
         for (arg_reg_i, arg) in c.paramaters.iter().enumerate() {
             let result = self.eval_ast(&arg);
-            let arg_reg = arg_regs[arg_reg_i];
+            let arg_reg = arg_reg_iter.next().expect("ran out of argument registers");
 
             arg_evals_buffer.include(result.buffer);
             if let Some(arg_val) = result.result {
@@ -745,11 +763,7 @@ impl Compiler {
         buffer.include(prolog);
 
         buffer.include(res.buffer);
-        if let Some(out) = res.result {
-            let out_slot = out
-                .as_slot()
-                .expect("TODO: support tuple types in function returns")
-                .clone();
+        if let Some(Value::Slot(out_slot)) = res.result {
             self.load_register(&mut buffer, Register::A0, &out_slot);
         }
 

@@ -4,38 +4,12 @@ use crate::parser::ast::AnonType;
 pub mod typetree;
 
 mod errors;
+pub mod types;
 pub use errors::*;
 
+use types::{ArrayType, IntegerType, RecordCell, RecordType};
+
 pub use self::typetree::TypeTree;
-
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct IntegerType {
-    // TODO: allow for integers larger than a single pointer
-    // FIXME: sync these field names with the AST integer range names
-    pub lo: i32,
-    pub hi: i32,
-}
-
-impl IntegerType {
-    pub fn new(lo: i32, hi: i32) -> IntegerType {
-        IntegerType { lo, hi }
-    }
-
-    pub fn intersect(&self, other: &IntegerType) -> Option<IntegerType> {
-        let lo_max = self.lo.max(other.lo);
-        let hi_min = self.hi.min(other.hi);
-        if lo_max <= hi_min {
-            Some(IntegerType::new(lo_max, hi_min))
-        } else {
-            None
-        }
-    }
-
-    pub fn is_subset(&self, other: &IntegerType) -> bool {
-        self.lo >= other.lo && self.hi <= other.hi
-    }
-}
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -90,12 +64,6 @@ pub struct IntersectionType {
     pub types: BTreeSet<TypeInfo>,
 }
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct RecordType {
-    pub fields: BTreeSet<RecordCell>,
-}
-
 impl UnionType {
     pub fn intersect(&self) -> TypeInfo {
         self.types
@@ -109,9 +77,9 @@ impl UnionType {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TypeInfo {
+    /// A type with its only value being 'unit'
     Unit,
     // TODO tuples?
-    /// A type with its only value being '()'
     Scalar(ScalarType),
     Union(UnionType),
     Record(RecordType),
@@ -160,6 +128,10 @@ impl TypeInfo {
 
     pub fn is_bool(&self) -> bool {
         matches!(self, TypeInfo::Scalar(ScalarType::Boolean(_)))
+    }
+
+    pub fn is_record(&self) -> bool {
+        matches!(self, TypeInfo::Record(_))
     }
 
     pub fn record(fields: impl Into<BTreeSet<RecordCell>>) -> TypeInfo {
@@ -287,31 +259,6 @@ impl TypeInfo {
 
             (TypeInfo::Record(_), TypeInfo::Scalar(_))
             | (TypeInfo::Scalar(_), TypeInfo::Record(_)) => TypeInfo::Unit,
-        }
-    }
-}
-
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct RecordCell {
-    pub name: String,
-    pub offset: usize,
-    pub length: usize,
-    pub type_info: TypeInfo,
-}
-
-impl RecordCell {
-    pub fn new(
-        name: impl Into<String>,
-        offset: usize,
-        length: usize,
-        type_info: TypeInfo,
-    ) -> RecordCell {
-        RecordCell {
-            name: name.into(),
-            offset,
-            length,
-            type_info,
         }
     }
 }

@@ -2,7 +2,10 @@ use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     parser::{ast::AnonType, Ast},
-    typecheck::{FunctionDeclaration, RecordCell, RecordType, ScalarType, TypeInfo},
+    typecheck::{
+        types::{RecordCell, RecordType},
+        FunctionDeclaration, ScalarType, TypeInfo,
+    },
 };
 
 #[derive(Debug, Clone, Default)]

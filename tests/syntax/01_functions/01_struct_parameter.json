@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 263
+      "end": 192
     },
     "xdata": {
       "declared_type": "Unit",
@@ -14,102 +14,11 @@
     },
     "definitions": [
       {
-        "type": "DefFunction",
-        "data": {
-          "span": {
-            "start": 0,
-            "end": 71
-          },
-          "xdata": {
-            "declared_type": "Unit",
-            "value_type": null,
-            "error": null,
-            "cond_true": {},
-            "cond_false": {}
-          },
-          "name": "__libc_start_main",
-          "params": [],
-          "return_type": {
-            "type": "TypeReference",
-            "data": {
-              "name": "unit",
-              "parameters": null
-            }
-          },
-          "body": {
-            "type": "Block",
-            "data": {
-              "span": {
-                "start": 31,
-                "end": 69
-              },
-              "xdata": {
-                "declared_type": "Unit",
-                "value_type": null,
-                "error": null,
-                "cond_true": {},
-                "cond_false": {}
-              },
-              "returns": false,
-              "statements": [
-                {
-                  "type": "ExprCall",
-                  "data": {
-                    "span": {
-                      "start": 37,
-                      "end": 43
-                    },
-                    "xdata": {
-                      "declared_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 0,
-                            "hi": 1
-                          }
-                        }
-                      },
-                      "value_type": null,
-                      "error": null,
-                      "cond_true": {},
-                      "cond_false": {}
-                    },
-                    "function_name": "main",
-                    "paramaters": []
-                  }
-                },
-                {
-                  "type": "ExprCall",
-                  "data": {
-                    "span": {
-                      "start": 49,
-                      "end": 66
-                    },
-                    "xdata": {
-                      "declared_type": "Unit",
-                      "value_type": null,
-                      "error": {
-                        "UnknownFunction": {
-                          "name": "__hw_breakpoint"
-                        }
-                      },
-                      "cond_true": {},
-                      "cond_false": {}
-                    },
-                    "function_name": "__hw_breakpoint",
-                    "paramaters": []
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
         "type": "DefType",
         "data": {
           "span": {
-            "start": 71,
-            "end": 123
+            "start": 0,
+            "end": 52
           },
           "xdata": {
             "declared_type": "Unit",
@@ -154,8 +63,8 @@
         "type": "DefFunction",
         "data": {
           "span": {
-            "start": 125,
-            "end": 178
+            "start": 54,
+            "end": 107
           },
           "xdata": {
             "declared_type": {
@@ -175,8 +84,8 @@
           "params": [
             {
               "span": {
-                "start": 140,
-                "end": 144
+                "start": 69,
+                "end": 73
               },
               "xdata": {
                 "declared_type": {
@@ -237,8 +146,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 159,
-                "end": 176
+                "start": 88,
+                "end": 105
               },
               "xdata": {
                 "declared_type": {
@@ -260,8 +169,8 @@
                   "type": "Expr",
                   "data": {
                     "span": {
-                      "start": 165,
-                      "end": 175
+                      "start": 94,
+                      "end": 104
                     },
                     "xdata": {
                       "declared_type": {
@@ -281,8 +190,8 @@
                       "type": "FieldAccess",
                       "data": {
                         "span": {
-                          "start": 165,
-                          "end": 168
+                          "start": 94,
+                          "end": 97
                         },
                         "xdata": {
                           "declared_type": {
@@ -300,8 +209,8 @@
                         },
                         "field": {
                           "span": {
-                            "start": 167,
-                            "end": 168
+                            "start": 96,
+                            "end": 97
                           },
                           "xdata": null,
                           "symbol": "a"
@@ -310,8 +219,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 165,
-                              "end": 166
+                              "start": 94,
+                              "end": 95
                             },
                             "xdata": {
                               "declared_type": {
@@ -361,8 +270,8 @@
                       "type": "FieldAccess",
                       "data": {
                         "span": {
-                          "start": 171,
-                          "end": 174
+                          "start": 100,
+                          "end": 103
                         },
                         "xdata": {
                           "declared_type": {
@@ -380,8 +289,8 @@
                         },
                         "field": {
                           "span": {
-                            "start": 173,
-                            "end": 174
+                            "start": 102,
+                            "end": 103
                           },
                           "xdata": null,
                           "symbol": "b"
@@ -390,8 +299,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 171,
-                              "end": 172
+                              "start": 100,
+                              "end": 101
                             },
                             "xdata": {
                               "declared_type": {
@@ -447,8 +356,8 @@
         "type": "DefFunction",
         "data": {
           "span": {
-            "start": 178,
-            "end": 263
+            "start": 107,
+            "end": 192
           },
           "xdata": {
             "declared_type": {
@@ -489,8 +398,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 202,
-                "end": 263
+                "start": 131,
+                "end": 192
               },
               "xdata": {
                 "declared_type": "Unit",
@@ -505,8 +414,8 @@
                   "type": "StmtLet",
                   "data": {
                     "span": {
-                      "start": 208,
-                      "end": 242
+                      "start": 137,
+                      "end": 171
                     },
                     "xdata": {
                       "declared_type": {
@@ -657,8 +566,8 @@
                       "type": "StructLiteral",
                       "data": {
                         "span": {
-                          "start": 219,
-                          "end": 242
+                          "start": 148,
+                          "end": 171
                         },
                         "xdata": {
                           "declared_type": {
@@ -701,8 +610,8 @@
                         "members": [
                           {
                             "span": {
-                              "start": 228,
-                              "end": 233
+                              "start": 157,
+                              "end": 162
                             },
                             "xdata": {
                               "declared_type": {
@@ -727,8 +636,8 @@
                             },
                             "field": {
                               "span": {
-                                "start": 228,
-                                "end": 229
+                                "start": 157,
+                                "end": 158
                               },
                               "xdata": null,
                               "symbol": "a"
@@ -737,8 +646,8 @@
                               "type": "LiteralInteger",
                               "data": {
                                 "span": {
-                                  "start": 232,
-                                  "end": 233
+                                  "start": 161,
+                                  "end": 162
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -767,8 +676,8 @@
                           },
                           {
                             "span": {
-                              "start": 235,
-                              "end": 241
+                              "start": 164,
+                              "end": 170
                             },
                             "xdata": {
                               "declared_type": {
@@ -793,8 +702,8 @@
                             },
                             "field": {
                               "span": {
-                                "start": 235,
-                                "end": 236
+                                "start": 164,
+                                "end": 165
                               },
                               "xdata": null,
                               "symbol": "b"
@@ -803,8 +712,8 @@
                               "type": "LiteralInteger",
                               "data": {
                                 "span": {
-                                  "start": 239,
-                                  "end": 240
+                                  "start": 168,
+                                  "end": 169
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -840,8 +749,8 @@
                   "type": "ExprCall",
                   "data": {
                     "span": {
-                      "start": 248,
-                      "end": 260
+                      "start": 177,
+                      "end": 189
                     },
                     "xdata": {
                       "declared_type": {
@@ -863,8 +772,8 @@
                         "type": "Ident",
                         "data": {
                           "span": {
-                            "start": 258,
-                            "end": 259
+                            "start": 187,
+                            "end": 188
                           },
                           "xdata": {
                             "declared_type": {

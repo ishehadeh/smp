@@ -1,15 +1,4 @@
 .text
-.globl __libc_start_main
-__libc_start_main:
-addi sp, sp, -8
-sw ra, 0(sp)
-sw fp, 4(sp)
-call main
-call __hw_breakpoint
-lw ra, 0(sp)
-lw fp, 4(sp)
-addi sp, sp, 8
-jr ra
 .globl add_tuple
 add_tuple:
 addi sp, sp, -20
@@ -38,9 +27,9 @@ sw ra, 8(sp)
 sw fp, 12(sp)
 li s1, 1
 li s2, 2
-addi a0, fp, 0
-sw s1, 0(a0)
+addi a0, sp, 0
 sw s2, 4(a0)
+sw s1, 0(a0)
 call add_tuple
 mv a0, a0
 lw s1, 0(sp)
