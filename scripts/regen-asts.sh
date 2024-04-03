@@ -4,7 +4,9 @@ set -e
 root="$(dirname $(dirname $(readlink -f "$0")))"
 
 gen_ast() {
-    basename="$(dirname $1)/$(basename "$1" .hlt)"
+    out_dir="$(dirname $1)/out/"
+    mkdir -p "$out_dir"
+    basename="$out_dir/$(basename "$1" .hlt)"
     if [ -z "$NO_AST" ]; then
         "$root/target/debug/hlt-dbg-ast" --pass type --format json "$1" >"$basename.json" || echo "[$1] hlt-dbg-ast failed"
     fi

@@ -34,7 +34,8 @@
               "inclusive_low": "0",
               "inclusive_high": "100"
             }
-          }
+          },
+          "ty_params": []
         }
       },
       {
