@@ -1,0 +1,7 @@
+id: bad-names
+language: rs
+rule:
+   regex: typ
+   kind: field_identifier
+   inside:
+      kind: field_declaration
