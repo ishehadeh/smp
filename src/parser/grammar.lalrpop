@@ -31,6 +31,8 @@ extern {
         ")" => Token::ParenRight,
         "{" => Token::BraceCurlyLeft,
         "}" => Token::BraceCurlyRight,
+        "<{" => Token::TyParamStart,
+        "}>" => Token::TyParamEnd,
         ";" => Token::Semicolon,
         ":" => Token::Colon,
         "," => Token::Comma,
@@ -76,6 +78,31 @@ pub Param: Param = {
         name: name.to_string(),
         typ,
     }
+};
+
+pub TyParam: ast::TyParam = {
+    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:AnonType> <r: @R> " "? => ast::TyParam {
+        span: (l, r).into(),
+        xdata: (),
+
+        name: name.to_string(),
+        super_ty,
+        default_ty: None,
+    },
+
+    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:AnonType> " "? "=" " "? <default_ty:AnonType> <r: @R> " "? => ast::TyParam {
+        span: (l, r).into(),
+        xdata: (),
+
+        name: name.to_string(),
+        super_ty,
+        default_ty: Some(default_ty),
+    }
+}
+
+pub DefTyParams: Vec<ast::TyParam> = {
+    "<{" " "? "}>" => vec![], // TODO: make this an error
+    "<{" " "? <ty_params: OneOrMore<TyParam>> "}>" => ty_params
 };
 
 pub DefParams: Vec<Param> = {
@@ -143,13 +170,25 @@ pub AnonType: AnonType = {
 }
 
 pub DefType: ast::DefType = {
-    <l: @L>"type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
+    <l: @L> "type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
         ast::DefType {
             span: (l, r).into(),
             xdata: (),
 
             name: name.to_string(),
             typ,
+            ty_params: vec![]
+        }
+    },
+
+    <l: @L> "type" " " <name:"ident"> " "? <ty_params:DefTyParams> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
+        ast::DefType {
+            span: (l, r).into(),
+            xdata: (),
+
+            name: name.to_string(),
+            typ,
+            ty_params,
         }
     }
 }

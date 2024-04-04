@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     parser::{
-        ast::{self, AnonType, InfixOp, Repaired, StructLiteral, XData},
+        ast::{self, InfixOp, Repaired, XData},
         Ast,
     },
     util::ast::Declarations,
@@ -142,12 +142,18 @@ impl TypeInterpreter {
             Ast::Expr(e) => Ast::Expr(self.eval_expr(e)),
             Ast::StmtLet(l) => Ast::StmtLet(self.eval_stmt_let(l)),
             Ast::DefType(t) => {
+                let ty_params = t
+                    .ty_params
+                    .into_iter()
+                    .map(|x| self.eval_ty_param(x))
+                    .collect();
                 // handled when scanning decls
                 Ast::DefType(ast::DefType {
                     span: t.span,
                     xdata: Default::default(),
                     name: t.name,
                     typ: t.typ,
+                    ty_params,
                 })
             }
             Ast::Program(p) => Ast::Program(ast::Program {
@@ -555,6 +561,17 @@ impl TypeInterpreter {
             span: c.span,
             function_name: c.function_name,
             paramaters: typed_parameters,
+        }
+    }
+
+    fn eval_ty_param(&self, x: ast::TyParam) -> ast::TyParam<TypeTreeXData> {
+        let super_ty = self.declarations.eval_anon_type(&x.super_ty);
+        ast::TyParam {
+            span: x.span,
+            xdata: TypeTreeXData::new(super_ty),
+            name: x.name,
+            super_ty: x.super_ty,
+            default_ty: x.default_ty,
         }
     }
 }

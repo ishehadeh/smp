@@ -45,6 +45,10 @@ pub enum Token<'input> {
     BraceCurlyLeft,
     #[token("}")]
     BraceCurlyRight,
+    #[token("<{")]
+    TyParamStart,
+    #[token("}>")]
+    TyParamEnd,
 
     #[token(";")]
     Semicolon,

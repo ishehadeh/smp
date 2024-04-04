@@ -14,7 +14,7 @@ pub enum InfixOp {
     Assign,
 }
 
-// TODO make Param, StructMember and AnonType a proper part of the AST
+// TODO make StructMember and AnonType a proper part of the AST
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
@@ -24,6 +24,18 @@ pub struct Param<X: Debug + Clone = ()> {
 
     pub name: String,
     pub typ: AnonType,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyParam<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub name: String,
+    pub super_ty: AnonType,
+
+    pub default_ty: Option<AnonType>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -155,6 +167,7 @@ pub struct DefType<X: Debug + Clone = ()> {
 
     pub name: String,
     pub typ: AnonType,
+    pub ty_params: Vec<TyParam<X>>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

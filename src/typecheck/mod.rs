@@ -7,7 +7,7 @@ mod errors;
 pub mod types;
 pub use errors::*;
 
-use types::{ArrayType, IntegerType, RecordCell, RecordType};
+use types::{IntegerType, RecordCell, RecordType};
 
 pub use self::typetree::TypeTree;
 
