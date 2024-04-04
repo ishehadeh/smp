@@ -55,13 +55,13 @@ impl ScalarType {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct UnionType {
-    pub types: BTreeSet<TypeInfo>,
+    pub types: Vec<TypeInfo>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct IntersectionType {
-    pub types: BTreeSet<TypeInfo>,
+    pub types: Vec<TypeInfo>,
 }
 
 impl UnionType {
@@ -83,6 +83,8 @@ pub enum TypeInfo {
     Scalar(ScalarType),
     Union(UnionType),
     Record(RecordType),
+    /// A reference to another type or type parameter
+    Reference(String),
 }
 
 impl TypeInfo {
@@ -116,7 +118,7 @@ impl TypeInfo {
         TypeInfo::Scalar(ScalarType::Boolean(Some(value)))
     }
 
-    pub fn union(types: impl Into<BTreeSet<TypeInfo>>) -> TypeInfo {
+    pub fn union(types: impl Into<Vec<TypeInfo>>) -> TypeInfo {
         TypeInfo::Union(UnionType {
             types: types.into(),
         })
@@ -153,10 +155,12 @@ impl TypeInfo {
 
     pub fn access<S: AsRef<str>>(&self, symbol: S) -> Result<TypeInfo, TypeError> {
         match self {
-            TypeInfo::Scalar(_) | TypeInfo::Unit => Err(TypeError::InvalidFieldAccess {
-                symbol: symbol.as_ref().to_string(),
-                object: self.clone(),
-            }),
+            TypeInfo::Scalar(_) | TypeInfo::Reference(_) | TypeInfo::Unit => {
+                Err(TypeError::InvalidFieldAccess {
+                    symbol: symbol.as_ref().to_string(),
+                    object: self.clone(),
+                })
+            }
             TypeInfo::Union(u) => {
                 let union_intersect = u.intersect();
                 union_intersect.access(symbol)
@@ -229,6 +233,10 @@ impl TypeInfo {
 
             // () intersect a = ()
             (TypeInfo::Unit, _) | (_, TypeInfo::Unit) => TypeInfo::Unit,
+
+            // Intersect cannot be called with references, this should be an error of some kind
+            // it usually indicates a bug in the compiler
+            (TypeInfo::Reference(_), _) | (_, TypeInfo::Reference(_)) => TypeInfo::Unit,
 
             // integer range intersect
             (

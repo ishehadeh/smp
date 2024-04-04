@@ -477,6 +477,7 @@ impl Compiler {
             TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
             TypeInfo::Union(_) => todo!(),
             TypeInfo::Record(s) => self.struct_to_value(buffer, s),
+            TypeInfo::Reference(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
         }
     }
 
@@ -495,7 +496,8 @@ impl Compiler {
             }
             .into(),
             TypeInfo::Union(_) => todo!(),
-            TypeInfo::Record(s) => self.struct_to_value_memory(buffer, base, offset, s),
+            TypeInfo::Record(s) => self.struct_to_value_memory(buffer, base, offset, s),         
+           TypeInfo::Reference(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
         }
     }
 
@@ -729,6 +731,7 @@ impl Compiler {
                 TypeInfo::Record(_) => {
                     self.type_info_to_value_memory(&mut buffer, arg_reg_slot, 0, arg_ty)
                 }
+                TypeInfo::Reference(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
             };
             self.scopes.set(&p.name, value);
         }
