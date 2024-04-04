@@ -1,7 +1,6 @@
 use std::collections::HashMap;
-use thiserror::Error;
 
-use super::{asmgen::AssemblyWriter, Register};
+use super::Register;
 
 #[derive(Clone, Debug)]
 
