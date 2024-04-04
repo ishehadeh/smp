@@ -104,7 +104,6 @@ impl Declarations {
                 }
                 TypeInfo::Record(RecordType { fields })
             }
-            a => panic!("TODO: from_ast for {:?}", a),
         }
     }
 }
