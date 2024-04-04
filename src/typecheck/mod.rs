@@ -84,7 +84,7 @@ pub enum TypeInfo {
     Union(UnionType),
     Record(RecordType),
     /// A reference to another type or type parameter
-    Reference(String),
+    TyRef(String),
 }
 
 impl TypeInfo {
@@ -155,7 +155,7 @@ impl TypeInfo {
 
     pub fn access<S: AsRef<str>>(&self, symbol: S) -> Result<TypeInfo, TypeError> {
         match self {
-            TypeInfo::Scalar(_) | TypeInfo::Reference(_) | TypeInfo::Unit => {
+            TypeInfo::Scalar(_) | TypeInfo::TyRef(_) | TypeInfo::Unit => {
                 Err(TypeError::InvalidFieldAccess {
                     symbol: symbol.as_ref().to_string(),
                     object: self.clone(),
@@ -236,7 +236,7 @@ impl TypeInfo {
 
             // Intersect cannot be called with references, this should be an error of some kind
             // it usually indicates a bug in the compiler
-            (TypeInfo::Reference(_), _) | (_, TypeInfo::Reference(_)) => TypeInfo::Unit,
+            (TypeInfo::TyRef(_), _) | (_, TypeInfo::TyRef(_)) => TypeInfo::Unit,
 
             // integer range intersect
             (
