@@ -2,14 +2,10 @@ use std::vec;
 
 use crate::parser::{
     ast::{self, Expr, FieldAccess, Ident, InfixOp, StructLiteral},
-    parse, Ast,
+    Ast,
 };
 
 use super::parse_expr;
-
-fn must_parse(s: &str) -> Ast {
-    parse(s).into_result().expect("failed to parse")
-}
 
 fn must_parse_expr(s: &str) -> Ast {
     parse_expr(s).into_result().expect("failed to parse")
