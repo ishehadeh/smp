@@ -33,7 +33,7 @@
             "type": "TypeReference",
             "data": {
               "name": "unit",
-              "parameters": null
+              "parameters": []
             }
           },
           "body": {
@@ -47,6 +47,7 @@
                 "declared_type": {
                   "Union": {
                     "types": [
+                      "Unit",
                       "Unit"
                     ]
                   }
@@ -54,6 +55,7 @@
                 "value_type": {
                   "Union": {
                     "types": [
+                      "Unit",
                       "Unit"
                     ]
                   }
@@ -83,6 +85,7 @@
                       "declared_type": {
                         "Union": {
                           "types": [
+                            "Unit",
                             "Unit"
                           ]
                         }
@@ -90,6 +93,7 @@
                       "value_type": {
                         "Union": {
                           "types": [
+                            "Unit",
                             "Unit"
                           ]
                         }

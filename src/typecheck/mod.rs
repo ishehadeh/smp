@@ -9,6 +9,7 @@ pub use errors::*;
 
 use types::{IntegerType, RecordCell, RecordType};
 
+use self::types::TyRef;
 pub use self::typetree::TypeTree;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -84,28 +85,10 @@ pub enum TypeInfo {
     Union(UnionType),
     Record(RecordType),
     /// A reference to another type or type parameter
-    TyRef(String),
+    TyRef(TyRef),
 }
 
 impl TypeInfo {
-    pub fn from_ast(ast_type: &AnonType) -> TypeInfo {
-        match ast_type {
-            AnonType::IntegerRange {
-                inclusive_low,
-                inclusive_high,
-            } => TypeInfo::integer(
-                inclusive_low.parse().unwrap(),
-                inclusive_high.parse().unwrap(),
-            ),
-            // TODO: unit keyword type
-            AnonType::TypeReference {
-                name,
-                parameters: _,
-            } if name == "unit" => TypeInfo::Unit,
-            AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean(None)),
-            a => panic!("TODO: from_ast for {:?}", a),
-        }
-    }
     pub fn integer(lo: i32, hi: i32) -> TypeInfo {
         TypeInfo::Scalar(ScalarType::Integer(IntegerType::new(lo, hi)))
     }

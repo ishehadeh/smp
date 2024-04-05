@@ -45,7 +45,7 @@
             "type": "TypeReference",
             "data": {
               "name": "unit",
-              "parameters": null
+              "parameters": []
             }
           },
           "body": {
@@ -370,7 +370,7 @@
             "type": "TypeReference",
             "data": {
               "name": "unit",
-              "parameters": null
+              "parameters": []
             }
           },
           "body": {

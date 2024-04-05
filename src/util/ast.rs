@@ -3,10 +3,20 @@ use std::collections::{BTreeSet, HashMap};
 use crate::{
     parser::{ast::AnonType, Ast},
     typecheck::{
-        types::{RecordCell, RecordType},
+        types::{RecordCell, RecordType, TyRef},
         FunctionDeclaration, ScalarType, TypeInfo,
     },
 };
+
+pub struct TyParam {
+    pub name: String,
+    pub constraint: TypeInfo,
+    pub default: TypeInfo,
+}
+pub struct TyDecl {
+    pub params: Vec<TyParam>,
+    pub ty: TypeInfo,
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct Declarations {
@@ -83,10 +93,10 @@ impl Declarations {
                 name,
                 parameters: _,
             } if name == "unit" => TypeInfo::Unit,
-            AnonType::TypeReference {
-                name,
-                parameters: _,
-            } => self.types.get(name).expect("type not found!").clone(),
+            AnonType::TypeReference { name, parameters } => TypeInfo::TyRef(TyRef {
+                parameters: parameters.iter().map(|p| self.eval_anon_type(p)).collect(),
+                name: name.to_string(),
+            }),
             AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean(None)),
             AnonType::StructBody { members } => {
                 let mut fields = BTreeSet::new();

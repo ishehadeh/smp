@@ -33,7 +33,7 @@
             "type": "TypeReference",
             "data": {
               "name": "unit",
-              "parameters": null
+              "parameters": []
             }
           },
           "body": {

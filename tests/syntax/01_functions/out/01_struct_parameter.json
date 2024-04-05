@@ -77,7 +77,19 @@
               }
             },
             "value_type": null,
-            "error": null,
+            "error": {
+              "BadFunctionReturnType": {
+                "expected": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 20
+                    }
+                  }
+                },
+                "returned": "Unit"
+              }
+            },
             "cond_true": {},
             "cond_false": {}
           },
@@ -90,35 +102,9 @@
               },
               "xdata": {
                 "declared_type": {
-                  "Record": {
-                    "fields": [
-                      {
-                        "name": "a",
-                        "offset": 0,
-                        "length": 4,
-                        "type_info": {
-                          "Scalar": {
-                            "Integer": {
-                              "lo": 0,
-                              "hi": 10
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "name": "b",
-                        "offset": 4,
-                        "length": 4,
-                        "type_info": {
-                          "Scalar": {
-                            "Integer": {
-                              "lo": 0,
-                              "hi": 10
-                            }
-                          }
-                        }
-                      }
-                    ]
+                  "TyRef": {
+                    "parameters": [],
+                    "name": "T"
                   }
                 },
                 "value_type": null,
@@ -131,7 +117,7 @@
                 "type": "TypeReference",
                 "data": {
                   "name": "T",
-                  "parameters": null
+                  "parameters": []
                 }
               }
             }
@@ -151,16 +137,15 @@
                 "end": 105
               },
               "xdata": {
-                "declared_type": {
-                  "Scalar": {
-                    "Integer": {
-                      "lo": 0,
-                      "hi": 20
-                    }
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": {
+                  "BadExpression": {
+                    "lhs": "Unit",
+                    "rhs": "Unit",
+                    "op": "Add"
                   }
                 },
-                "value_type": null,
-                "error": null,
                 "cond_true": {},
                 "cond_false": {}
               },
@@ -174,16 +159,15 @@
                       "end": 104
                     },
                     "xdata": {
-                      "declared_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 0,
-                            "hi": 20
-                          }
+                      "declared_type": "Unit",
+                      "value_type": null,
+                      "error": {
+                        "BadExpression": {
+                          "lhs": "Unit",
+                          "rhs": "Unit",
+                          "op": "Add"
                         }
                       },
-                      "value_type": null,
-                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -195,16 +179,19 @@
                           "end": 97
                         },
                         "xdata": {
-                          "declared_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 0,
-                                "hi": 10
-                              }
+                          "declared_type": "Unit",
+                          "value_type": null,
+                          "error": {
+                            "InvalidFieldAccess": {
+                              "object": {
+                                "TyRef": {
+                                  "parameters": [],
+                                  "name": "T"
+                                }
+                              },
+                              "symbol": "a"
                             }
                           },
-                          "value_type": null,
-                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -225,35 +212,9 @@
                             },
                             "xdata": {
                               "declared_type": {
-                                "Record": {
-                                  "fields": [
-                                    {
-                                      "name": "a",
-                                      "offset": 0,
-                                      "length": 4,
-                                      "type_info": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 10
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "name": "b",
-                                      "offset": 4,
-                                      "length": 4,
-                                      "type_info": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 10
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
+                                "TyRef": {
+                                  "parameters": [],
+                                  "name": "T"
                                 }
                               },
                               "value_type": null,
@@ -275,16 +236,19 @@
                           "end": 103
                         },
                         "xdata": {
-                          "declared_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 0,
-                                "hi": 10
-                              }
+                          "declared_type": "Unit",
+                          "value_type": null,
+                          "error": {
+                            "InvalidFieldAccess": {
+                              "object": {
+                                "TyRef": {
+                                  "parameters": [],
+                                  "name": "T"
+                                }
+                              },
+                              "symbol": "b"
                             }
                           },
-                          "value_type": null,
-                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -305,35 +269,9 @@
                             },
                             "xdata": {
                               "declared_type": {
-                                "Record": {
-                                  "fields": [
-                                    {
-                                      "name": "a",
-                                      "offset": 0,
-                                      "length": 4,
-                                      "type_info": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 10
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "name": "b",
-                                      "offset": 4,
-                                      "length": 4,
-                                      "type_info": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 10
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
+                                "TyRef": {
+                                  "parameters": [],
+                                  "name": "T"
                                 }
                               },
                               "value_type": null,
@@ -420,35 +358,9 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "Record": {
-                          "fields": [
-                            {
-                              "name": "a",
-                              "offset": 0,
-                              "length": 4,
-                              "type_info": {
-                                "Scalar": {
-                                  "Integer": {
-                                    "lo": 0,
-                                    "hi": 10
-                                  }
-                                }
-                              }
-                            },
-                            {
-                              "name": "b",
-                              "offset": 4,
-                              "length": 4,
-                              "type_info": {
-                                "Scalar": {
-                                  "Integer": {
-                                    "lo": 0,
-                                    "hi": 10
-                                  }
-                                }
-                              }
-                            }
-                          ]
+                        "TyRef": {
+                          "parameters": [],
+                          "name": "T"
                         }
                       },
                       "value_type": {
@@ -486,35 +398,9 @@
                       "error": {
                         "BadAssignment": {
                           "binding_type": {
-                            "Record": {
-                              "fields": [
-                                {
-                                  "name": "a",
-                                  "offset": 0,
-                                  "length": 4,
-                                  "type_info": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 0,
-                                        "hi": 10
-                                      }
-                                    }
-                                  }
-                                },
-                                {
-                                  "name": "b",
-                                  "offset": 4,
-                                  "length": 4,
-                                  "type_info": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 0,
-                                        "hi": 10
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
+                            "TyRef": {
+                              "parameters": [],
+                              "name": "T"
                             }
                           },
                           "value_type": {
@@ -560,7 +446,7 @@
                       "type": "TypeReference",
                       "data": {
                         "name": "T",
-                        "parameters": null
+                        "parameters": []
                       }
                     },
                     "value": {
@@ -778,35 +664,9 @@
                           },
                           "xdata": {
                             "declared_type": {
-                              "Record": {
-                                "fields": [
-                                  {
-                                    "name": "a",
-                                    "offset": 0,
-                                    "length": 4,
-                                    "type_info": {
-                                      "Scalar": {
-                                        "Integer": {
-                                          "lo": 0,
-                                          "hi": 10
-                                        }
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "name": "b",
-                                    "offset": 4,
-                                    "length": 4,
-                                    "type_info": {
-                                      "Scalar": {
-                                        "Integer": {
-                                          "lo": 0,
-                                          "hi": 10
-                                        }
-                                      }
-                                    }
-                                  }
-                                ]
+                              "TyRef": {
+                                "parameters": [],
+                                "name": "T"
                               }
                             },
                             "value_type": {
@@ -844,35 +704,9 @@
                             "error": {
                               "BadAssignment": {
                                 "binding_type": {
-                                  "Record": {
-                                    "fields": [
-                                      {
-                                        "name": "a",
-                                        "offset": 0,
-                                        "length": 4,
-                                        "type_info": {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 0,
-                                              "hi": 10
-                                            }
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "name": "b",
-                                        "offset": 4,
-                                        "length": 4,
-                                        "type_info": {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 0,
-                                              "hi": 10
-                                            }
-                                          }
-                                        }
-                                      }
-                                    ]
+                                  "TyRef": {
+                                    "parameters": [],
+                                    "name": "T"
                                   }
                                 },
                                 "value_type": {

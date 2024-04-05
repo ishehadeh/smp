@@ -1,0 +1,4 @@
+func main(): unit {
+    let u: 0..10 = 0;
+    let uref: &int[0, 10]
+}

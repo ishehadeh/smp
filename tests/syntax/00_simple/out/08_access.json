@@ -81,7 +81,7 @@
             "type": "TypeReference",
             "data": {
               "name": "unit",
-              "parameters": null
+              "parameters": []
             }
           },
           "body": {
@@ -116,22 +116,9 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "Record": {
-                          "fields": [
-                            {
-                              "name": "a",
-                              "offset": 0,
-                              "length": 4,
-                              "type_info": {
-                                "Scalar": {
-                                  "Integer": {
-                                    "lo": 0,
-                                    "hi": 100
-                                  }
-                                }
-                              }
-                            }
-                          ]
+                        "TyRef": {
+                          "parameters": [],
+                          "name": "S"
                         }
                       },
                       "value_type": {
@@ -156,22 +143,9 @@
                       "error": {
                         "BadAssignment": {
                           "binding_type": {
-                            "Record": {
-                              "fields": [
-                                {
-                                  "name": "a",
-                                  "offset": 0,
-                                  "length": 4,
-                                  "type_info": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 0,
-                                        "hi": 100
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
+                            "TyRef": {
+                              "parameters": [],
+                              "name": "S"
                             }
                           },
                           "value_type": {
@@ -204,7 +178,7 @@
                       "type": "TypeReference",
                       "data": {
                         "name": "S",
-                        "parameters": null
+                        "parameters": []
                       }
                     },
                     "value": {
@@ -370,22 +344,9 @@
                             },
                             "xdata": {
                               "declared_type": {
-                                "Record": {
-                                  "fields": [
-                                    {
-                                      "name": "a",
-                                      "offset": 0,
-                                      "length": 4,
-                                      "type_info": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 100
-                                          }
-                                        }
-                                      }
-                                    }
-                                  ]
+                                "TyRef": {
+                                  "parameters": [],
+                                  "name": "S"
                                 }
                               },
                               "value_type": {
@@ -410,22 +371,9 @@
                               "error": {
                                 "BadAssignment": {
                                   "binding_type": {
-                                    "Record": {
-                                      "fields": [
-                                        {
-                                          "name": "a",
-                                          "offset": 0,
-                                          "length": 4,
-                                          "type_info": {
-                                            "Scalar": {
-                                              "Integer": {
-                                                "lo": 0,
-                                                "hi": 100
-                                              }
-                                            }
-                                          }
-                                        }
-                                      ]
+                                    "TyRef": {
+                                      "parameters": [],
+                                      "name": "S"
                                     }
                                   },
                                   "value_type": {

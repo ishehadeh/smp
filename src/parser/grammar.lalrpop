@@ -55,7 +55,15 @@ extern {
 pub TypeReference: AnonType = {
     <name: "ident"> => AnonType::TypeReference {
         name: name.to_string(),
-        parameters: (),
+        parameters: vec![],
+    },
+
+    // TODO: allow whitespace between name and ty params,
+    // we need to rework anon types in general to have a final " "?
+    // to do that
+    <name: "ident"> <parameters: TyParams> => AnonType::TypeReference {
+        name: name.to_string(),
+        parameters,
     }
 };
 
@@ -103,6 +111,11 @@ pub TyParam: ast::TyParam = {
 pub DefTyParams: Vec<ast::TyParam> = {
     "<{" " "? "}>" => vec![], // TODO: make this an error
     "<{" " "? <ty_params: OneOrMore<TyParam>> "}>" => ty_params
+};
+
+pub TyParams: Vec<AnonType> = {
+    "<{" " "? "}>" => vec![], // TODO: make this an error
+    "<{" " "? <ty_params: OneOrMore<AnonType>> "}>" => ty_params
 };
 
 pub DefParams: Vec<Param> = {

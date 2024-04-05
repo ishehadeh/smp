@@ -52,7 +52,7 @@ pub struct StructMember {
 pub enum AnonType {
     TypeReference {
         name: String,
-        parameters: (),
+        parameters: Vec<AnonType>,
     },
     StructBody {
         members: Vec<StructMember>,
