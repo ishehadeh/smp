@@ -47,18 +47,22 @@
           },
           "xdata": {
             "declared_type": {
-              "TyRef": {
-                "parameters": [],
-                "name": "A"
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 100
+                }
               }
             },
             "value_type": null,
             "error": {
               "BadFunctionReturnType": {
                 "expected": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "A"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
                   }
                 },
                 "returned": {
@@ -72,7 +76,14 @@
                           }
                         }
                       },
-                      "Unit"
+                      {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 200
+                          }
+                        }
+                      }
                     ]
                   }
                 }
@@ -90,9 +101,11 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "A"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
                   }
                 },
                 "value_type": null,
@@ -116,9 +129,11 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "A"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 100
+                    }
                   }
                 },
                 "value_type": null,
@@ -162,7 +177,14 @@
                           }
                         }
                       },
-                      "Unit"
+                      {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 200
+                          }
+                        }
+                      }
                     ]
                   }
                 },
@@ -177,7 +199,14 @@
                           }
                         }
                       },
-                      "Unit"
+                      {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 200
+                          }
+                        }
+                      }
                     ]
                   }
                 },
@@ -206,7 +235,14 @@
                                 }
                               }
                             },
-                            "Unit"
+                            {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 200
+                                }
+                              }
+                            }
                           ]
                         }
                       },
@@ -221,7 +257,14 @@
                                 }
                               }
                             },
-                            "Unit"
+                            {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 200
+                                }
+                              }
+                            }
                           ]
                         }
                       },
@@ -249,7 +292,14 @@
                           },
                           "error": null,
                           "cond_true": {
-                            "b": "Unit"
+                            "b": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 100
+                                }
+                              }
+                            }
                           },
                           "cond_false": {
                             "b": "Unit"
@@ -324,9 +374,11 @@
                                 },
                                 "xdata": {
                                   "declared_type": {
-                                    "TyRef": {
-                                      "parameters": [],
-                                      "name": "A"
+                                    "Scalar": {
+                                      "Integer": {
+                                        "lo": 0,
+                                        "hi": 100
+                                      }
                                     }
                                   },
                                   "value_type": null,
@@ -349,9 +401,11 @@
                             },
                             "xdata": {
                               "declared_type": {
-                                "TyRef": {
-                                  "parameters": [],
-                                  "name": "A"
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 100
+                                  }
                                 }
                               },
                               "value_type": null,
@@ -372,25 +426,16 @@
                           "end": 94
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "BadExpression": {
-                              "lhs": {
-                                "TyRef": {
-                                  "parameters": [],
-                                  "name": "A"
-                                }
-                              },
-                              "rhs": {
-                                "TyRef": {
-                                  "parameters": [],
-                                  "name": "A"
-                                }
-                              },
-                              "op": "Add"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 200
+                              }
                             }
                           },
+                          "value_type": null,
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -404,25 +449,16 @@
                                 "end": 93
                               },
                               "xdata": {
-                                "declared_type": "Unit",
-                                "value_type": null,
-                                "error": {
-                                  "BadExpression": {
-                                    "lhs": {
-                                      "TyRef": {
-                                        "parameters": [],
-                                        "name": "A"
-                                      }
-                                    },
-                                    "rhs": {
-                                      "TyRef": {
-                                        "parameters": [],
-                                        "name": "A"
-                                      }
-                                    },
-                                    "op": "Add"
+                                "declared_type": {
+                                  "Scalar": {
+                                    "Integer": {
+                                      "lo": 0,
+                                      "hi": 200
+                                    }
                                   }
                                 },
+                                "value_type": null,
+                                "error": null,
                                 "cond_true": {},
                                 "cond_false": {}
                               },
@@ -435,9 +471,11 @@
                                   },
                                   "xdata": {
                                     "declared_type": {
-                                      "TyRef": {
-                                        "parameters": [],
-                                        "name": "A"
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 0,
+                                          "hi": 100
+                                        }
                                       }
                                     },
                                     "value_type": null,
@@ -458,12 +496,21 @@
                                   },
                                   "xdata": {
                                     "declared_type": {
-                                      "TyRef": {
-                                        "parameters": [],
-                                        "name": "A"
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 0,
+                                          "hi": 100
+                                        }
                                       }
                                     },
-                                    "value_type": "Unit",
+                                    "value_type": {
+                                      "Scalar": {
+                                        "Integer": {
+                                          "lo": 0,
+                                          "hi": 100
+                                        }
+                                      }
+                                    },
                                     "error": null,
                                     "cond_true": {},
                                     "cond_false": {}

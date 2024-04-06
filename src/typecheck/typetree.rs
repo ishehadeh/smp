@@ -253,7 +253,7 @@ impl TypeInterpreter {
     }
 
     pub fn eval_param(&mut self, p: ast::Param) -> ast::Param<TypeTreeXData> {
-        let typ = self.declarations.eval_anon_type(&p.typ);
+        let typ = self.eval_anon_type(&p.typ);
         ast::Param {
             span: p.span,
             xdata: TypeTreeXData::new(typ),
@@ -272,7 +272,7 @@ impl TypeInterpreter {
         }
 
         let body_type_tree = self.eval_ast(*f.body);
-        let return_ty = self.declarations.eval_anon_type(&f.return_type);
+        let return_ty = self.eval_anon_type(&f.return_type);
 
         self.pop_scope();
         let error = if !body_type_tree.xdata().current_type().is_subset(&return_ty) {
@@ -443,8 +443,13 @@ impl TypeInterpreter {
         }
     }
 
+    fn eval_anon_type(&self, ty: &ast::AnonType) -> TypeInfo {
+        let ty = self.declarations.eval_anon_type(ty);
+        self.resolve_ty_refs(ty, &[])
+    }
+
     fn eval_stmt_let(&mut self, l: ast::StmtLet) -> ast::StmtLet<TypeTreeXData> {
-        let binding_type = self.declarations.eval_anon_type(&l.value_type);
+        let binding_type = self.eval_anon_type(&l.value_type);
         let typed_value_expr = self.eval_ast(*l.value);
         let value_type = typed_value_expr.xdata().current_type().clone();
         let error = if !value_type.is_subset(&binding_type) {
@@ -564,8 +569,56 @@ impl TypeInterpreter {
         }
     }
 
+    pub fn resolve_ty_refs(&self, t: TypeInfo, parameters: &[(String, TypeInfo)]) -> TypeInfo {
+        match t {
+            TypeInfo::Unit | TypeInfo::Scalar(_) => t.clone(),
+            TypeInfo::Union(u) => TypeInfo::union(
+                u.types
+                    .into_iter()
+                    .map(|f| self.resolve_ty_refs(f, parameters))
+                    .collect::<Vec<TypeInfo>>(),
+            ),
+            TypeInfo::Record(r) => TypeInfo::Record(RecordType {
+                fields: r
+                    .fields
+                    .into_iter()
+                    .map(|f| RecordCell {
+                        length: f.length,
+                        offset: f.offset,
+                        name: f.name,
+                        type_info: self.resolve_ty_refs(f.type_info, parameters),
+                    })
+                    .collect(),
+            }),
+            TypeInfo::TyRef(ty_ref) => {
+                let param_ty = parameters.iter().find(|(n, _)| *n == ty_ref.name);
+                if let Some((_, ty)) = param_ty {
+                    ty.clone()
+                } else {
+                    let ty_decl = self
+                        .declarations
+                        .types
+                        .get(&ty_ref.name)
+                        .expect("cannot find type!"); // TODO: real error handling
+                    let mut params_given = ty_ref.parameters.iter();
+                    let mut params = Vec::with_capacity(ty_decl.params.len());
+                    for param_decl in ty_decl.params.iter() {
+                        let ty = if let Some(given) = params_given.next() {
+                            given.clone()
+                        } else {
+                            param_decl.default.clone().expect("bad type param")
+                            // TODO real error
+                        };
+                        params.push((param_decl.name.clone(), ty));
+                    }
+                    self.resolve_ty_refs(ty_decl.ty.clone(), &params)
+                }
+            }
+        }
+    }
+
     fn eval_ty_param(&self, x: ast::TyParam) -> ast::TyParam<TypeTreeXData> {
-        let super_ty = self.declarations.eval_anon_type(&x.super_ty);
+        let super_ty = self.eval_anon_type(&x.super_ty);
         ast::TyParam {
             span: x.span,
             xdata: TypeTreeXData::new(super_ty),

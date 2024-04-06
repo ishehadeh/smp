@@ -1,6 +1,5 @@
 use std::collections::BTreeSet;
 
-use crate::parser::ast::AnonType;
 pub mod typetree;
 
 mod errors;

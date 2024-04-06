@@ -109,15 +109,8 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "TyRef": {
-                          "parameters": [
-                            {
-                              "Scalar": {
-                                "Boolean": null
-                              }
-                            }
-                          ],
-                          "name": "ParamType"
+                        "Scalar": {
+                          "Boolean": null
                         }
                       },
                       "value_type": {
@@ -128,15 +121,8 @@
                       "error": {
                         "BadAssignment": {
                           "binding_type": {
-                            "TyRef": {
-                              "parameters": [
-                                {
-                                  "Scalar": {
-                                    "Boolean": null
-                                  }
-                                }
-                              ],
-                              "name": "ParamType"
+                            "Scalar": {
+                              "Boolean": null
                             }
                           },
                           "value_type": {

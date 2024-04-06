@@ -8,11 +8,14 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone)]
 pub struct TyParam {
     pub name: String,
     pub constraint: TypeInfo,
-    pub default: TypeInfo,
+    pub default: Option<TypeInfo>,
 }
+
+#[derive(Debug, Clone)]
 pub struct TyDecl {
     pub params: Vec<TyParam>,
     pub ty: TypeInfo,
@@ -20,7 +23,7 @@ pub struct TyDecl {
 
 #[derive(Debug, Clone, Default)]
 pub struct Declarations {
-    pub types: HashMap<String, TypeInfo>,
+    pub types: HashMap<String, TyDecl>,
     pub functions: HashMap<String, FunctionDeclaration>,
 }
 
@@ -59,7 +62,24 @@ impl Declarations {
 
                 Ast::DefType(t) => {
                     let typ = decls.eval_anon_type(&t.typ);
-                    decls.types.insert(t.name.clone(), typ);
+                    decls.types.insert(
+                        t.name.clone(),
+                        TyDecl {
+                            params: t
+                                .ty_params
+                                .iter()
+                                .map(|param| TyParam {
+                                    name: param.name.clone(),
+                                    constraint: decls.eval_anon_type(&param.super_ty),
+                                    default: param
+                                        .default_ty
+                                        .as_ref()
+                                        .map(|ty| decls.eval_anon_type(&ty)),
+                                })
+                                .collect(),
+                            ty: decls.eval_anon_type(&t.typ),
+                        },
+                    );
                 }
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
                 Ast::LiteralInteger(_)
