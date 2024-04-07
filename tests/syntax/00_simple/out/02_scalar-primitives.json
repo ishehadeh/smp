@@ -78,6 +78,7 @@
                     "value_type": {
                       "type": "Bool"
                     },
+                    "mutable": false,
                     "value": {
                       "type": "LiteralBool",
                       "data": {
@@ -141,6 +142,7 @@
                         "inclusive_high": "100"
                       }
                     },
+                    "mutable": false,
                     "value": {
                       "type": "LiteralInteger",
                       "data": {

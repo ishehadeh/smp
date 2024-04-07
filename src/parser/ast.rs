@@ -170,6 +170,7 @@ pub struct StmtLet<X: Debug + Clone = ()> {
 
     pub name: String,
     pub value_type: AnonType,
+    pub mutable: bool,
     pub value: Box<Ast<X>>,
 }
 

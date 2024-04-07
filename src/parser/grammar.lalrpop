@@ -275,10 +275,21 @@ pub Expr: Ast = {
 
 
 pub StmtLet: ast::StmtLet = {
+    <l: @L> "let" " " "mut" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
+        span: (l, r).into(),
+        xdata: (),
+
+        mutable: true,
+        name: name.to_string(),
+        value_type: typ,
+        value: Box::new(value),
+    },
+
     <l: @L> "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
         span: (l, r).into(),
         xdata: (),
 
+        mutable: false,
         name: name.to_string(),
         value_type: typ,
         value: Box::new(value),

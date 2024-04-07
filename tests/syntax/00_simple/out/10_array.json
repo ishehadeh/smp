@@ -166,6 +166,7 @@
                         "length": 5
                       }
                     },
+                    "mutable": false,
                     "value": {
                       "type": "LiteralArray",
                       "data": {

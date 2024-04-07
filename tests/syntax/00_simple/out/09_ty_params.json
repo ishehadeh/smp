@@ -134,6 +134,7 @@
                         ]
                       }
                     },
+                    "mutable": false,
                     "value": {
                       "type": "LiteralBool",
                       "data": {

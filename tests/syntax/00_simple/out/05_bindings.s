@@ -11,6 +11,9 @@ sw ra, -20(fp)
 addi s1, zero, 1
 addi s2, zero, 2
 add s3, s1, s2
+addi s1, zero, 1
+addi s2, zero, 3
+add s3, s1, s2
 mv a0, s3
 lw s1, -8(fp)
 lw s2, -12(fp)

@@ -1,5 +1,7 @@
 func main(): unit {
     let a: 0..10 = 1;
-    let b: 0..10 = 2;
+    let mut b: 0..10 = 2;
+    a + b;
+    b = 3;
     a + b;
 }

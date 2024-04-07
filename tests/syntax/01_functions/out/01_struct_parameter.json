@@ -563,6 +563,7 @@
                         "parameters": []
                       }
                     },
+                    "mutable": false,
                     "value": {
                       "type": "StructLiteral",
                       "data": {

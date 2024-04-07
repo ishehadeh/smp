@@ -426,7 +426,23 @@ impl Compiler {
         format!(".L{}", label_num)
     }
 
+    pub fn eval_assign_expr(&mut self, lhs: &ast::Ast<TypeTreeXData>, rhs: &ast::Ast<TypeTreeXData>) -> EvalResult {
+        let  result = self.eval_ast(rhs);
+         match lhs {
+            Ast::Ident(i) => {
+                self.scopes.set(&i.symbol, result.result.clone().unwrap_or(Slot::Immediate(0).into())).expect("cannot find symbol in scope, this should have been verified by the type checker")
+            }
+            Ast::FieldAccess(_) => todo!(),
+            Ast::ArrayAccess(_) => todo!(),
+            _ => panic!("bad assignment (TODO: validate this in typechecker)")
+        };        
+        result
+    }
+
     pub fn eval_expr(&mut self, expr: &ast::Expr<TypeTreeXData>) -> EvalResult {
+        if expr.op == InfixOp::Assign {
+          return  self.eval_assign_expr(expr.lhs.as_ref(), expr.rhs.as_ref())
+        };
         let lhs = self.eval_ast(expr.lhs.as_ref());
         // slot to make sure the left register isn't overwritten by the rhs
         // this is a big hack, it really needs to be rethought
@@ -467,7 +483,7 @@ impl Compiler {
             InfixOp::CmpLess => {
                 buffer.slt(res_reg, lreg, rreg);
             }
-            InfixOp::Assign => todo!(),
+            InfixOp::Assign => unreachable!()
         }
 
         EvalResult {

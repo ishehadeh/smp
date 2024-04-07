@@ -352,32 +352,35 @@ impl TypeInterpreter {
         lhs: &TypeInfo,
         rhs: &TypeInfo,
     ) -> Result<TypeInfo, TypeError> {
-        match (lhs, rhs) {
-            (TypeInfo::Scalar(_), TypeInfo::Scalar(_))
-                if matches!(
-                    op,
-                    InfixOp::CmpEqual | InfixOp::CmpNotEqual | InfixOp::CmpLess
-                ) =>
-            {
-                Ok(TypeInfo::bool())
-            }
+        match (op, lhs, rhs) {
+            (
+                InfixOp::CmpEqual | InfixOp::CmpNotEqual | InfixOp::CmpLess,
+                TypeInfo::Scalar(_),
+                TypeInfo::Scalar(_),
+            ) => Ok(TypeInfo::bool()),
 
             (
+                InfixOp::Add | InfixOp::Sub | InfixOp::Div | InfixOp::Mul,
                 TypeInfo::Scalar(ScalarType::Integer(a)),
                 TypeInfo::Scalar(ScalarType::Integer(b)),
-            ) => {
-                Ok(match op {
-                    InfixOp::Add => TypeInfo::integer(a.lo + b.lo, a.hi + b.hi),
-                    InfixOp::Sub => TypeInfo::integer(a.lo - b.hi, a.hi - b.lo),
-                    InfixOp::Div => TypeInfo::integer(a.lo / b.hi, a.hi / b.lo),
-                    InfixOp::Mul => TypeInfo::integer(a.lo * b.lo, a.hi * b.hi),
+            ) => Ok(match op {
+                InfixOp::Add => TypeInfo::integer(a.lo + b.lo, a.hi + b.hi),
+                InfixOp::Sub => TypeInfo::integer(a.lo - b.hi, a.hi - b.lo),
+                InfixOp::Div => TypeInfo::integer(a.lo / b.hi, a.hi / b.lo),
+                InfixOp::Mul => TypeInfo::integer(a.lo * b.lo, a.hi * b.hi),
+                _ => unreachable!(),
+            }),
 
-                    // these cases SHOULD have been covered above
-                    InfixOp::CmpNotEqual => unreachable!(),
-                    InfixOp::CmpEqual => unreachable!(),
-                    InfixOp::CmpLess => todo!(),
-                    InfixOp::Assign => todo!(),
-                })
+            (InfixOp::Assign, lhs, rhs) => {
+                if !rhs.is_subset(rhs) {
+                    Err(TypeError::BadAssignment {
+                        binding_type: lhs.clone(),
+                        value_type: rhs.clone(),
+                        binding_name: String::new(),
+                    })
+                } else {
+                    Ok(rhs.clone())
+                }
             }
 
             _ => Err(TypeError::BadExpression {
@@ -419,7 +422,7 @@ impl TypeInterpreter {
                     return Default::default();
                 }
             }
-            InfixOp::Assign => todo!(),
+            InfixOp::Assign => return Default::default(),
         };
 
         // output of the above match assumes the variable is on the left and expr is on the right
@@ -498,6 +501,7 @@ impl TypeInterpreter {
             span: l.span,
             xdata,
             name: l.name,
+            mutable: l.mutable,
             value_type: l.value_type,
             value: Box::new(typed_value_expr),
         }

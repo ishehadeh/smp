@@ -233,6 +233,7 @@
                         "inclusive_high": "200"
                       }
                     },
+                    "mutable": false,
                     "value": {
                       "type": "ExprCall",
                       "data": {

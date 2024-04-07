@@ -1,0 +1,61 @@
+{
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 21
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 0,
+            "end": 21
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "main",
+          "params": [],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "unit",
+              "parameters": []
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 18,
+                "end": 21
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": false,
+              "statements": []
+            }
+          }
+        }
+      }
+    ]
+  }
+}
