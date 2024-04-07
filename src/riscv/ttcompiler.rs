@@ -141,7 +141,7 @@ impl Compiler {
                             src: src.clone(),
                         }
                     })?;
-                    self.copy_value(state, dest_field, src_field);
+                    self.copy_value(state, dest_field, src_field)?;
                 }
                 Ok(())
             }
@@ -629,7 +629,7 @@ impl Compiler {
         let return_ty = c.xdata().declared_type.clone();
 
         let mut arg_reg_iter = arg_regs.iter().copied();
-        let return_value = if return_ty.get_size() > 8 || return_ty.is_record() {
+        if return_ty.get_size() > 8 || return_ty.is_record() {
             let arg_reg = arg_reg_iter.next().expect("ran out of argument registers");
             let return_value_offset = self.stack.alloc(return_ty.get_size());
             arg_evals_buffer.addi(arg_reg, Register::Sp, -(return_value_offset as i16));
@@ -644,7 +644,7 @@ impl Compiler {
             Slot::Register(Register::A0).into()
         };
 
-        for (arg_reg_i, arg) in c.paramaters.iter().enumerate() {
+        for arg in c.paramaters.iter() {
             let result = self.eval_ast(&arg);
             let arg_reg = arg_reg_iter.next().expect("ran out of argument registers");
 
