@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 76
+      "end": 58
     },
     "xdata": {
       "declared_type": "Unit",
@@ -18,7 +18,7 @@
         "data": {
           "span": {
             "start": 0,
-            "end": 76
+            "end": 58
           },
           "xdata": {
             "declared_type": {
@@ -39,7 +39,7 @@
             {
               "span": {
                 "start": 9,
-                "end": 24
+                "end": 18
               },
               "xdata": {
                 "declared_type": {
@@ -66,8 +66,8 @@
             },
             {
               "span": {
-                "start": 25,
-                "end": 40
+                "start": 19,
+                "end": 28
               },
               "xdata": {
                 "declared_type": {
@@ -104,8 +104,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 56,
-                "end": 75
+                "start": 38,
+                "end": 57
               },
               "xdata": {
                 "declared_type": {
@@ -127,8 +127,8 @@
                   "type": "Expr",
                   "data": {
                     "span": {
-                      "start": 62,
-                      "end": 74
+                      "start": 44,
+                      "end": 56
                     },
                     "xdata": {
                       "declared_type": {
@@ -148,8 +148,8 @@
                       "type": "Ident",
                       "data": {
                         "span": {
-                          "start": 62,
-                          "end": 63
+                          "start": 44,
+                          "end": 45
                         },
                         "xdata": {
                           "declared_type": {
@@ -173,8 +173,8 @@
                       "type": "Expr",
                       "data": {
                         "span": {
-                          "start": 67,
-                          "end": 72
+                          "start": 49,
+                          "end": 54
                         },
                         "xdata": {
                           "declared_type": {
@@ -194,8 +194,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 67,
-                              "end": 68
+                              "start": 49,
+                              "end": 50
                             },
                             "xdata": {
                               "declared_type": {
@@ -219,8 +219,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 71,
-                              "end": 72
+                              "start": 53,
+                              "end": 54
                             },
                             "xdata": {
                               "declared_type": {

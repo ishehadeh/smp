@@ -14,8 +14,6 @@ extern {
     enum Token<'input> {
         "let" => Token::KeywordLet,
         "func" => Token::KeywordFunc,
-        "to" => Token::KeywordTo,
-        "int" => Token::KeywordInt,
         "bool" => Token::KeywordBool,
         "false" => Token::KeywordFalse,
         "true" => Token::KeywordTrue,
@@ -47,6 +45,7 @@ extern {
         "<" => Token::OperatorCmpLess,
         "=" => Token::OperatorAssign,
         "struct" => Token::KeywordStruct,
+        ".." => Token::IntegerRange,
 
         " " => Token::Whitespace(<&'input str>),
     }
@@ -156,7 +155,7 @@ pub DefStructMember: StructMember = {
 }
 
 pub TypeIntegerRange: AnonType = {
-    "int" " " <lo:"literal-int"> " " "to" " " <hi:"literal-int"> => AnonType::IntegerRange {
+    <lo:"literal-int"> " "? ".." " "? <hi:"literal-int"> => AnonType::IntegerRange {
         inclusive_low: lo.to_string(),
         inclusive_high: hi.to_string(),
     },

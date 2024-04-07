@@ -1,9 +1,9 @@
-func big_number(): int 0 to 200 {
+func big_number(): 0..200 {
     150
 }
 
-func main(): int 0 to 100 {
-    let i: int 0 to 200 = big_number();
+func main(): 0..100 {
+    let i: 0..200 = big_number();
     if i < 100 {
         i
     } else {

@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 151
+      "end": 145
     },
     "xdata": {
       "declared_type": "Unit",
@@ -18,7 +18,7 @@
         "data": {
           "span": {
             "start": 0,
-            "end": 43
+            "end": 37
           },
           "xdata": {
             "declared_type": {
@@ -47,8 +47,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 31,
-                "end": 40
+                "start": 25,
+                "end": 34
               },
               "xdata": {
                 "declared_type": {
@@ -77,8 +77,8 @@
                   "type": "LiteralInteger",
                   "data": {
                     "span": {
-                      "start": 37,
-                      "end": 38
+                      "start": 31,
+                      "end": 32
                     },
                     "xdata": {
                       "declared_type": {
@@ -113,8 +113,8 @@
         "type": "DefFunction",
         "data": {
           "span": {
-            "start": 43,
-            "end": 151
+            "start": 37,
+            "end": 145
           },
           "xdata": {
             "declared_type": "Unit",
@@ -136,8 +136,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 61,
-                "end": 151
+                "start": 55,
+                "end": 145
               },
               "xdata": {
                 "declared_type": "Unit",
@@ -152,8 +152,8 @@
                   "type": "StmtLet",
                   "data": {
                     "span": {
-                      "start": 67,
-                      "end": 148
+                      "start": 61,
+                      "end": 142
                     },
                     "xdata": {
                       "declared_type": {
@@ -214,8 +214,8 @@
                       "type": "StmtIf",
                       "data": {
                         "span": {
-                          "start": 81,
-                          "end": 148
+                          "start": 75,
+                          "end": 142
                         },
                         "xdata": {
                           "declared_type": {
@@ -258,8 +258,8 @@
                           "type": "Expr",
                           "data": {
                             "span": {
-                              "start": 84,
-                              "end": 101
+                              "start": 78,
+                              "end": 95
                             },
                             "xdata": {
                               "declared_type": {
@@ -276,8 +276,8 @@
                               "type": "ExprCall",
                               "data": {
                                 "span": {
-                                  "start": 84,
-                                  "end": 96
+                                  "start": 78,
+                                  "end": 90
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -302,8 +302,8 @@
                               "type": "LiteralInteger",
                               "data": {
                                 "span": {
-                                  "start": 99,
-                                  "end": 100
+                                  "start": 93,
+                                  "end": 94
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -335,8 +335,8 @@
                           "type": "Block",
                           "data": {
                             "span": {
-                              "start": 101,
-                              "end": 121
+                              "start": 95,
+                              "end": 115
                             },
                             "xdata": {
                               "declared_type": {
@@ -359,8 +359,8 @@
                                 "type": "LiteralBool",
                                 "data": {
                                   "span": {
-                                    "start": 111,
-                                    "end": 115
+                                    "start": 105,
+                                    "end": 109
                                   },
                                   "xdata": {
                                     "declared_type": {
@@ -387,8 +387,8 @@
                           "type": "Block",
                           "data": {
                             "span": {
-                              "start": 127,
-                              "end": 148
+                              "start": 121,
+                              "end": 142
                             },
                             "xdata": {
                               "declared_type": {
@@ -411,8 +411,8 @@
                                 "type": "LiteralBool",
                                 "data": {
                                   "span": {
-                                    "start": 137,
-                                    "end": 142
+                                    "start": 131,
+                                    "end": 136
                                   },
                                   "xdata": {
                                     "declared_type": {

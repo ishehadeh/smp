@@ -2,6 +2,6 @@ type i8 = int -128 to 127
 type i16 = int -32768 to 32767
 type i32 = int -2147483648 to 9223372036854775807
 
-type u8 = int 0 to 255
-type u16 = int 0 to 65535
-type u32 = int 0 to 4294967295
+type u8 = 0..255
+type u16 = 0..65535
+type u32 = 0..4294967295

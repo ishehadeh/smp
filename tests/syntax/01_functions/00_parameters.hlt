@@ -6,6 +6,6 @@ func __libc_start_main(): unit {
     main();
 }
 
-func many_many_params(a: int 0 to 1, b: int 0 to 1, c: int 0 to 1, d: int 0 to 1, e: int 0 to 1, f: int 0 to 1, g: int 0 to 1): int 0 to 8 {
+func many_many_params(a: 0..1, b: 0..1, c: 0..1, d: 0..1, e: 0..1, f: 0..1, g: 0..1): 0..8 {
     a + (b + (c + (d + (e + (f + g)))))
 }

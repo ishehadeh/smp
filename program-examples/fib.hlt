@@ -1,5 +1,5 @@
 
-func fib(n: int 0 to 10000000): int 0 to 10000000 {
+func fib(n: 0..10000000): 0..10000000 {
     if 1 < n {
         fib(n - 2) + fib(n - 1)
     } else {

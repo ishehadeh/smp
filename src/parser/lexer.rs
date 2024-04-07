@@ -7,10 +7,6 @@ pub enum Token<'input> {
     KeywordLet,
     #[token("mut")]
     KeywordMut,
-    #[token("to")]
-    KeywordTo,
-    #[token("int")]
-    KeywordInt,
     #[token("bool")]
     KeywordBool,
     #[token("true")]
@@ -58,6 +54,9 @@ pub enum Token<'input> {
     Comma,
     #[token(".")]
     Dot,
+
+    #[token("..")]
+    IntegerRange,
 
     #[token("=")]
     OperatorAssign,

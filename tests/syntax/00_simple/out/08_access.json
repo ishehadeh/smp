@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 113
+      "end": 107
     },
     "xdata": {
       "declared_type": "Unit",
@@ -18,7 +18,7 @@
         "data": {
           "span": {
             "start": 0,
-            "end": 33
+            "end": 27
           },
           "xdata": {
             "declared_type": "Unit",
@@ -53,8 +53,8 @@
         "type": "DefFunction",
         "data": {
           "span": {
-            "start": 34,
-            "end": 113
+            "start": 28,
+            "end": 107
           },
           "xdata": {
             "declared_type": "Unit",
@@ -88,8 +88,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 52,
-                "end": 113
+                "start": 46,
+                "end": 107
               },
               "xdata": {
                 "declared_type": {
@@ -111,8 +111,8 @@
                   "type": "StmtLet",
                   "data": {
                     "span": {
-                      "start": 58,
-                      "end": 97
+                      "start": 52,
+                      "end": 91
                     },
                     "xdata": {
                       "declared_type": {
@@ -211,8 +211,8 @@
                       "type": "StructLiteral",
                       "data": {
                         "span": {
-                          "start": 69,
-                          "end": 97
+                          "start": 63,
+                          "end": 91
                         },
                         "xdata": {
                           "declared_type": {
@@ -242,8 +242,8 @@
                         "members": [
                           {
                             "span": {
-                              "start": 86,
-                              "end": 96
+                              "start": 80,
+                              "end": 90
                             },
                             "xdata": {
                               "declared_type": {
@@ -268,8 +268,8 @@
                             },
                             "field": {
                               "span": {
-                                "start": 86,
-                                "end": 87
+                                "start": 80,
+                                "end": 81
                               },
                               "xdata": null,
                               "symbol": "a"
@@ -278,8 +278,8 @@
                               "type": "LiteralInteger",
                               "data": {
                                 "span": {
-                                  "start": 90,
-                                  "end": 91
+                                  "start": 84,
+                                  "end": 85
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -315,8 +315,8 @@
                   "type": "Expr",
                   "data": {
                     "span": {
-                      "start": 104,
-                      "end": 112
+                      "start": 98,
+                      "end": 106
                     },
                     "xdata": {
                       "declared_type": {
@@ -336,8 +336,8 @@
                       "type": "FieldAccess",
                       "data": {
                         "span": {
-                          "start": 104,
-                          "end": 107
+                          "start": 98,
+                          "end": 101
                         },
                         "xdata": {
                           "declared_type": {
@@ -355,8 +355,8 @@
                         },
                         "field": {
                           "span": {
-                            "start": 106,
-                            "end": 107
+                            "start": 100,
+                            "end": 101
                           },
                           "xdata": null,
                           "symbol": "a"
@@ -365,8 +365,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 104,
-                              "end": 105
+                              "start": 98,
+                              "end": 99
                             },
                             "xdata": {
                               "declared_type": {
@@ -463,8 +463,8 @@
                       "type": "LiteralInteger",
                       "data": {
                         "span": {
-                          "start": 110,
-                          "end": 111
+                          "start": 104,
+                          "end": 105
                         },
                         "xdata": {
                           "declared_type": {

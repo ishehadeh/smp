@@ -1,4 +1,4 @@
-type A = int 0 to 100;
+type A = 0..100;
 
 func add_A(a: A, b: A): A {
     if (100 - a) < b {

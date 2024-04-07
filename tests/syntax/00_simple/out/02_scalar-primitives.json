@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 76
+      "end": 70
     },
     "xdata": {
       "declared_type": "Unit",
@@ -18,7 +18,7 @@
         "data": {
           "span": {
             "start": 0,
-            "end": 76
+            "end": 70
           },
           "xdata": {
             "declared_type": "Unit",
@@ -41,7 +41,7 @@
             "data": {
               "span": {
                 "start": 18,
-                "end": 75
+                "end": 69
               },
               "xdata": {
                 "declared_type": "Unit",
@@ -110,7 +110,7 @@
                   "data": {
                     "span": {
                       "start": 49,
-                      "end": 72
+                      "end": 66
                     },
                     "xdata": {
                       "declared_type": {
@@ -145,8 +145,8 @@
                       "type": "LiteralInteger",
                       "data": {
                         "span": {
-                          "start": 71,
-                          "end": 72
+                          "start": 65,
+                          "end": 66
                         },
                         "xdata": {
                           "declared_type": {

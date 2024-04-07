@@ -1,4 +1,4 @@
 func main(): unit {
     let a: bool = false;
-    let b: int 0 to 100 = 5;
+    let b: 0..100 = 5;
 }

@@ -4,12 +4,12 @@ func __libc_start_main(): unit {
 }
 
 type T = {
-    a: int 0 to 10,
-    b: int 0 to 10
+    a: 0..10,
+    b: 0..10
 };
 
-func add_tuple(t: T): int 0 to 10 {
-    let c: int 0 to 20 = t.a + t.b;
+func add_tuple(t: T): 0..10 {
+    let c: 0..20 = t.a + t.b;
     if c < 11 {
         c
     } else {
@@ -17,11 +17,11 @@ func add_tuple(t: T): int 0 to 10 {
     }
 }
 
-func tuple_add(t: T): { a: int 1 to 11, b: int 1 to 11 } {
+func tuple_add(t: T): { a: 1..11, b: 1..11 } {
     struct { a = t.a + 1, b = t.b + 1 };
 }
 
-func main(): int 0 to 1 {
+func main(): 0..1 {
     let t: T = struct { a = 10, b = 10 };
     tuple_add(t);
 }

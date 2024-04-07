@@ -3,7 +3,7 @@
   "data": {
     "span": {
       "start": 0,
-      "end": 119
+      "end": 113
     },
     "xdata": {
       "declared_type": "Unit",
@@ -18,7 +18,7 @@
         "data": {
           "span": {
             "start": 0,
-            "end": 22
+            "end": 16
           },
           "xdata": {
             "declared_type": "Unit",
@@ -42,8 +42,8 @@
         "type": "DefFunction",
         "data": {
           "span": {
-            "start": 24,
-            "end": 119
+            "start": 18,
+            "end": 113
           },
           "xdata": {
             "declared_type": {
@@ -96,8 +96,8 @@
           "params": [
             {
               "span": {
-                "start": 35,
-                "end": 39
+                "start": 29,
+                "end": 33
               },
               "xdata": {
                 "declared_type": {
@@ -124,8 +124,8 @@
             },
             {
               "span": {
-                "start": 41,
-                "end": 45
+                "start": 35,
+                "end": 39
               },
               "xdata": {
                 "declared_type": {
@@ -162,8 +162,8 @@
             "type": "Block",
             "data": {
               "span": {
-                "start": 50,
-                "end": 119
+                "start": 44,
+                "end": 113
               },
               "xdata": {
                 "declared_type": {
@@ -220,8 +220,8 @@
                   "type": "StmtIf",
                   "data": {
                     "span": {
-                      "start": 56,
-                      "end": 118
+                      "start": 50,
+                      "end": 112
                     },
                     "xdata": {
                       "declared_type": {
@@ -276,8 +276,8 @@
                       "type": "Expr",
                       "data": {
                         "span": {
-                          "start": 59,
-                          "end": 73
+                          "start": 53,
+                          "end": 67
                         },
                         "xdata": {
                           "declared_type": {
@@ -309,8 +309,8 @@
                           "type": "Expr",
                           "data": {
                             "span": {
-                              "start": 60,
-                              "end": 67
+                              "start": 54,
+                              "end": 61
                             },
                             "xdata": {
                               "declared_type": {
@@ -337,8 +337,8 @@
                               "type": "LiteralInteger",
                               "data": {
                                 "span": {
-                                  "start": 60,
-                                  "end": 63
+                                  "start": 54,
+                                  "end": 57
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -369,8 +369,8 @@
                               "type": "Ident",
                               "data": {
                                 "span": {
-                                  "start": 66,
-                                  "end": 67
+                                  "start": 60,
+                                  "end": 61
                                 },
                                 "xdata": {
                                   "declared_type": {
@@ -396,8 +396,8 @@
                           "type": "Ident",
                           "data": {
                             "span": {
-                              "start": 71,
-                              "end": 72
+                              "start": 65,
+                              "end": 66
                             },
                             "xdata": {
                               "declared_type": {
@@ -422,8 +422,8 @@
                       "type": "Block",
                       "data": {
                         "span": {
-                          "start": 73,
-                          "end": 94
+                          "start": 67,
+                          "end": 88
                         },
                         "xdata": {
                           "declared_type": {
@@ -445,8 +445,8 @@
                             "type": "Expr",
                             "data": {
                               "span": {
-                                "start": 83,
-                                "end": 93
+                                "start": 77,
+                                "end": 87
                               },
                               "xdata": {
                                 "declared_type": {
@@ -466,8 +466,8 @@
                                 "type": "Ident",
                                 "data": {
                                   "span": {
-                                    "start": 83,
-                                    "end": 84
+                                    "start": 77,
+                                    "end": 78
                                   },
                                   "xdata": {
                                     "declared_type": {
@@ -491,8 +491,8 @@
                                 "type": "Ident",
                                 "data": {
                                   "span": {
-                                    "start": 87,
-                                    "end": 88
+                                    "start": 81,
+                                    "end": 82
                                   },
                                   "xdata": {
                                     "declared_type": {
@@ -527,8 +527,8 @@
                       "type": "Block",
                       "data": {
                         "span": {
-                          "start": 100,
-                          "end": 117
+                          "start": 94,
+                          "end": 111
                         },
                         "xdata": {
                           "declared_type": {
@@ -557,8 +557,8 @@
                             "type": "LiteralInteger",
                             "data": {
                               "span": {
-                                "start": 110,
-                                "end": 111
+                                "start": 104,
+                                "end": 105
                               },
                               "xdata": {
                                 "declared_type": {

@@ -1,18 +1,9 @@
 
-type slice<{T : any, IndexT : u32 = u32}> = {
-    base: ref[T];
-    length: IndexT
-};
 
-func get[T: any, IndexT : u32 = u32](s: Slice[T, IndexT], index: IndexT): 
-
-type array[]
-
-func takes_slice(slice: Slice[0:10]) {
-}
-
-func main(): unit {
-    for (let i in  array [0..4] { 0, 1, 2, 3 }) {
-
-    }
+type MultiArray<{T: u32}> =  {
+    length: 0..5,
+    data: [T; 7]
+} | {
+    length: u32,
+    data: &[T]
 }
