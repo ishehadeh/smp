@@ -272,7 +272,6 @@ dependencies = [
  "lalrpop",
  "lalrpop-util",
  "logos",
- "petgraph",
  "serde",
  "serde_json",
  "thiserror",

@@ -1,4 +1,4 @@
-cargo-features = ["codegen-backend"]
+cargo-features = ["codegen-backend", "profile-rustflags"]
 
 [package]
 name = "howlite"
@@ -9,7 +9,6 @@ edition = "2021"
 
 [dependencies]
 lalrpop-util = {version = "0.20.0", features = ["lexer", "unicode"] }
-petgraph="*"
 thiserror = { version = "1.0.56" }
 logos = "0.14.0"
 
@@ -43,3 +42,4 @@ required-features = ["cli", "json"]
 [profile.dev]
 debug = 0
 codegen-backend = "cranelift"
+rustflags = ["-C", "linker=clang", "-C", "link-arg=--ld-path=/usr/bin/mold"]
