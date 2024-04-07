@@ -61,7 +61,6 @@ impl Declarations {
                 }
 
                 Ast::DefType(t) => {
-                    let typ = decls.eval_anon_type(&t.typ);
                     decls.types.insert(
                         t.name.clone(),
                         TyDecl {
