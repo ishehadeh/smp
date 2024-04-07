@@ -85,7 +85,7 @@ impl AssemblyWriter {
     }
 
     instr_arith!(add, sub, mul, div);
-    instr_arith!(imm addi, muli, divi);
+    instr_arith!(imm addi);
 
     pub fn sw(&mut self, rs2: Register, offset: i16, rs1: Register) {
         assert!(

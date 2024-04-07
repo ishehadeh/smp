@@ -81,7 +81,7 @@ pub enum Slot {
     /// A value stored in memory, relative to the address stored in the 'base' slot
     Indirect {
         base: Box<Slot>,
-        offset: usize,
+        offset: i32,
     },
 }
 

@@ -30,4 +30,11 @@ pub enum TypeError {
         object: TypeInfo,
         symbol: String,
     },
+    ArrayAccessOnNonArray {
+        object: TypeInfo,
+    },
+    InvalidArrayAccess {
+        object: TypeInfo,
+        index: TypeInfo,
+    },
 }

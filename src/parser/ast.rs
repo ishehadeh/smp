@@ -92,6 +92,7 @@ pub enum Ast<X: Debug + Clone = ()> {
     LiteralArray(LiteralArray<X>),
     Ident(Ident<X>),
     FieldAccess(FieldAccess<X>),
+    ArrayAccess(ArrayAccess<X>),
 
     /// A repaired node is one where an error occured but parsing was still able to be completed
     /// This is typically used for non-critical errors like 1 + 1 + 1 instead of 1 + (1 + 1)
@@ -127,6 +128,16 @@ pub struct FieldAccess<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub field: Ident,
+    pub object: Box<Ast<X>>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct ArrayAccess<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub index: Box<Ast<X>>,
     pub object: Box<Ast<X>>,
 }
 
@@ -342,5 +353,6 @@ impl_ast_traits!(Ast :
     Repaired,
     FieldAccess,
     StructLiteral,
-    LiteralArray
+    LiteralArray,
+    ArrayAccess
 );

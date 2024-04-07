@@ -366,6 +366,7 @@ pub AtomicExpr: Ast = {
     <a:LiteralArray> " "? => Ast::LiteralArray(a),
     <a:StmtIf> => Ast::StmtIf(a),
     <i:FieldAccess> " "? => Ast::FieldAccess(i),
+    <a:ArrayAccess> " "? => Ast::ArrayAccess(a),
     <i:Ident> " "? => Ast::Ident(i),
     <c:ExprCall> " "? => Ast::ExprCall(c),
     <b:Block> => Ast::Block(b),
@@ -387,6 +388,17 @@ pub FieldAccess: ast::FieldAccess = {
     }
 }
 
+
+pub ArrayAccess: ast::ArrayAccess = {
+    <l: @L> <object:AtomicExpr> "." "[" " "? <index:Expr> "]" <r: @R> => {
+        ast::ArrayAccess {
+            xdata: (),
+            span: (l, r).into(),
+            index: Box::new(index),
+            object: Box::new(object),
+        }
+    }
+}
 
 
 pub InfixOp: InfixOp = {

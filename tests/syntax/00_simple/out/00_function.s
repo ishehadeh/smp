@@ -2,10 +2,11 @@
 .globl main
 main:
 addi sp, sp, -8
-sw ra, 0(sp)
-sw fp, 4(sp)
-lw ra, 0(sp)
-lw fp, 4(sp)
+sw fp, -4(sp)
+mv fp, sp
+sw ra, -8(fp)
+lw ra, -8(fp)
 addi sp, sp, 8
+lw fp, -4(sp)
 jr ra
 

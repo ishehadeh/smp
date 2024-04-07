@@ -168,6 +168,7 @@ impl TypeInterpreter {
             Ast::FieldAccess(f) => Ast::FieldAccess(self.eval_field_access(f)),
             Ast::StructLiteral(s) => Ast::StructLiteral(self.eval_struct_literal(s)),
             Ast::LiteralArray(a) => Ast::LiteralArray(self.eval_literal_array(a)),
+            Ast::ArrayAccess(a) => Ast::ArrayAccess(self.eval_array_access(a)),
         }
     }
 
@@ -653,6 +654,44 @@ impl TypeInterpreter {
             name: x.name,
             super_ty: x.super_ty,
             default_ty: x.default_ty,
+        }
+    }
+
+    fn eval_array_access(&mut self, a: ast::ArrayAccess) -> ast::ArrayAccess<TypeTreeXData> {
+        let object = self.eval_ast(*a.object);
+        let index = self.eval_ast(*a.index);
+        let xdata = match object.xdata().current_type() {
+            TypeInfo::Array(a) => {
+                if index
+                    .xdata()
+                    .current_type()
+                    .is_subset(&TypeInfo::integer(0, a.length as i32))
+                {
+                    TypeTreeXData::new(*a.element_ty.clone())
+                } else {
+                    TypeTreeXData::new_error(
+                        *a.element_ty.clone(),
+                        TypeError::InvalidArrayAccess {
+                            object: object.xdata().current_type().clone(),
+                            index: index.xdata().current_type().clone(),
+                        },
+                    )
+                }
+            }
+
+            object_ty => TypeTreeXData::new_error(
+                TypeInfo::Unit,
+                TypeError::ArrayAccessOnNonArray {
+                    object: object_ty.clone(),
+                },
+            ),
+        };
+
+        ast::ArrayAccess {
+            object: Box::new(object),
+            index: Box::new(index),
+            span: a.span,
+            xdata,
         }
     }
 }

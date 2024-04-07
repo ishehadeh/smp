@@ -47,7 +47,7 @@ impl StackState {
 
     /// Allocate `size` bytes on the stack and return the offset from the bottom of the stack (in bytes)
     /// Note that if this address should be subtracted from the frame pointer, since the RISC-V stack grows down
-    pub fn alloc(&mut self, size: usize) -> usize {
+    pub fn alloc(&mut self, size: usize) -> i32 {
         let mut first_free_ind = None;
         let mut offset_size = None;
         for (i, &is_free) in self.bytes.iter().enumerate() {
@@ -75,11 +75,11 @@ impl StackState {
                 .skip(offset)
                 .take(size)
                 .for_each(|free| *free = false);
-            offset
+            offset as i32
         } else {
             let offset = self.bytes.len();
             self.bytes.extend((0..size).map(|_| false));
-            offset
+            offset as i32
         }
     }
 
@@ -161,8 +161,8 @@ impl Compiler {
 
         let offset = self.stack.alloc(size);
         Slot::Indirect {
-            offset,
-            base: Box::new(Slot::Register(Register::Sp)),
+            offset: -(offset as i32),
+            base: Box::new(Slot::Register(Register::Fp)),
         }
     }
 
@@ -183,7 +183,7 @@ impl Compiler {
                 let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
                 let r = self.get_register(buffer, &TEMPORARY_REGISTERS);
                 for (i, word) in value.chunks(4).enumerate() {
-                    let word_offset = i * 4 + offset;
+                    let word_offset = i as i32 * 4 + offset;
                     if word.len() == 4 {
                         let val: [u8; 4] = word.try_into().unwrap();
                         buffer.li(r, u32::from_le_bytes(val));
@@ -191,7 +191,7 @@ impl Compiler {
                     } else {
                         for (j, byte) in word.iter().enumerate() {
                             buffer.li(r, *byte as u32);
-                            buffer.sb(r, (word_offset + j).try_into().unwrap(), base_reg);
+                            buffer.sb(r, (word_offset + (j as i32)).try_into().unwrap(), base_reg);
                         }
                     }
                 }
@@ -230,18 +230,21 @@ impl Compiler {
         }
     }
 
+    pub fn get_slot_regs(x: &Slot) -> Option<Register> {
+        match x {
+            Slot::Immediate(_) => None,
+            Slot::Register(r) => Some(*r),
+            Slot::Indirect { base, offset: _ } => Self::get_slot_regs(base.as_ref()),
+        }
+    }
+
     pub fn get_var_regs(&self) -> HashSet<Register> {
         self.scopes
             .all_values()
             .flat_map(|v| v.slots())
             .filter_map(|x| {
-                if let Slot::Register(r) = x {
-                    Some(r)
-                } else {
-                    None
-                }
+                Self::get_slot_regs(x)
             })
-            .copied()
             .collect()
     }
 
@@ -359,6 +362,7 @@ impl Compiler {
             }
             Ast::StructLiteral(l) => self.eval_literal_struct(l),
             Ast::LiteralArray(a) => self.eval_literal_array(a),
+            Ast::ArrayAccess(a) => self.eval_array_access(a),
         }
     }
 
@@ -477,9 +481,10 @@ impl Compiler {
             TypeInfo::Unit => todo!(),
             TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
             TypeInfo::Array(arr) => {
-                let  offset
-                = self.stack.alloc(arr.length as usize * arr.element_ty.get_size());
- Slot::Indirect { base: Box::new(Slot::Register(Register::Sp)), offset }.into()
+                let size_bytes = arr.length as usize * arr.element_ty.get_size();
+                let  offset = -self.stack.alloc(size_bytes) - size_bytes as i32 ;
+                // index one down since stack is indexed from the bottom and it grows down
+                Slot::Indirect { base: Box::new(Slot::Register(Register::Fp)),  offset }.into()
             }
             TypeInfo::Union(_) => todo!(),
             TypeInfo::Record(s) => self.struct_to_value(buffer, s),
@@ -491,19 +496,25 @@ impl Compiler {
         &mut self,
         buffer: &mut AssemblyWriter,
         base: Slot,
-        offset: usize,
+        offset: i32,
         ty: &TypeInfo,
     ) -> Value {
         match ty {
             TypeInfo::Unit => todo!(),
-            TypeInfo::Scalar(_) | TypeInfo::Array(_) => Slot::Indirect {
+            TypeInfo::Scalar(_)  => Slot::Indirect {
                 base: Box::new(base),
                 offset,
             }
             .into(),
             TypeInfo::Union(_) => todo!(),
             TypeInfo::Record(s) => self.struct_to_value_memory(buffer, base, offset, s),         
-           TypeInfo::TyRef(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
+            TypeInfo::Array(arr) => {
+                let size_bytes = arr.length as usize * arr.element_ty.get_size();
+                let  offset = -self.stack.alloc(size_bytes) - size_bytes as i32 ;
+                // index one down since stack is indexed from the bottom and it grows down
+                Slot::Indirect { base: Box::new(Slot::Register(Register::Fp)), offset }.into()
+            }
+            TypeInfo::TyRef(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
         }
     }
 
@@ -523,7 +534,7 @@ impl Compiler {
         &mut self,
         buffer: &mut AssemblyWriter,
         base: Slot,
-        offset: usize,
+        offset: i32,
         s: &RecordType,
     ) -> Value {
         let mut val = ValueMap::default();
@@ -538,7 +549,7 @@ impl Compiler {
                     &field.type_info,
                 ),
             );
-            field_offset += field.type_info.get_size()
+            field_offset += field.type_info.get_size() as i32
         }
 
         val.into()
@@ -557,7 +568,6 @@ impl Compiler {
         let cond_val = res.result.unwrap();
         let cond_slot = cond_val
             .as_slot()
-            .clone()
             .expect("condition resulted in a value tuple, this should be unreachable");
         let cond_reg = self.slot_to_register(&mut buffer, &[], cond_slot);
         let end_label = self.gen_label();
@@ -637,12 +647,12 @@ impl Compiler {
         let mut arg_reg_iter = arg_regs.iter().copied();
         if return_ty.get_size() > 8 || return_ty.is_record() {
             let arg_reg = arg_reg_iter.next().expect("ran out of argument registers");
-            let return_value_offset = self.stack.alloc(return_ty.get_size());
+            let return_value_offset = self.stack.alloc(return_ty.get_size()) as i32;
             arg_evals_buffer.addi(arg_reg, Register::Sp, -(return_value_offset as i16));
             self.type_info_to_value_memory(
                 &mut buffer,
-                Slot::Register(Register::Sp),
-                return_value_offset,
+                Slot::Register(Register::Fp),
+                -return_value_offset,
                 &return_ty,
             )
         } else {
@@ -743,7 +753,11 @@ impl Compiler {
         }
         let res = self.eval_ast(f.body.as_ref());
 
+        let offset = self.stack.alloc(4) + 4;
         let mut prolog = AssemblyWriter::new();
+        prolog.sw(Register::Fp, -offset as i16, Register::Sp);
+        prolog.mv(Register::Fp, Register::Sp);
+
         let mut epilog = AssemblyWriter::new();
 
         let mut mutated_callee_saved_regs: Vec<_> = res
@@ -753,22 +767,22 @@ impl Compiler {
             .copied()
             .filter(|r| r.is_callee_saved())
             .collect();
-        // this is literal just so we can get nice diffs between asm outputs of compiler versions
+        // this is literally just so we can get nice diffs between asm outputs of compiler versions
         // it should be optional or removed
         mutated_callee_saved_regs.sort();
 
         // TODO: only push these if a child function is called
         mutated_callee_saved_regs.push(Register::Ra);
-        mutated_callee_saved_regs.push(Register::Fp);
 
         for r in mutated_callee_saved_regs {
-            let offset = self.stack.alloc(4);
+            // add 4 since index is negative and store/load read upwards
+            let offset = self.stack.alloc(4) + 4;
 
-            prolog.sw(r, offset as i16, Register::Sp);
-            epilog.lw(r, offset as i16, Register::Sp);
+            prolog.sw(r, -offset as i16, Register::Fp);
+            epilog.lw(r, -offset as i16, Register::Fp);
         }
 
-        buffer.addi(Register::Sp, Register::Sp, -(self.stack.size() as i16));
+        buffer.addi(Register::Sp, Register::Sp, -(self.stack.size() as i16) );
         buffer.include(prolog);
 
         buffer.include(res.buffer);
@@ -777,7 +791,9 @@ impl Compiler {
         }
 
         buffer.include(epilog);
-        buffer.addi(Register::Sp, Register::Sp, self.stack.size() as i16);
+        buffer.addi(Register::Sp, Register::Sp, self.stack.size() as i16 );
+        buffer.lw(Register::Fp, -offset as i16, Register::Sp);
+
         buffer.jr(Register::Ra);
 
         self.scopes.pop();
@@ -810,15 +826,15 @@ impl Compiler {
             _ => panic!("Compiler::type_info_to_value did not place array in memory, this should be unreachable")
         };
         
-        let mut array_offset = 0;
+        let mut array_offset = 0i32;
         let element_size = a.xdata().current_type().get_size() / a.values.len();
         for v in &a.values {
             let result = self.eval_ast(v);
             buffer.include(result.buffer);
             if let Some(element) = result.result {
-                array_offset += element_size;
                 let element_dest_value = Value::Slot(Slot::Indirect {base: base.clone(), offset: base_offset + array_offset });
-            self.copy_value(&mut buffer, &element_dest_value, &element).expect("copy value failed");
+                self.copy_value(&mut buffer, &element_dest_value, &element).expect("copy value failed");
+                array_offset += element_size as i32;
             }
         }
 
@@ -826,5 +842,48 @@ impl Compiler {
             result: Some(result), 
             buffer
         }
+    }
+    
+    fn eval_array_access(&mut self, a: &ast::ArrayAccess<TypeTreeXData>) -> EvalResult {
+        let  object_result = self.eval_ast(a.object.as_ref());
+        let mut buffer = object_result.buffer;
+
+        let (base, base_offset) = match &object_result.result {
+            Some(Value::Slot(Slot::Indirect { base, offset }) )=> (base.clone(), *offset),
+            _ => panic!("array was not placed in memory, this should be unreachable")
+        };
+        let base = if let Slot::Register(base) = *base {
+            base
+        } else {
+            unimplemented!("recursive indirection");
+        };
+
+        self.scopes.push();
+        // make sure  base isn't overwritten
+        let base_hold_var = self.gen_label();
+        self.scopes.set(&base_hold_var, Slot::Register(base).into());
+        let  index_result = self.eval_ast(&a.index);
+        buffer.include_ref(&index_result.buffer);
+        self.scopes.pop();
+
+        let index_slot = index_result.result.expect("index expressions must return a value; this should have been verified in the typechecker").as_slot().expect("index expression must be stored in a single slot").clone();
+        let array_offset_reg = self.slot_to_register( &mut buffer, &TEMPORARY_REGISTERS, &index_slot);
+        let obj_ty = a.object.xdata().current_type();
+        let element_size = match obj_ty {
+            TypeInfo::Array(a) => a.element_ty.get_size(),
+            _ => panic!("cannot index non-array type; this should have already been checked by the type checker")
+        };
+
+        // TODO check element size fits into 11 bits
+        let elem_size_reg = self.get_register(&mut buffer, &TEMPORARY_REGISTERS);
+        buffer.li(elem_size_reg, element_size as u32);
+        buffer.mul(array_offset_reg, array_offset_reg, elem_size_reg);
+        buffer.add(array_offset_reg, array_offset_reg,base);
+
+        EvalResult{
+            result: Some(Slot::Indirect { base: Box::new(Slot::Register(array_offset_reg)), offset: base_offset }.into()),
+            buffer,
+        }
+        
     }
 }
