@@ -89,6 +89,7 @@ pub enum Ast<X: Debug + Clone = ()> {
     // TODO convert this to usize
     LiteralInteger(LiteralInteger<X>),
     LiteralBool(LiteralBool<X>),
+    LiteralArray(LiteralArray<X>),
     Ident(Ident<X>),
     FieldAccess(FieldAccess<X>),
 
@@ -275,6 +276,15 @@ pub struct StructLiteral<X: Debug + Clone = ()> {
     pub members: Vec<StructLiteralMember<X>>,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct LiteralArray<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub values: Vec<Ast<X>>,
+}
+
 /// Implement Spanned for a struct, with the given member of type SourceSpan
 macro_rules! impl_ast_node {
     ($t:ident) => {
@@ -331,5 +341,6 @@ impl_ast_traits!(Ast :
     LiteralBool,
     Repaired,
     FieldAccess,
-    StructLiteral
+    StructLiteral,
+    LiteralArray
 );

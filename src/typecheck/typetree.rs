@@ -167,6 +167,7 @@ impl TypeInterpreter {
             }),
             Ast::FieldAccess(f) => Ast::FieldAccess(self.eval_field_access(f)),
             Ast::StructLiteral(s) => Ast::StructLiteral(self.eval_struct_literal(s)),
+            Ast::LiteralArray(a) => Ast::LiteralArray(self.eval_literal_array(a)),
         }
     }
 
@@ -319,6 +320,29 @@ impl TypeInterpreter {
             xdata,
             returns: b.returns,
             statements,
+        }
+    }
+
+    pub fn eval_literal_array(&mut self, a: ast::LiteralArray) -> ast::LiteralArray<TypeTreeXData> {
+        self.push_scope();
+
+        let values: Vec<_> = a.values.into_iter().map(|s| self.eval_ast(s)).collect();
+        let element_ty = TypeInfo::union(
+            values
+                .iter()
+                .map(|v| v.xdata().current_type())
+                .cloned()
+                .collect::<Vec<_>>(),
+        );
+        self.pop_scope();
+
+        ast::LiteralArray {
+            span: a.span,
+            xdata: TypeTreeXData::new(TypeInfo::Array(ArrayType {
+                length: values.len() as u32,
+                element_ty: Box::new(element_ty),
+            })),
+            values,
         }
     }
 

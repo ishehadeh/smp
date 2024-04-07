@@ -130,10 +130,12 @@ impl TypeInfo {
         match self {
             TypeInfo::Scalar(ScalarType::Integer(_)) => 4,
             TypeInfo::Scalar(ScalarType::Boolean(_)) => 1,
+            TypeInfo::Scalar(_) => todo!(),
             TypeInfo::Unit => 0,
             TypeInfo::Union(u) => u.types.iter().map(|x| x.get_size()).max().unwrap_or(0),
             TypeInfo::Record(r) => r.fields.iter().map(|x| x.length).sum::<usize>(),
-            a => panic!("unimplemented: TypeInfo::get_size() => {:?}", a),
+            TypeInfo::Array(a) => a.element_ty.get_size() * a.length as usize,
+            TypeInfo::TyRef(_) => panic!("type references cannot be sized before being resolved"),
         }
     }
 

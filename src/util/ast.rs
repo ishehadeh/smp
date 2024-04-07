@@ -82,6 +82,7 @@ impl Declarations {
                 }
                 // enumerate ignored items to make force future additions to the ast to be considered here before compiling
                 Ast::LiteralInteger(_)
+                | Ast::LiteralArray(_)
                 | Ast::LiteralBool(_)
                 | Ast::Ident(_)
                 | Ast::Repaired(_)

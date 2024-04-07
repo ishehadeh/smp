@@ -358,6 +358,7 @@ impl Compiler {
                 object_res
             }
             Ast::StructLiteral(l) => self.eval_literal_struct(l),
+            Ast::LiteralArray(a) => self.eval_literal_array(a),
         }
     }
 
@@ -799,5 +800,31 @@ impl Compiler {
         self.scopes.pop();
 
         EvalResult { buffer, result }
+    }
+    
+    fn eval_literal_array(&mut self, a: &ast::LiteralArray<TypeTreeXData>) -> EvalResult {
+        let mut buffer = AssemblyWriter::new();
+        let result = self.type_info_to_value(&mut buffer, a.xdata().current_type());
+        let (base, base_offset) = match &result {
+            Value::Slot(Slot::Indirect { base, offset }) => (base.clone(), *offset),
+            _ => panic!("Compiler::type_info_to_value did not place array in memory, this should be unreachable")
+        };
+        
+        let mut array_offset = 0;
+        let element_size = a.xdata().current_type().get_size() / a.values.len();
+        for v in &a.values {
+            let result = self.eval_ast(v);
+            buffer.include(result.buffer);
+            if let Some(element) = result.result {
+                array_offset += element_size;
+                let element_dest_value = Value::Slot(Slot::Indirect {base: base.clone(), offset: base_offset + array_offset });
+            self.copy_value(&mut buffer, &element_dest_value, &element).expect("copy value failed");
+            }
+        }
+
+        EvalResult {
+            result: Some(result), 
+            buffer
+        }
     }
 }

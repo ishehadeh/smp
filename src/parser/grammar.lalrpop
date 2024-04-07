@@ -363,6 +363,7 @@ pub AtomicExpr: Ast = {
     <n:LiteralInteger> " "? => Ast::LiteralInteger(n),
     <b:LiteralBool> " "? => Ast::LiteralBool(b),
     <s:StructLiteral> " "? => Ast::StructLiteral(s),
+    <a:LiteralArray> " "? => Ast::LiteralArray(a),
     <a:StmtIf> => Ast::StmtIf(a),
     <i:FieldAccess> " "? => Ast::FieldAccess(i),
     <i:Ident> " "? => Ast::Ident(i),
@@ -421,6 +422,16 @@ pub LiteralBool: ast::LiteralBool = {
 
         value: false
     }
+}
+
+
+
+pub LiteralArray: ast::LiteralArray = {
+    <l: @L> "[" " "? <values: OneOrMore<Expr>> "]" <r: @R> => ast::LiteralArray {
+        span: (l, r).into(),
+        xdata: (),
+        values,
+    },
 }
 
 pub Ident: ast::Ident = {
