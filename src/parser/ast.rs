@@ -40,6 +40,16 @@ pub struct TyParam<X: Debug + Clone = ()> {
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
+pub struct ArrayTy<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub element_ty: Box<AnonType>,
+    pub length: u32,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StructMember {
     pub mutable: bool,
     pub name: String,
@@ -62,6 +72,7 @@ pub enum AnonType {
         inclusive_low: String,
         inclusive_high: String,
     },
+    Array(ArrayTy),
     Bool,
 }
 

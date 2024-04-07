@@ -1,0 +1,5 @@
+
+
+func main(): unit {
+    let a: [0..10; 5] = false;
+}

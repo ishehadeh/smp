@@ -2,7 +2,10 @@ pub mod ast;
 mod errors;
 pub mod lexer;
 
-lalrpop_mod!(#[allow(clippy::all)] pub grammar, "/parser/grammar.rs");
+lalrpop_mod!(
+    #[allow(clippy::all)]
+    #[allow(unused)]
+    pub grammar, "/parser/grammar.rs");
 
 pub use ast::Ast;
 pub use errors::*;

@@ -37,6 +37,10 @@ pub enum Token<'input> {
     ParenLeft,
     #[token(")")]
     ParenRight,
+    #[token("[")]
+    BraceSquareLeft,
+    #[token("]")]
+    BraceSquareRight,
     #[token("{")]
     BraceCurlyLeft,
     #[token("}")]

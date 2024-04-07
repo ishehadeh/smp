@@ -29,6 +29,8 @@ extern {
         ")" => Token::ParenRight,
         "{" => Token::BraceCurlyLeft,
         "}" => Token::BraceCurlyRight,
+        "[" => Token::BraceSquareLeft,
+        "]" => Token::BraceSquareRight,
         "<{" => Token::TyParamStart,
         "}>" => Token::TyParamEnd,
         ";" => Token::Semicolon,
@@ -152,14 +154,26 @@ pub DefStructMember: StructMember = {
             mutable: false,
         }
     },
-}
+};
+
+pub TyArray: AnonType = {
+    <l: @L> "[" " "? <element_ty:AnonType> " "? ";" " "? <size:"literal-int"> "]" <r: @R> => {
+        AnonType::Array(ast::ArrayTy {
+            span: (l, r).into(),
+            xdata: (),
+
+            element_ty: Box::new(element_ty),
+            length: u32::from_str_radix(size, 10).expect("failed to parse literal-int token, this should be unreachable")
+        })
+    }
+};
 
 pub TypeIntegerRange: AnonType = {
     <lo:"literal-int"> " "? ".." " "? <hi:"literal-int"> => AnonType::IntegerRange {
         inclusive_low: lo.to_string(),
         inclusive_high: hi.to_string(),
     },
-}
+};
 
 pub TypeBoolean: AnonType = {
     "bool" => AnonType::Bool
@@ -179,6 +193,7 @@ pub AnonType: AnonType = {
     TypeIntegerRange,
     TypeReference,
     TypeBoolean,
+    TyArray,
 }
 
 pub DefType: ast::DefType = {

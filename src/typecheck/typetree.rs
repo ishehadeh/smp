@@ -8,7 +8,7 @@ use crate::{
     util::ast::Declarations,
 };
 
-use super::{RecordCell, RecordType, ScalarType, TypeError, TypeInfo};
+use super::{types::ArrayType, RecordCell, RecordType, ScalarType, TypeError, TypeInfo};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
@@ -293,7 +293,7 @@ impl TypeInterpreter {
                 cond_true: Default::default(),
             },
             name: f.name,
-            params: params,
+            params,
             return_type: f.return_type,
             body: Box::new(body_type_tree),
         }
@@ -614,6 +614,10 @@ impl TypeInterpreter {
                     self.resolve_ty_refs(ty_decl.ty.clone(), &params)
                 }
             }
+            TypeInfo::Array(a) => TypeInfo::Array(ArrayType {
+                element_ty: Box::new(self.resolve_ty_refs(*a.element_ty, &[])),
+                length: a.length,
+            }),
         }
     }
 

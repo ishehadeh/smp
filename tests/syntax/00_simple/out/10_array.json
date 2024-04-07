@@ -1,0 +1,160 @@
+{
+  "type": "Program",
+  "data": {
+    "span": {
+      "start": 0,
+      "end": 54
+    },
+    "xdata": {
+      "declared_type": "Unit",
+      "value_type": null,
+      "error": null,
+      "cond_true": {},
+      "cond_false": {}
+    },
+    "definitions": [
+      {
+        "type": "DefFunction",
+        "data": {
+          "span": {
+            "start": 2,
+            "end": 54
+          },
+          "xdata": {
+            "declared_type": "Unit",
+            "value_type": null,
+            "error": null,
+            "cond_true": {},
+            "cond_false": {}
+          },
+          "name": "main",
+          "params": [],
+          "return_type": {
+            "type": "TypeReference",
+            "data": {
+              "name": "unit",
+              "parameters": []
+            }
+          },
+          "body": {
+            "type": "Block",
+            "data": {
+              "span": {
+                "start": 20,
+                "end": 54
+              },
+              "xdata": {
+                "declared_type": "Unit",
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
+              "returns": false,
+              "statements": [
+                {
+                  "type": "StmtLet",
+                  "data": {
+                    "span": {
+                      "start": 26,
+                      "end": 51
+                    },
+                    "xdata": {
+                      "declared_type": {
+                        "Array": {
+                          "length": 5,
+                          "element_ty": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 10
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "value_type": {
+                        "Scalar": {
+                          "Boolean": false
+                        }
+                      },
+                      "error": {
+                        "BadAssignment": {
+                          "binding_type": {
+                            "Array": {
+                              "length": 5,
+                              "element_ty": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 10
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "value_type": {
+                            "Scalar": {
+                              "Boolean": false
+                            }
+                          },
+                          "binding_name": "a"
+                        }
+                      },
+                      "cond_true": {},
+                      "cond_false": {}
+                    },
+                    "name": "a",
+                    "value_type": {
+                      "type": "Array",
+                      "data": {
+                        "span": {
+                          "start": 33,
+                          "end": 43
+                        },
+                        "xdata": null,
+                        "element_ty": {
+                          "type": "IntegerRange",
+                          "data": {
+                            "inclusive_low": "0",
+                            "inclusive_high": "10"
+                          }
+                        },
+                        "length": 5
+                      }
+                    },
+                    "value": {
+                      "type": "LiteralBool",
+                      "data": {
+                        "span": {
+                          "start": 46,
+                          "end": 51
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Boolean": false
+                            }
+                          },
+                          "value_type": {
+                            "Scalar": {
+                              "Boolean": false
+                            }
+                          },
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "value": false
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

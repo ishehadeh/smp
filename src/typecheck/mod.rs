@@ -8,7 +8,7 @@ pub use errors::*;
 
 use types::{IntegerType, RecordCell, RecordType};
 
-use self::types::TyRef;
+use self::types::{ArrayType, TyRef};
 pub use self::typetree::TypeTree;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -83,6 +83,8 @@ pub enum TypeInfo {
     Scalar(ScalarType),
     Union(UnionType),
     Record(RecordType),
+    Array(ArrayType),
+
     /// A reference to another type or type parameter
     TyRef(TyRef),
 }
@@ -137,7 +139,7 @@ impl TypeInfo {
 
     pub fn access<S: AsRef<str>>(&self, symbol: S) -> Result<TypeInfo, TypeError> {
         match self {
-            TypeInfo::Scalar(_) | TypeInfo::TyRef(_) | TypeInfo::Unit => {
+            TypeInfo::Scalar(_) | TypeInfo::Array(_) | TypeInfo::TyRef(_) | TypeInfo::Unit => {
                 Err(TypeError::InvalidFieldAccess {
                     symbol: symbol.as_ref().to_string(),
                     object: self.clone(),
@@ -161,9 +163,9 @@ impl TypeInfo {
         }
     }
 
-    pub fn is_subset(&self, other: &TypeInfo) -> bool {
+    pub fn is_subset(&self, superset: &TypeInfo) -> bool {
         // to avoid bugs with forgotten cases DO NOT use an _ => false pattern in this match
-        match (self, other) {
+        match (self, superset) {
             // trivial case
             (a, b) if a == b => true,
 
@@ -184,8 +186,8 @@ impl TypeInfo {
             (TypeInfo::Scalar(ScalarType::Float32), TypeInfo::Scalar(ScalarType::Float32)) => true,
             (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float64)) => true,
             // we can losslessly convert float32 -> float64, but not the reverse
-            (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float32)) => true,
-            (TypeInfo::Scalar(ScalarType::Float32), TypeInfo::Scalar(ScalarType::Float64)) => false,
+            (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float32)) => false,
+            (TypeInfo::Scalar(ScalarType::Float32), TypeInfo::Scalar(ScalarType::Float64)) => true,
             (TypeInfo::Scalar(ScalarType::Float32 | ScalarType::Float64), _)
             | (_, TypeInfo::Scalar(ScalarType::Float32 | ScalarType::Float64)) => false,
 
@@ -212,6 +214,7 @@ impl TypeInfo {
                 }
                 true
             }
+
             (TypeInfo::Record(a), TypeInfo::Record(b)) => {
                 for field in &a.fields {
                     if !b.fields.contains(field) {
@@ -219,6 +222,15 @@ impl TypeInfo {
                     }
                 }
                 true
+            }
+
+            (TypeInfo::Array(a), TypeInfo::Array(b)) => {
+                // 1) subetset must be indexable by a subset of supersets index set
+                // 2) element type must be a subset
+                // 3) (for practicle purposes) element types must be the same size
+                a.length <= b.length
+                    && a.element_ty.is_subset(b.element_ty.as_ref())
+                    && self.get_size() == superset.get_size()
             }
 
             (me, TypeInfo::Union(union)) => {
@@ -229,9 +241,20 @@ impl TypeInfo {
                 }
                 false
             }
-            (TypeInfo::Unit, TypeInfo::Scalar(_) | TypeInfo::Record(_)) => false,
-            (TypeInfo::Scalar(_), TypeInfo::Unit | TypeInfo::Record(_)) => false,
-            (TypeInfo::Record(_), TypeInfo::Unit | TypeInfo::Scalar(_)) => false,
+
+            // fundamentally incompatible types
+            (TypeInfo::Unit, TypeInfo::Scalar(_) | TypeInfo::Record(_) | TypeInfo::Array(_)) => {
+                false
+            }
+            (TypeInfo::Scalar(_), TypeInfo::Unit | TypeInfo::Record(_) | TypeInfo::Array(_)) => {
+                false
+            }
+            (TypeInfo::Record(_), TypeInfo::Unit | TypeInfo::Scalar(_) | TypeInfo::Array(_)) => {
+                false
+            }
+            (TypeInfo::Array(_), TypeInfo::Unit | TypeInfo::Scalar(_) | TypeInfo::Record(_)) => {
+                false
+            }
         }
     }
 
@@ -276,8 +299,24 @@ impl TypeInfo {
                 }
             }
 
-            (TypeInfo::Record(_), TypeInfo::Scalar(_))
-            | (TypeInfo::Scalar(_), TypeInfo::Record(_)) => TypeInfo::Unit,
+            (TypeInfo::Array(a), TypeInfo::Array(b)) => {
+                if self.get_size() != other.get_size() {
+                    TypeInfo::Unit
+                } else {
+                    let length = a.length.min(b.length);
+                    let element_ty = a.element_ty.intersect(&b.element_ty);
+                    TypeInfo::Array(ArrayType {
+                        length,
+                        element_ty: Box::new(element_ty),
+                    })
+                }
+            }
+
+            (TypeInfo::Record(_) | TypeInfo::Array(_), TypeInfo::Scalar(_))
+            | (TypeInfo::Scalar(_), TypeInfo::Record(_) | TypeInfo::Array(_)) => TypeInfo::Unit,
+
+            (TypeInfo::Record(_), TypeInfo::Array(_))
+            | (TypeInfo::Array(_), TypeInfo::Record(_)) => TypeInfo::Unit,
         }
     }
 }

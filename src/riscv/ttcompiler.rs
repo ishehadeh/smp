@@ -475,6 +475,11 @@ impl Compiler {
         match ty {
             TypeInfo::Unit => todo!(),
             TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
+            TypeInfo::Array(arr) => {
+                let  offset
+                = self.stack.alloc(arr.length as usize * arr.element_ty.get_size());
+ Slot::Indirect { base: Box::new(Slot::Register(Register::Sp)), offset }.into()
+            }
             TypeInfo::Union(_) => todo!(),
             TypeInfo::Record(s) => self.struct_to_value(buffer, s),
             TypeInfo::TyRef(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),
@@ -490,7 +495,7 @@ impl Compiler {
     ) -> Value {
         match ty {
             TypeInfo::Unit => todo!(),
-            TypeInfo::Scalar(_) => Slot::Indirect {
+            TypeInfo::Scalar(_) | TypeInfo::Array(_) => Slot::Indirect {
                 base: Box::new(base),
                 offset,
             }
@@ -728,7 +733,7 @@ impl Compiler {
                 TypeInfo::Unit => continue,
                 TypeInfo::Scalar(_) => arg_reg_slot.into(),
                 TypeInfo::Union(_) => todo!("union function args"),
-                TypeInfo::Record(_) => {
+                TypeInfo::Record(_) | TypeInfo::Array(_) => {
                     self.type_info_to_value_memory(&mut buffer, arg_reg_slot, 0, arg_ty)
                 }
                 TypeInfo::TyRef(_) => panic!("Reference type found during compilation, these should be resolved by the typechecker"),

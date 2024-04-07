@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, HashMap};
 use crate::{
     parser::{ast::AnonType, Ast},
     typecheck::{
-        types::{RecordCell, RecordType, TyRef},
+        types::{ArrayType, RecordCell, RecordType, TyRef},
         FunctionDeclaration, ScalarType, TypeInfo,
     },
 };
@@ -125,7 +125,7 @@ impl Declarations {
                     let ty_size = ty.get_size();
                     fields.insert(RecordCell {
                         name: m.name.clone(),
-                        offset: offset,
+                        offset,
                         length: ty_size,
                         type_info: ty,
                     });
@@ -133,6 +133,10 @@ impl Declarations {
                 }
                 TypeInfo::Record(RecordType { fields })
             }
+            AnonType::Array(a) => TypeInfo::Array(ArrayType {
+                length: a.length,
+                element_ty: Box::new(self.eval_anon_type(&a.element_ty)),
+            }),
         }
     }
 }

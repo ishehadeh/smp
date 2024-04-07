@@ -79,8 +79,8 @@ impl AssemblyWriter {
     }
 
     pub fn include(&mut self, other: AssemblyWriter) {
-        self.reads.extend(other.reads.into_iter());
-        self.writes.extend(other.writes.into_iter());
+        self.reads.extend(other.reads);
+        self.writes.extend(other.writes);
         self.buffer.push_str(&other.buffer)
     }
 
