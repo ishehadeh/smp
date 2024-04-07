@@ -162,9 +162,15 @@ impl TypeInfo {
     }
 
     pub fn is_subset(&self, other: &TypeInfo) -> bool {
+        // to avoid bugs with forgotten cases DO NOT use an _ => false pattern in this match
         match (self, other) {
             // trivial case
             (a, b) if a == b => true,
+
+            // if two type references aren't exactly equal, then they aren't subsets
+            // for a proper comparison they should be resolved by the typechecker, then
+            // compared with is_subset
+            (_, TypeInfo::TyRef(_)) | (TypeInfo::TyRef(_), _) => false,
 
             // unit only matches unit
             (TypeInfo::Unit, TypeInfo::Unit) => true,
@@ -175,7 +181,28 @@ impl TypeInfo {
                 TypeInfo::Scalar(ScalarType::Integer(b)),
             ) => a.is_subset(b),
 
+            (TypeInfo::Scalar(ScalarType::Float32), TypeInfo::Scalar(ScalarType::Float32)) => true,
+            (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float64)) => true,
+            // we can losslessly convert float32 -> float64, but not the reverse
             (TypeInfo::Scalar(ScalarType::Float64), TypeInfo::Scalar(ScalarType::Float32)) => true,
+            (TypeInfo::Scalar(ScalarType::Float32), TypeInfo::Scalar(ScalarType::Float64)) => false,
+            (TypeInfo::Scalar(ScalarType::Float32 | ScalarType::Float64), _)
+            | (_, TypeInfo::Scalar(ScalarType::Float32 | ScalarType::Float64)) => false,
+
+            // the value within a boolean is for value tracking only, it doesn't have any effect on typechecking
+            (
+                TypeInfo::Scalar(ScalarType::Boolean(_)),
+                TypeInfo::Scalar(ScalarType::Boolean(_)),
+            ) => true,
+            (TypeInfo::Scalar(ScalarType::Boolean(_)), _)
+            | (_, TypeInfo::Scalar(ScalarType::Boolean(_))) => false,
+
+            // the value within a boolean is for value tracking only, it doesn't have any effect on typechecking
+            (TypeInfo::Scalar(ScalarType::Character), TypeInfo::Scalar(ScalarType::Character)) => {
+                true
+            }
+            (TypeInfo::Scalar(ScalarType::Character), _)
+            | (_, TypeInfo::Scalar(ScalarType::Character)) => false,
 
             (TypeInfo::Union(union), other) => {
                 for t in &union.types {
@@ -202,7 +229,9 @@ impl TypeInfo {
                 }
                 false
             }
-            _ => false,
+            (TypeInfo::Unit, TypeInfo::Scalar(_) | TypeInfo::Record(_)) => false,
+            (TypeInfo::Scalar(_), TypeInfo::Unit | TypeInfo::Record(_)) => false,
+            (TypeInfo::Record(_), TypeInfo::Unit | TypeInfo::Scalar(_)) => false,
         }
     }
 

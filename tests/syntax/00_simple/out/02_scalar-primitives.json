@@ -70,21 +70,7 @@
                           "Boolean": false
                         }
                       },
-                      "error": {
-                        "BadAssignment": {
-                          "binding_type": {
-                            "Scalar": {
-                              "Boolean": null
-                            }
-                          },
-                          "value_type": {
-                            "Scalar": {
-                              "Boolean": false
-                            }
-                          },
-                          "binding_name": "a"
-                        }
-                      },
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },

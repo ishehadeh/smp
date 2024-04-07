@@ -28,8 +28,8 @@ sw fp, 12(sp)
 li s1, 1
 li s2, 2
 addi a0, sp, 0
-sw s2, 4(a0)
 sw s1, 0(a0)
+sw s2, 4(a0)
 call add_tuple
 mv a0, a0
 lw s1, 0(sp)

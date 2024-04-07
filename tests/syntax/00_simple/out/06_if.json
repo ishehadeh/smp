@@ -60,15 +60,7 @@
                     ]
                   }
                 },
-                "error": {
-                  "ExpectedCondition": {
-                    "recieved": {
-                      "Scalar": {
-                        "Boolean": true
-                      }
-                    }
-                  }
-                },
+                "error": null,
                 "cond_true": {},
                 "cond_false": {}
               },
@@ -98,15 +90,7 @@
                           ]
                         }
                       },
-                      "error": {
-                        "ExpectedCondition": {
-                          "recieved": {
-                            "Scalar": {
-                              "Boolean": true
-                            }
-                          }
-                        }
-                      },
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
