@@ -1,2 +1,11 @@
+
+type u16 = 0..65535;
+
 func main(): unit {
+    let N: u16 = 10;
+    let mut i: u16 = 0;
+
+    while i < N {
+        i = (i + 1);
+    } 
 }

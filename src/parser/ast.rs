@@ -106,6 +106,7 @@ pub enum Ast<X: Debug + Clone = ()> {
 
     StructLiteral(StructLiteral<X>),
     StmtLet(StmtLet<X>),
+    StmtWhile(StmtWhile<X>),
 
     DefType(DefType<X>),
 
@@ -297,6 +298,16 @@ pub struct LiteralArray<X: Debug + Clone = ()> {
     pub values: Vec<Ast<X>>,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct StmtWhile<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub condition: Box<Ast<X>>,
+    pub body: Box<Ast<X>>,
+}
+
 /// Implement Spanned for a struct, with the given member of type SourceSpan
 macro_rules! impl_ast_node {
     ($t:ident) => {
@@ -355,5 +366,6 @@ impl_ast_traits!(Ast :
     FieldAccess,
     StructLiteral,
     LiteralArray,
-    ArrayAccess
+    ArrayAccess,
+    StmtWhile
 );

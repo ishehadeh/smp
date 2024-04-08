@@ -1,35 +1,35 @@
 .text
 .globl get_number
 get_number:
-addi sp, sp, -8
-sw fp, -4(sp)
-mv fp, sp
-sw ra, -8(fp)
+addi sp, sp, -16
+sd fp, 0(sp)
+addi fp, sp, 16
+sd ra, -8(fp)
 addi a0, zero, 4
-lw ra, -8(fp)
-addi sp, sp, 8
-lw fp, -4(sp)
+ld ra, -8(fp)
+ld fp, 0(sp)
+addi sp, sp, 16
 jr ra
 .globl main
 main:
-addi sp, sp, -12
-sw fp, -4(sp)
-mv fp, sp
-sw s1, -8(fp)
-sw ra, -12(fp)
-call get_number
+addi sp, sp, -24
+sd fp, 0(sp)
+addi fp, sp, 24
+sd s1, -8(fp)
+sd ra, -16(fp)
+jal get_number
 addi s1, zero, 5
 slt a0, a0, s1
 beq a0, zero, .L2
-li s1, 1
+li s1, 0
 j .L1
 .L2:
 li s1, 0
 .L1:
 mv a0, s1
-lw s1, -8(fp)
-lw ra, -12(fp)
-addi sp, sp, 12
-lw fp, -4(sp)
+ld s1, -8(fp)
+ld ra, -16(fp)
+ld fp, 0(sp)
+addi sp, sp, 24
 jr ra
 

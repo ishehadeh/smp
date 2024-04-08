@@ -40,6 +40,8 @@ pub struct StackState {
     bytes: Vec<bool>,
 }
 
+const REGISTER_WIDTH: usize = 8;
+
 impl StackState {
     pub fn reset(&mut self) {
         self.bytes.clear();
@@ -153,7 +155,7 @@ impl Compiler {
     }
 
     pub fn get_slot(&mut self, size: usize) -> Slot {
-        if size <= 4 {
+        if size <= REGISTER_WIDTH {
             if let Some(r) = self.register_stack.pop_front() {
                 return Slot::Register(r);
             }
@@ -170,27 +172,30 @@ impl Compiler {
         match slot {
             Slot::Immediate(_) => panic!("slot is read-only, this should be unreachable"),
             &Slot::Register(r) => {
-                assert!(value.len() <= 4);
-                let mut padded_value: [u8; 4] = [0; 4];
+                assert!(value.len() <= REGISTER_WIDTH);
+                let mut padded_value: u64 =  0;
                 for (i, x) in value.iter().enumerate() {
-                    padded_value[i] = *x;
+                    padded_value = (*x as u64) << (i * 8);
                 }
-                buffer.li(r, u32::from_le_bytes(padded_value))
+                buffer.li(r, padded_value)
             }
             Slot::Indirect { base, offset } => {
-                assert!(value.len() <= 4);
+                assert!(value.len() <= REGISTER_WIDTH);
 
                 let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
                 let r = self.get_register(buffer, &TEMPORARY_REGISTERS);
-                for (i, word) in value.chunks(4).enumerate() {
-                    let word_offset = i as i32 * 4 + offset;
-                    if word.len() == 4 {
-                        let val: [u8; 4] = word.try_into().unwrap();
-                        buffer.li(r, u32::from_le_bytes(val));
-                        buffer.sb(r, word_offset.try_into().unwrap(), base_reg);
+                for (i, word) in value.chunks(REGISTER_WIDTH).enumerate() {
+                    let word_offset = (i * REGISTER_WIDTH) as i32 + offset;
+                    if word.len() == REGISTER_WIDTH {
+                        let mut padded_value: u64 =  0;
+                        for (i, x) in word.iter().enumerate() {
+                            padded_value = (*x as u64) << (i * 8);
+                        }
+                        buffer.li(r, padded_value);
+                        buffer.sd(r, word_offset.try_into().unwrap(), base_reg);
                     } else {
                         for (j, byte) in word.iter().enumerate() {
-                            buffer.li(r, *byte as u32);
+                            buffer.li(r, *byte as u64);
                             buffer.sb(r, (word_offset + (j as i32)).try_into().unwrap(), base_reg);
                         }
                     }
@@ -202,15 +207,13 @@ impl Compiler {
     // save a register on the stack pass the returned ValueRef to load_register to restore it
     pub fn save_register(&mut self, buffer: &mut AssemblyWriter, reg: Register) -> Slot {
         // add space in the frame for the stored register
-        const REGISTER_WIDTH: usize = 4;
-
-        let offset = self.stack.alloc(REGISTER_WIDTH);
+        let offset = self.stack.alloc(REGISTER_WIDTH) + REGISTER_WIDTH as i32;
         let save_ref = Slot::Indirect {
-            offset,
-            base: Box::new(Slot::Register(Register::Sp)),
+            offset: -(offset as i32),
+            base: Box::new(Slot::Register(Register::Fp)),
         };
         assert!(offset < 2048);
-        buffer.sw(reg, offset as i16, Register::Sp);
+        buffer.sd(reg, -(offset as i16), Register::Fp);
         save_ref
     }
 
@@ -219,7 +222,7 @@ impl Compiler {
             Slot::Indirect { offset, base } => {
                 assert!(*offset < 2048);
                 let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
-                buffer.lw(dest, *offset as i16, base_reg);
+                buffer.ld(dest, *offset as i16, base_reg);
             }
             &Slot::Immediate(imm) => {
                 buffer.addi(dest, Register::Zero, imm);
@@ -315,7 +318,7 @@ impl Compiler {
                 let r_dest_base =
                     self.slot_to_register(state, &TEMPORARY_REGISTERS, base_dest.as_ref());
                 assert!(*offset_dest < 2048);
-                state.sw(r_src, *offset_dest as i16, r_dest_base);
+                state.sd(r_src, *offset_dest as i16, r_dest_base);
             }
         }
     }
@@ -363,6 +366,7 @@ impl Compiler {
             Ast::StructLiteral(l) => self.eval_literal_struct(l),
             Ast::LiteralArray(a) => self.eval_literal_array(a),
             Ast::ArrayAccess(a) => self.eval_array_access(a),
+            Ast::StmtWhile(w) => self.eval_while(w),
         }
     }
 
@@ -374,7 +378,7 @@ impl Compiler {
                 buffer,
             }
         } else {
-            let result = self.get_slot(4);
+            let result = self.get_slot(REGISTER_WIDTH);
             self.write_slot(&mut buffer, &result, &i.value.to_le_bytes());
 
             EvalResult {
@@ -427,13 +431,18 @@ impl Compiler {
     }
 
     pub fn eval_assign_expr(&mut self, lhs: &ast::Ast<TypeTreeXData>, rhs: &ast::Ast<TypeTreeXData>) -> EvalResult {
-        let  result = self.eval_ast(rhs);
+        let mut result = self.eval_ast(rhs);
          match lhs {
             Ast::Ident(i) => {
-                self.scopes.set(&i.symbol, result.result.clone().unwrap_or(Slot::Immediate(0).into())).expect("cannot find symbol in scope, this should have been verified by the type checker")
+                self.scopes.set(&i.symbol, result.result.clone().unwrap_or(Slot::Immediate(0).into()));
             }
             Ast::FieldAccess(_) => todo!(),
-            Ast::ArrayAccess(_) => todo!(),
+            Ast::ArrayAccess(array_access) =>{
+                let mut array_value = self.eval_array_access(array_access);
+                result.buffer.include(array_value.buffer);
+                
+                self.copy_value(&mut result.buffer, &array_value.result.expect("failed to get array accessor value; this should be unreachable"), &result.result.clone().unwrap_or(Slot::Immediate(0).into())).expect("copy failed");
+            },
             _ => panic!("bad assignment (TODO: validate this in typechecker)")
         };        
         result
@@ -443,7 +452,9 @@ impl Compiler {
         if expr.op == InfixOp::Assign {
           return  self.eval_assign_expr(expr.lhs.as_ref(), expr.rhs.as_ref())
         };
+        
         let lhs = self.eval_ast(expr.lhs.as_ref());
+        dbg!(&lhs);
         // slot to make sure the left register isn't overwritten by the rhs
         // this is a big hack, it really needs to be rethought
         let hold_var_name = self.gen_label();
@@ -495,7 +506,7 @@ impl Compiler {
     fn type_info_to_value(&mut self, buffer: &mut AssemblyWriter, ty: &TypeInfo) -> Value {
         match ty {
             TypeInfo::Unit => todo!(),
-            TypeInfo::Scalar(_) => self.get_slot(4).into(), // FIXME: doesn't work for float64, could also adjust size for ints
+            TypeInfo::Scalar(_) => self.get_slot(REGISTER_WIDTH).into(), // FIXME: doesn't work for float32, could also adjust size for ints
             TypeInfo::Array(arr) => {
                 let size_bytes = arr.length as usize * arr.element_ty.get_size();
                 let  offset = -self.stack.alloc(size_bytes) - size_bytes as i32 ;
@@ -672,7 +683,7 @@ impl Compiler {
                 &return_ty,
             )
         } else {
-            // TODO: support dword return values
+            // TODO: support 2-reg return values
             Slot::Register(Register::A0).into()
         };
 
@@ -709,12 +720,12 @@ impl Compiler {
         }
 
         buffer.include(arg_evals_buffer);
-        buffer.call(&c.function_name);
+        buffer.jal(&c.function_name);
 
         if return_ty != TypeInfo::Unit {
             let result = if arg_regs_to_save.contains(&Register::A0) {
                 // TODO same for a1
-                let result = self.get_slot(4);
+                let result = self.get_slot(REGISTER_WIDTH);
                 self.copy_slot(&mut buffer, &result, &Slot::Register(Register::A0));
                 result.clone()
             } else {
@@ -769,11 +780,7 @@ impl Compiler {
         }
         let res = self.eval_ast(f.body.as_ref());
 
-        let offset = self.stack.alloc(4) + 4;
         let mut prolog = AssemblyWriter::new();
-        prolog.sw(Register::Fp, -offset as i16, Register::Sp);
-        prolog.mv(Register::Fp, Register::Sp);
-
         let mut epilog = AssemblyWriter::new();
 
         let mut mutated_callee_saved_regs: Vec<_> = res
@@ -792,13 +799,17 @@ impl Compiler {
 
         for r in mutated_callee_saved_regs {
             // add 4 since index is negative and store/load read upwards
-            let offset = self.stack.alloc(4) + 4;
+            let offset = self.stack.alloc(REGISTER_WIDTH) + REGISTER_WIDTH as i32;
 
-            prolog.sw(r, -offset as i16, Register::Fp);
-            epilog.lw(r, -offset as i16, Register::Fp);
+            prolog.sd(r, -offset as i16, Register::Fp);
+            epilog.ld(r, -offset as i16, Register::Fp);
         }
 
+        let fp_stack_offset = self.stack.size() as i32 - self.stack.alloc(REGISTER_WIDTH);
+
         buffer.addi(Register::Sp, Register::Sp, -(self.stack.size() as i16) );
+        buffer.sd(Register::Fp, fp_stack_offset as i16, Register::Sp);
+        buffer.addi(Register::Fp, Register::Sp, self.stack.size() as i16);
         buffer.include(prolog);
 
         buffer.include(res.buffer);
@@ -807,8 +818,8 @@ impl Compiler {
         }
 
         buffer.include(epilog);
+        buffer.ld(Register::Fp, fp_stack_offset as i16, Register::Sp);
         buffer.addi(Register::Sp, Register::Sp, self.stack.size() as i16 );
-        buffer.lw(Register::Fp, -offset as i16, Register::Sp);
 
         buffer.jr(Register::Ra);
 
@@ -892,7 +903,7 @@ impl Compiler {
 
         // TODO check element size fits into 11 bits
         let elem_size_reg = self.get_register(&mut buffer, &TEMPORARY_REGISTERS);
-        buffer.li(elem_size_reg, element_size as u32);
+        buffer.li(elem_size_reg, element_size as u64);
         buffer.mul(array_offset_reg, array_offset_reg, elem_size_reg);
         buffer.add(array_offset_reg, array_offset_reg,base);
 
@@ -901,5 +912,25 @@ impl Compiler {
             buffer,
         }
         
+    }
+    
+    fn eval_while(&mut self, w: &ast::StmtWhile<TypeTreeXData>) -> EvalResult {
+        let while_start_label = self.gen_label();
+        let mut buffer = AssemblyWriter::new();
+        buffer.label(&while_start_label);
+
+        let body_result = self.eval_ast(w.body.as_ref());
+        buffer.include_ref(&body_result.buffer);
+
+        let cond_result = self.eval_ast(w.condition.as_ref());
+        buffer.include_ref(&cond_result.buffer);
+
+        let cond_reg = self.slot_to_register(&mut buffer, &TEMPORARY_REGISTERS, cond_result.result.expect("condition must have value").as_slot().unwrap());
+        buffer.beq(cond_reg, Register::Zero, &while_start_label);
+
+        EvalResult {
+            buffer,
+            result: None,
+        }
     }
 }

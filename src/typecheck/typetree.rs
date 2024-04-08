@@ -169,6 +169,7 @@ impl TypeInterpreter {
             Ast::StructLiteral(s) => Ast::StructLiteral(self.eval_struct_literal(s)),
             Ast::LiteralArray(a) => Ast::LiteralArray(self.eval_literal_array(a)),
             Ast::ArrayAccess(a) => Ast::ArrayAccess(self.eval_array_access(a)),
+            Ast::StmtWhile(w) => Ast::StmtWhile(self.eval_while(w)),
         }
     }
 
@@ -591,7 +592,7 @@ impl TypeInterpreter {
 
         // TODO: type check params
         ast::ExprCall {
-            xdata: TypeTreeXData::new(decl.returns.clone()),
+            xdata: TypeTreeXData::new(self.resolve_ty_refs(decl.returns.clone(), &[])),
             span: c.span,
             function_name: c.function_name,
             paramaters: typed_parameters,
@@ -696,6 +697,31 @@ impl TypeInterpreter {
             index: Box::new(index),
             span: a.span,
             xdata,
+        }
+    }
+
+    fn eval_while(&mut self, w: ast::StmtWhile) -> ast::StmtWhile<TypeTreeXData> {
+        let condition = self.eval_ast(*w.condition);
+        let xdata = if !condition
+            .xdata()
+            .current_type()
+            .is_subset(&TypeInfo::bool())
+        {
+            TypeTreeXData::new_error(
+                TypeInfo::Unit,
+                TypeError::ExpectedCondition {
+                    recieved: condition.xdata().current_type().clone(),
+                },
+            )
+        } else {
+            TypeTreeXData::new(TypeInfo::Unit)
+        };
+        let body = self.eval_ast(*w.body);
+        ast::StmtWhile {
+            xdata,
+            span: w.span,
+            condition: Box::new(condition),
+            body: Box::new(body),
         }
     }
 }

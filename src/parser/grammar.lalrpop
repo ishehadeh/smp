@@ -21,6 +21,7 @@ extern {
         "type" => Token::KeywordType,
         "if" => Token::KeywordIf,
         "else" => Token::KeywordElse,
+        "while" => Token::KeywordWhile,
  
         "ident" => Token::Identifier(<&'input str>),
         "literal-int" => Token::LiteralInteger(<&'input str>),
@@ -238,6 +239,20 @@ pub StmtIf: ast::StmtIf = {
         body: Box::new(Ast::Block(body)),
         else_: Some(Box::new(Ast::Block(else_))),
     }
+
+    // TODO: else if
+}
+
+
+pub StmtWhile: ast::StmtWhile = {
+    <l: @L> "while" " " <condition:Expr> <body:Block> <r: @R> => ast::StmtWhile {
+        span: (l, r).into(),
+        xdata: (),
+
+        condition: Box::new(condition),
+        body: Box::new(Ast::Block(body)),
+    },
+
 }
 
 pub ExprCall: ast::ExprCall = {
@@ -376,6 +391,7 @@ pub AtomicExpr: Ast = {
     <s:StructLiteral> " "? => Ast::StructLiteral(s),
     <a:LiteralArray> " "? => Ast::LiteralArray(a),
     <a:StmtIf> => Ast::StmtIf(a),
+    <a:StmtWhile> => Ast::StmtWhile(a),
     <i:FieldAccess> " "? => Ast::FieldAccess(i),
     <a:ArrayAccess> " "? => Ast::ArrayAccess(a),
     <i:Ident> " "? => Ast::Ident(i),

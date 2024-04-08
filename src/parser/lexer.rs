@@ -21,6 +21,8 @@ pub enum Token<'input> {
     KeywordType,
     #[token("if")]
     KeywordIf,
+    #[token("while")]
+    KeywordWhile,
     #[token("else")]
     KeywordElse,
 

@@ -87,6 +87,27 @@ impl AssemblyWriter {
     instr_arith!(add, sub, mul, div);
     instr_arith!(imm addi);
 
+    pub fn sd(&mut self, rs2: Register, offset: i16, rs1: Register) {
+        assert!(
+            offset < 2047,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        assert!(
+            offset > -2048,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        self.reads.insert(rs1);
+        self.reads.insert(rs2);
+        writeln!(
+            &mut self.buffer,
+            "sd {}, {}({})",
+            rs2.to_abi_name(),
+            offset,
+            rs1.to_abi_name(),
+        )
+        .expect("write failed")
+    }
+
     pub fn sw(&mut self, rs2: Register, offset: i16, rs1: Register) {
         assert!(
             offset < 2047,
@@ -129,6 +150,27 @@ impl AssemblyWriter {
         .expect("write failed")
     }
 
+    pub fn ld(&mut self, rd: Register, offset: i16, rs1: Register) {
+        assert!(
+            offset < 2047,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        assert!(
+            offset > -2048,
+            "immediate in arithmetic instructions may not exceed 11bits"
+        );
+        self.reads.insert(rs1);
+        self.writes.insert(rd);
+        writeln!(
+            &mut self.buffer,
+            "ld {}, {}({})",
+            rd.to_abi_name(),
+            offset,
+            rs1.to_abi_name(),
+        )
+        .expect("write failed")
+    }
+
     pub fn lw(&mut self, rd: Register, offset: i16, rs1: Register) {
         assert!(
             offset < 2047,
@@ -150,7 +192,7 @@ impl AssemblyWriter {
         .expect("write failed")
     }
 
-    pub fn li(&mut self, rd: Register, imm: u32) {
+    pub fn li(&mut self, rd: Register, imm: u64) {
         self.writes.insert(rd);
         writeln!(&mut self.buffer, "li {}, {}", rd.to_abi_name(), imm,).expect("write failed")
     }
@@ -233,6 +275,10 @@ impl AssemblyWriter {
     pub fn jr(&mut self, rs1: Register) {
         self.reads.insert(rs1);
         writeln!(&mut self.buffer, "jr {}", rs1.to_abi_name()).expect("write failed")
+    }
+
+    pub fn jal(&mut self, label: &str) {
+        writeln!(&mut self.buffer, "jal {}", label).expect("write failed")
     }
 
     pub fn label(&mut self, label: &str) {

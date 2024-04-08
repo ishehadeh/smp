@@ -1,0 +1,30 @@
+type u16 = 0..65535;
+
+func fib_loop(): u16 {
+    let N: u16 = 10;
+    let mut memory: [u16; 2] = [ 0, 1 ];
+    let mut acc: u16 = 0;
+
+    let i: u16 = 0;
+    while i < N {
+        acc = (memory.[0] + memory.[1]);
+        memory.[0] = memory.[1];
+        memory.[1] = acc;
+        i = (i + 1);
+    };
+
+    acc
+}
+
+
+func fib_rec(n: u16): u16 {
+    if n < 2 {
+        n
+    } else {
+        fib_rec(n - 2) + fib_rec(n - 1)
+    }
+}
+
+func main(): bool {
+    fib_rec(10) == fib_loop(10)
+}

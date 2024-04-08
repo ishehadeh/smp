@@ -12,8 +12,8 @@ use howlite::{
 const DEBUG_PRELUDE: &str = r"
 .globl __libc_start_main
 __libc_start_main:
-    call main
-    call __hw_breakpoint
+    jal main
+    jal __hw_breakpoint
     ret
 
 .globl __hw_breakpoint
