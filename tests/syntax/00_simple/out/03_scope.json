@@ -1,78 +1,230 @@
 {
   "type": "Program",
-  "data": {
-    "span": {
-      "start": 0,
-      "end": 135
-    },
-    "xdata": {
-      "declared_type": "Unit",
-      "value_type": null,
-      "error": null,
-      "cond_true": {},
-      "cond_false": {}
-    },
-    "definitions": [
-      {
-        "type": "DefFunction",
-        "data": {
-          "span": {
-            "start": 0,
-            "end": 135
-          },
-          "xdata": {
-            "declared_type": "Unit",
-            "value_type": null,
-            "error": null,
-            "cond_true": {},
-            "cond_false": {}
-          },
-          "name": "main",
-          "params": [],
-          "return_type": {
-            "type": "TypeReference",
-            "data": {
-              "name": "unit",
-              "parameters": []
-            }
-          },
-          "body": {
-            "type": "Block",
-            "data": {
+  "span": {
+    "start": 0,
+    "end": 135
+  },
+  "xdata": {
+    "declared_type": "Unit",
+    "value_type": null,
+    "error": null,
+    "cond_true": {},
+    "cond_false": {}
+  },
+  "definitions": [
+    {
+      "type": "DefFunction",
+      "span": {
+        "start": 0,
+        "end": 135
+      },
+      "xdata": {
+        "declared_type": "Unit",
+        "value_type": null,
+        "error": null,
+        "cond_true": {},
+        "cond_false": {}
+      },
+      "name": "main",
+      "params": [],
+      "return_type": {
+        "type": "TypeReference",
+        "name": "unit",
+        "parameters": []
+      },
+      "body": {
+        "type": "Block",
+        "span": {
+          "start": 18,
+          "end": 135
+        },
+        "xdata": {
+          "declared_type": "Unit",
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
+        "returns": true,
+        "statements": [
+          {
+            "type": "StmtLet",
+            "span": {
+              "start": 24,
+              "end": 40
+            },
+            "xdata": {
+              "declared_type": {
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 10
+                  }
+                }
+              },
+              "value_type": {
+                "Scalar": {
+                  "Integer": {
+                    "lo": 1,
+                    "hi": 1
+                  }
+                }
+              },
+              "error": null,
+              "cond_true": {},
+              "cond_false": {}
+            },
+            "name": "a",
+            "value_type": {
+              "type": "IntegerRange",
+              "inclusive_low": "0",
+              "inclusive_high": "10"
+            },
+            "mutable": false,
+            "value": {
+              "type": "LiteralInteger",
               "span": {
-                "start": 18,
-                "end": 135
+                "start": 39,
+                "end": 40
               },
               "xdata": {
-                "declared_type": "Unit",
-                "value_type": null,
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 1,
+                      "hi": 1
+                    }
+                  }
+                },
+                "value_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 1,
+                      "hi": 1
+                    }
+                  }
+                },
                 "error": null,
                 "cond_true": {},
                 "cond_false": {}
               },
-              "returns": true,
-              "statements": [
-                {
-                  "type": "StmtLet",
-                  "data": {
+              "value": 1
+            }
+          },
+          {
+            "type": "Block",
+            "span": {
+              "start": 46,
+              "end": 133
+            },
+            "xdata": {
+              "declared_type": "Unit",
+              "value_type": null,
+              "error": null,
+              "cond_true": {},
+              "cond_false": {}
+            },
+            "returns": true,
+            "statements": [
+              {
+                "type": "StmtLet",
+                "span": {
+                  "start": 56,
+                  "end": 72
+                },
+                "xdata": {
+                  "declared_type": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 10
+                      }
+                    }
+                  },
+                  "value_type": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 2,
+                        "hi": 2
+                      }
+                    }
+                  },
+                  "error": null,
+                  "cond_true": {},
+                  "cond_false": {}
+                },
+                "name": "a",
+                "value_type": {
+                  "type": "IntegerRange",
+                  "inclusive_low": "0",
+                  "inclusive_high": "10"
+                },
+                "mutable": false,
+                "value": {
+                  "type": "LiteralInteger",
+                  "span": {
+                    "start": 71,
+                    "end": 72
+                  },
+                  "xdata": {
+                    "declared_type": {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 2,
+                          "hi": 2
+                        }
+                      }
+                    },
+                    "value_type": {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 2,
+                          "hi": 2
+                        }
+                      }
+                    },
+                    "error": null,
+                    "cond_true": {},
+                    "cond_false": {}
+                  },
+                  "value": 2
+                }
+              },
+              {
+                "type": "Block",
+                "span": {
+                  "start": 82,
+                  "end": 127
+                },
+                "xdata": {
+                  "declared_type": "Unit",
+                  "value_type": null,
+                  "error": null,
+                  "cond_true": {},
+                  "cond_false": {}
+                },
+                "returns": false,
+                "statements": [
+                  {
+                    "type": "StmtLet",
                     "span": {
-                      "start": 24,
-                      "end": 40
+                      "start": 96,
+                      "end": 116
                     },
                     "xdata": {
                       "declared_type": {
                         "Scalar": {
                           "Integer": {
                             "lo": 0,
-                            "hi": 10
+                            "hi": 20
                           }
                         }
                       },
                       "value_type": {
                         "Scalar": {
                           "Integer": {
-                            "lo": 1,
-                            "hi": 1
+                            "lo": 4,
+                            "hi": 4
                           }
                         }
                       },
@@ -80,36 +232,60 @@
                       "cond_true": {},
                       "cond_false": {}
                     },
-                    "name": "a",
+                    "name": "b",
                     "value_type": {
                       "type": "IntegerRange",
-                      "data": {
-                        "inclusive_low": "0",
-                        "inclusive_high": "10"
-                      }
+                      "inclusive_low": "0",
+                      "inclusive_high": "20"
                     },
                     "mutable": false,
                     "value": {
-                      "type": "LiteralInteger",
-                      "data": {
+                      "type": "Expr",
+                      "span": {
+                        "start": 111,
+                        "end": 116
+                      },
+                      "xdata": {
+                        "declared_type": {
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 4,
+                              "hi": 4
+                            }
+                          }
+                        },
+                        "value_type": {
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 4,
+                              "hi": 4
+                            }
+                          }
+                        },
+                        "error": null,
+                        "cond_true": {},
+                        "cond_false": {}
+                      },
+                      "lhs": {
+                        "type": "Ident",
                         "span": {
-                          "start": 39,
-                          "end": 40
+                          "start": 111,
+                          "end": 112
                         },
                         "xdata": {
                           "declared_type": {
                             "Scalar": {
                               "Integer": {
-                                "lo": 1,
-                                "hi": 1
+                                "lo": 0,
+                                "hi": 10
                               }
                             }
                           },
                           "value_type": {
                             "Scalar": {
                               "Integer": {
-                                "lo": 1,
-                                "hi": 1
+                                "lo": 2,
+                                "hi": 2
                               }
                             }
                           },
@@ -117,256 +293,46 @@
                           "cond_true": {},
                           "cond_false": {}
                         },
-                        "value": 1
+                        "symbol": "a"
+                      },
+                      "op": "Add",
+                      "rhs": {
+                        "type": "Ident",
+                        "span": {
+                          "start": 115,
+                          "end": 116
+                        },
+                        "xdata": {
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 10
+                              }
+                            }
+                          },
+                          "value_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 2,
+                                "hi": 2
+                              }
+                            }
+                          },
+                          "error": null,
+                          "cond_true": {},
+                          "cond_false": {}
+                        },
+                        "symbol": "a"
                       }
                     }
                   }
-                },
-                {
-                  "type": "Block",
-                  "data": {
-                    "span": {
-                      "start": 46,
-                      "end": 133
-                    },
-                    "xdata": {
-                      "declared_type": "Unit",
-                      "value_type": null,
-                      "error": null,
-                      "cond_true": {},
-                      "cond_false": {}
-                    },
-                    "returns": true,
-                    "statements": [
-                      {
-                        "type": "StmtLet",
-                        "data": {
-                          "span": {
-                            "start": 56,
-                            "end": 72
-                          },
-                          "xdata": {
-                            "declared_type": {
-                              "Scalar": {
-                                "Integer": {
-                                  "lo": 0,
-                                  "hi": 10
-                                }
-                              }
-                            },
-                            "value_type": {
-                              "Scalar": {
-                                "Integer": {
-                                  "lo": 2,
-                                  "hi": 2
-                                }
-                              }
-                            },
-                            "error": null,
-                            "cond_true": {},
-                            "cond_false": {}
-                          },
-                          "name": "a",
-                          "value_type": {
-                            "type": "IntegerRange",
-                            "data": {
-                              "inclusive_low": "0",
-                              "inclusive_high": "10"
-                            }
-                          },
-                          "mutable": false,
-                          "value": {
-                            "type": "LiteralInteger",
-                            "data": {
-                              "span": {
-                                "start": 71,
-                                "end": 72
-                              },
-                              "xdata": {
-                                "declared_type": {
-                                  "Scalar": {
-                                    "Integer": {
-                                      "lo": 2,
-                                      "hi": 2
-                                    }
-                                  }
-                                },
-                                "value_type": {
-                                  "Scalar": {
-                                    "Integer": {
-                                      "lo": 2,
-                                      "hi": 2
-                                    }
-                                  }
-                                },
-                                "error": null,
-                                "cond_true": {},
-                                "cond_false": {}
-                              },
-                              "value": 2
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "type": "Block",
-                        "data": {
-                          "span": {
-                            "start": 82,
-                            "end": 127
-                          },
-                          "xdata": {
-                            "declared_type": "Unit",
-                            "value_type": null,
-                            "error": null,
-                            "cond_true": {},
-                            "cond_false": {}
-                          },
-                          "returns": false,
-                          "statements": [
-                            {
-                              "type": "StmtLet",
-                              "data": {
-                                "span": {
-                                  "start": 96,
-                                  "end": 116
-                                },
-                                "xdata": {
-                                  "declared_type": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 0,
-                                        "hi": 20
-                                      }
-                                    }
-                                  },
-                                  "value_type": {
-                                    "Scalar": {
-                                      "Integer": {
-                                        "lo": 4,
-                                        "hi": 4
-                                      }
-                                    }
-                                  },
-                                  "error": null,
-                                  "cond_true": {},
-                                  "cond_false": {}
-                                },
-                                "name": "b",
-                                "value_type": {
-                                  "type": "IntegerRange",
-                                  "data": {
-                                    "inclusive_low": "0",
-                                    "inclusive_high": "20"
-                                  }
-                                },
-                                "mutable": false,
-                                "value": {
-                                  "type": "Expr",
-                                  "data": {
-                                    "span": {
-                                      "start": 111,
-                                      "end": 116
-                                    },
-                                    "xdata": {
-                                      "declared_type": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 4,
-                                            "hi": 4
-                                          }
-                                        }
-                                      },
-                                      "value_type": {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 4,
-                                            "hi": 4
-                                          }
-                                        }
-                                      },
-                                      "error": null,
-                                      "cond_true": {},
-                                      "cond_false": {}
-                                    },
-                                    "lhs": {
-                                      "type": "Ident",
-                                      "data": {
-                                        "span": {
-                                          "start": 111,
-                                          "end": 112
-                                        },
-                                        "xdata": {
-                                          "declared_type": {
-                                            "Scalar": {
-                                              "Integer": {
-                                                "lo": 0,
-                                                "hi": 10
-                                              }
-                                            }
-                                          },
-                                          "value_type": {
-                                            "Scalar": {
-                                              "Integer": {
-                                                "lo": 2,
-                                                "hi": 2
-                                              }
-                                            }
-                                          },
-                                          "error": null,
-                                          "cond_true": {},
-                                          "cond_false": {}
-                                        },
-                                        "symbol": "a"
-                                      }
-                                    },
-                                    "op": "Add",
-                                    "rhs": {
-                                      "type": "Ident",
-                                      "data": {
-                                        "span": {
-                                          "start": 115,
-                                          "end": 116
-                                        },
-                                        "xdata": {
-                                          "declared_type": {
-                                            "Scalar": {
-                                              "Integer": {
-                                                "lo": 0,
-                                                "hi": 10
-                                              }
-                                            }
-                                          },
-                                          "value_type": {
-                                            "Scalar": {
-                                              "Integer": {
-                                                "lo": 2,
-                                                "hi": 2
-                                              }
-                                            }
-                                          },
-                                          "error": null,
-                                          "cond_true": {},
-                                          "cond_false": {}
-                                        },
-                                        "symbol": "a"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
+                ]
+              }
+            ]
           }
-        }
+        ]
       }
-    ]
-  }
+    }
+  ]
 }

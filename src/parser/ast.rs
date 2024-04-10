@@ -58,7 +58,7 @@ pub struct StructMember {
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
 pub enum AnonType {
     TypeReference {
         name: String,
@@ -82,7 +82,7 @@ pub trait XData<X> {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
 // TODO split this into several enum types "ValueNode", "DefinitionNode", "Statement"
 #[derive(Debug, Clone, PartialEq)]
 pub enum Ast<X: Debug + Clone = ()> {
