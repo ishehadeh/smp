@@ -7,7 +7,6 @@
 
 #show: ieee.with(
   title: [The Howlite Programming Language - First Semester Progress],
-  abstract: abstract,
   authors: (
     (
       name: "Ian Shehadeh",
@@ -23,4 +22,11 @@
 
 = Introducing Howlite
 
-The Howlite programming language...
+The Howlite programming language is a small systems programming language aimed at embedded devices and very low-level performance critical code.
+
+== Project Goals
+
+= Language Design
+
+= Compiler Architecture
+
