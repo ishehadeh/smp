@@ -1,5 +1,6 @@
 # Compiler Output
 /target
+report/progress.pdf
 
 # scripts/hltc-debug-qemu.sh output
 /out/
