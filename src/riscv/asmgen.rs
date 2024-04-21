@@ -247,6 +247,20 @@ impl AssemblyWriter {
         .expect("write failed")
     }
 
+    pub fn sgt(&mut self, rd: Register, rs1: Register, rs2: Register) {
+        self.writes.insert(rd);
+        self.reads.insert(rs1);
+        self.reads.insert(rs2);
+        writeln!(
+            &mut self.buffer,
+            "sgt {}, {}, {}",
+            rd.to_abi_name(),
+            rs1.to_abi_name(),
+            rs2.to_abi_name(),
+        )
+        .expect("write failed")
+    }
+
     pub fn beq(&mut self, rs1: Register, rs2: Register, label: &str) {
         self.reads.insert(rs1);
         self.reads.insert(rs2);

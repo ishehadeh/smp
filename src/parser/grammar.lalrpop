@@ -42,10 +42,14 @@ extern {
         "-" => Token::OperatorSub,
         "*" => Token::OperatorMul,
         "/" => Token::OperatorDiv,
-        "=" => Token::OperatorAssign,
-        "==" => Token::OperatorCmpEqual,
-        "!=" => Token::OperatorCmpNotEqual,
-        "<" => Token::OperatorCmpLess,
+
+        "==" => Token::OperatorCmpEq,
+        "!=" => Token::OperatorCmpNe,
+        "<" => Token::OperatorCmpLt,
+        ">" => Token::OperatorCmpGt,
+        "<=" => Token::OperatorCmpLe,
+        "=>" => Token::OperatorCmpGe,
+
         "=" => Token::OperatorAssign,
         "struct" => Token::KeywordStruct,
         ".." => Token::IntegerRange,
@@ -433,9 +437,14 @@ pub InfixOp: InfixOp = {
     "-" => InfixOp::Sub,
     "*" => InfixOp::Mul,
     "/" => InfixOp::Div,
-    "!=" => InfixOp::CmpNotEqual,
-    "==" => InfixOp::CmpEqual,
-    "<" => InfixOp::CmpLess,
+
+    "!=" => InfixOp::CmpNe,
+    "==" => InfixOp::CmpEq,
+    "<" => InfixOp::CmpLt,
+    "<=" => InfixOp::CmpLe,
+    ">" => InfixOp::CmpGt,
+    "=>" => InfixOp::CmpGe,
+
     "=" => InfixOp::Assign,
 }
 

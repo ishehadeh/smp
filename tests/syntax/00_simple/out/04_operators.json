@@ -445,7 +445,7 @@
               },
               "value": 1
             },
-            "op": "CmpLess",
+            "op": "CmpLt",
             "rhs": {
               "type": "LiteralInteger",
               "span": {
@@ -526,7 +526,7 @@
               },
               "value": 1
             },
-            "op": "CmpEqual",
+            "op": "CmpEq",
             "rhs": {
               "type": "LiteralInteger",
               "span": {
@@ -607,7 +607,7 @@
               },
               "value": 1
             },
-            "op": "CmpNotEqual",
+            "op": "CmpNe",
             "rhs": {
               "type": "LiteralInteger",
               "span": {

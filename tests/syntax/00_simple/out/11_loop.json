@@ -270,7 +270,7 @@
                 },
                 "symbol": "i"
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "Ident",
                 "span": {

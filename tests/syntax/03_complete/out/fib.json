@@ -279,7 +279,7 @@
                 },
                 "value": 1
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "Ident",
                 "span": {

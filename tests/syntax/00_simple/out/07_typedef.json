@@ -370,7 +370,7 @@
                   "symbol": "a"
                 }
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "Ident",
                 "span": {

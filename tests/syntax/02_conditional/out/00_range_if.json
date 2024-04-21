@@ -365,7 +365,7 @@
                 },
                 "symbol": "i"
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "LiteralInteger",
                 "span": {

@@ -523,7 +523,7 @@
                 },
                 "symbol": "i"
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "Ident",
                 "span": {
@@ -1812,7 +1812,7 @@
                 },
                 "symbol": "n"
               },
-              "op": "CmpLess",
+              "op": "CmpLt",
               "rhs": {
                 "type": "LiteralInteger",
                 "span": {
@@ -2286,7 +2286,7 @@
                 }
               ]
             },
-            "op": "CmpEqual",
+            "op": "CmpEq",
             "rhs": {
               "type": "ExprCall",
               "span": {

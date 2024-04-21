@@ -483,18 +483,27 @@ impl Compiler {
             InfixOp::Sub => buffer.sub(res_reg, lreg, rreg),
             InfixOp::Div => buffer.div(res_reg, lreg, rreg),
             InfixOp::Mul => buffer.mul(res_reg, lreg, rreg),
-            InfixOp::CmpNotEqual => {
+            InfixOp::CmpNe => {
                 buffer.sub(res_reg, lreg, rreg);
                 buffer.snez(res_reg, res_reg);
             }
-            InfixOp::CmpEqual => {
+            InfixOp::CmpEq => {
                 buffer.sub(res_reg, lreg, rreg);
                 buffer.snez(res_reg, res_reg);
             }
-            InfixOp::CmpLess => {
+            InfixOp::CmpLt => {
                 buffer.slt(res_reg, lreg, rreg);
             }
-            InfixOp::Assign => unreachable!()
+            InfixOp::CmpGe => {
+                buffer.slt(res_reg, rreg, lreg);
+            },
+            InfixOp::CmpGt => {
+                buffer.sgt(res_reg, lreg, rreg);
+            }
+            InfixOp::CmpLe => {
+                buffer.sgt(res_reg, rreg, lreg);
+            }
+            InfixOp::Assign => unreachable!(),
         }
 
         EvalResult {

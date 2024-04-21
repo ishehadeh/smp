@@ -30,8 +30,8 @@ sd ra, -24(fp)
 li s1, 0
 li s2, 0
 addi a0, sp, 0
-sd s1, 0(a0)
 sd s2, 4(a0)
+sd s1, 0(a0)
 jal add_tuple
 mv a0, a0
 ld s1, -8(fp)

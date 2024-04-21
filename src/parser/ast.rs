@@ -8,10 +8,15 @@ pub enum InfixOp {
     Sub,
     Div,
     Mul,
-    CmpNotEqual,
-    CmpEqual,
-    CmpLess,
+
     Assign,
+
+    CmpNe,
+    CmpEq,
+    CmpGt,
+    CmpLt,
+    CmpGe,
+    CmpLe,
 }
 
 // TODO make StructMember and AnonType a proper part of the AST

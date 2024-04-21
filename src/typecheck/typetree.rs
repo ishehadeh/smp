@@ -355,7 +355,12 @@ impl TypeInterpreter {
     ) -> Result<TypeInfo, TypeError> {
         match (op, lhs, rhs) {
             (
-                InfixOp::CmpEqual | InfixOp::CmpNotEqual | InfixOp::CmpLess,
+                InfixOp::CmpEq
+                | InfixOp::CmpNe
+                | InfixOp::CmpLe
+                | InfixOp::CmpGe
+                | InfixOp::CmpGt
+                | InfixOp::CmpLt,
                 TypeInfo::Scalar(_),
                 TypeInfo::Scalar(_),
             ) => Ok(TypeInfo::bool()),
@@ -406,25 +411,50 @@ impl TypeInterpreter {
 
         let expr_ty = expr.xdata().current_type();
         let ident_ty = ident.xdata().current_type();
-        let (cond_true, cond_false, should_flip) = match op {
+
+        let var_name = match op {
             InfixOp::Mul | InfixOp::Div | InfixOp::Add | InfixOp::Sub => return Default::default(),
-            InfixOp::CmpEqual => (expr_ty.clone(), ident_ty.clone(), false),
-            InfixOp::CmpNotEqual => (ident_ty.clone(), expr_ty.clone(), false),
-            InfixOp::CmpLess => {
+            InfixOp::CmpEq => (expr_ty.clone(), ident_ty.clone(), false),
+            InfixOp::CmpNe => (ident_ty.clone(), expr_ty.clone(), false),
+            InfixOp::CmpLt => {
                 if let TypeInfo::Scalar(ScalarType::Integer(x)) = expr_ty {
-                    let less_ty = TypeInfo::integer(i32::MIN, x.hi - 1);
+                    let lt_ty = TypeInfo::integer(i32::MIN, x.hi - 1);
                     let ge_ty = TypeInfo::integer(x.lo, i32::MAX);
-                    (
-                        ident_ty.intersect(&less_ty),
-                        ident_ty.intersect(&ge_ty),
-                        true,
-                    )
+                    (ident_ty.intersect(&lt_ty), ident_ty.intersect(&ge_ty), true)
+                } else {
+                    return Default::default();
+                }
+            }
+            InfixOp::CmpGt => {
+                if let TypeInfo::Scalar(ScalarType::Integer(x)) = expr_ty {
+                    let le_ty = TypeInfo::integer(i32::MIN, x.hi);
+                    let gt_ty = TypeInfo::integer(x.lo + 1, i32::MAX);
+                    (ident_ty.intersect(&gt_ty), ident_ty.intersect(&le_ty), true)
+                } else {
+                    return Default::default();
+                }
+            }
+            InfixOp::CmpGe => {
+                if let TypeInfo::Scalar(ScalarType::Integer(x)) = expr_ty {
+                    let lt_ty = TypeInfo::integer(i32::MIN, x.hi - 1);
+                    let ge_ty = TypeInfo::integer(x.lo, i32::MAX);
+                    (ident_ty.intersect(&ge_ty), ident_ty.intersect(&lt_ty), true)
+                } else {
+                    return Default::default();
+                }
+            }
+            InfixOp::CmpLe => {
+                if let TypeInfo::Scalar(ScalarType::Integer(x)) = expr_ty {
+                    let le_ty = TypeInfo::integer(i32::MIN, x.hi);
+                    let gt_ty = TypeInfo::integer(x.lo + 1, i32::MAX);
+                    (ident_ty.intersect(&le_ty), ident_ty.intersect(&gt_ty), true)
                 } else {
                     return Default::default();
                 }
             }
             InfixOp::Assign => return Default::default(),
         };
+        let (cond_true, cond_false, should_flip) = var_name;
 
         // output of the above match assumes the variable is on the left and expr is on the right
         // if that isn't the case (is_expr_rhs == false) and the result is inverted if the operatorands are switched

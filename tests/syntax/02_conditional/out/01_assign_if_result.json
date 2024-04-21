@@ -280,7 +280,7 @@
                   "function_name": "get_number",
                   "paramaters": []
                 },
-                "op": "CmpLess",
+                "op": "CmpLt",
                 "rhs": {
                   "type": "LiteralInteger",
                   "span": {
