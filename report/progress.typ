@@ -326,11 +326,52 @@ control. This way, we can see the result of changes to the typechecker and code 
 development.
 
 === Verify Changes
-As a side effect of tracking compiler output in version control, we can immediately observe any impact caused since the
-last commit by simply running `git diff HEAD tests/`. This isn't a replacement for real tests, since it requires the
+As a side effect of tracking compiler output in version control, we can immediately observe any since since the last
+commit by simply running `git diff HEAD tests/`. This isn't a replacement for real tests, since it requires the
 programmer correctly verify the changes are intended (which they have failed to do a number of times), it does allow
 rapid iteration without constantly updating expected test result.
 
 = Roadmap
+
+This semester has been spent learning how to make a compiler. The challenge came from fitting each piece into place. We
+answered seemingly simple questions, like what does the AST look like, what information is retained from parsing, how is
+type information stored, how is code generated.
+
+That is to say - this semester we built a foundation, more in knowledge than in any "physical" work. Using this,
+foundation, iteration on the core compiler will be significantly faster going forward.
+
+By the end of next semester we will have a complete implementation of the language described in section II.
+
+== The Minor To-Do List
+
+These are partially implemented features, 
+1. Operator Precedence
+2. Logical, bitwise, and arithmetic with assignment, binary operators
+3. Unary operators
+
+== The Major To-Do List
+
+=== Reference Types
+The most sorely missing feature in the core language, which prevents Howlite for being used in conjuction with C
+libraries is the lack of support for any kind of indirection. We expect this to also be a fairly significant change that
+will riple throughout code generation and typechecking, so it's first on the to-do list.
+
+=== Modules
+
+=== Symbol Types
+Some kind of enumerable or symbol type is a hole in the language's design.
+These will be essential in descriminating union types.
+
+=== Union Types
+
+=== Floating Point Types
+
+=== Integer Range Types
+==  Refactoring, Documentation
+Once reference types are implemented we plan to slow development to write documentation, and try to refactor the code
+into clearly seperated modules.
+
+When iterating quickly this is usually an afterthough, leading to giant files all part of a tangled web of dependencies.
+Periodically stopping and cleaning up help speed future development.
 
 = Summary
