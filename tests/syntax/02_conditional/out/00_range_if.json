@@ -34,8 +34,26 @@
       },
       "name": "big_number",
       "params": [],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 19,
+          "end": 25
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 200
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "200"
       },
@@ -122,8 +140,26 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 52,
+          "end": 58
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 100
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "100"
       },
@@ -212,8 +248,26 @@
               "cond_false": {}
             },
             "name": "i",
-            "value_type": {
-              "type": "IntegerRange",
+            "ty": {
+              "type": "NumberRange",
+              "span": {
+                "start": 72,
+                "end": 78
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 200
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "inclusive_low": "0",
               "inclusive_high": "200"
             },

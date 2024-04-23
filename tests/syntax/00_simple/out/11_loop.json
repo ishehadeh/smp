@@ -26,8 +26,26 @@
         "cond_false": {}
       },
       "name": "u16",
-      "typ": {
-        "type": "IntegerRange",
+      "ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 12,
+          "end": 20
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 65535
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "65535"
       },
@@ -48,10 +66,19 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "TypeReference",
-        "name": "unit",
-        "parameters": []
+      "return_ty": {
+        "type": "Unit",
+        "span": {
+          "start": 36,
+          "end": 40
+        },
+        "xdata": {
+          "declared_type": "Unit",
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        }
       },
       "body": {
         "type": "Block",
@@ -76,11 +103,9 @@
             },
             "xdata": {
               "declared_type": {
-                "Scalar": {
-                  "Integer": {
-                    "lo": 0,
-                    "hi": 65535
-                  }
+                "TyRef": {
+                  "parameters": [],
+                  "name": "u16"
                 }
               },
               "value_type": {
@@ -91,13 +116,47 @@
                   }
                 }
               },
-              "error": null,
+              "error": {
+                "BadAssignment": {
+                  "binding_type": {
+                    "TyRef": {
+                      "parameters": [],
+                      "name": "u16"
+                    }
+                  },
+                  "value_type": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 10,
+                        "hi": 10
+                      }
+                    }
+                  },
+                  "binding_name": "N"
+                }
+              },
               "cond_true": {},
               "cond_false": {}
             },
             "name": "N",
-            "value_type": {
-              "type": "TypeReference",
+            "ty": {
+              "type": "TyRef",
+              "span": {
+                "start": 54,
+                "end": 57
+              },
+              "xdata": {
+                "declared_type": {
+                  "TyRef": {
+                    "parameters": [],
+                    "name": "u16"
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "u16",
               "parameters": []
             },
@@ -140,11 +199,9 @@
             },
             "xdata": {
               "declared_type": {
-                "Scalar": {
-                  "Integer": {
-                    "lo": 0,
-                    "hi": 65535
-                  }
+                "TyRef": {
+                  "parameters": [],
+                  "name": "u16"
                 }
               },
               "value_type": {
@@ -155,13 +212,47 @@
                   }
                 }
               },
-              "error": null,
+              "error": {
+                "BadAssignment": {
+                  "binding_type": {
+                    "TyRef": {
+                      "parameters": [],
+                      "name": "u16"
+                    }
+                  },
+                  "value_type": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 0
+                      }
+                    }
+                  },
+                  "binding_name": "i"
+                }
+              },
               "cond_true": {},
               "cond_false": {}
             },
             "name": "i",
-            "value_type": {
-              "type": "TypeReference",
+            "ty": {
+              "type": "TyRef",
+              "span": {
+                "start": 79,
+                "end": 82
+              },
+              "xdata": {
+                "declared_type": {
+                  "TyRef": {
+                    "parameters": [],
+                    "name": "u16"
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "name": "u16",
               "parameters": []
             },
@@ -249,11 +340,9 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 0,
-                        "hi": 65535
-                      }
+                    "TyRef": {
+                      "parameters": [],
+                      "name": "u16"
                     }
                   },
                   "value_type": {
@@ -264,7 +353,25 @@
                       }
                     }
                   },
-                  "error": null,
+                  "error": {
+                    "BadAssignment": {
+                      "binding_type": {
+                        "TyRef": {
+                          "parameters": [],
+                          "name": "u16"
+                        }
+                      },
+                      "value_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 0
+                          }
+                        }
+                      },
+                      "binding_name": "i"
+                    }
+                  },
                   "cond_true": {},
                   "cond_false": {}
                 },
@@ -279,11 +386,9 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 0,
-                        "hi": 65535
-                      }
+                    "TyRef": {
+                      "parameters": [],
+                      "name": "u16"
                     }
                   },
                   "value_type": {
@@ -294,7 +399,25 @@
                       }
                     }
                   },
-                  "error": null,
+                  "error": {
+                    "BadAssignment": {
+                      "binding_type": {
+                        "TyRef": {
+                          "parameters": [],
+                          "name": "u16"
+                        }
+                      },
+                      "value_type": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 10,
+                            "hi": 10
+                          }
+                        }
+                      },
+                      "binding_name": "N"
+                    }
+                  },
                   "cond_true": {},
                   "cond_false": {}
                 },
@@ -351,11 +474,9 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 0,
-                            "hi": 65535
-                          }
+                        "TyRef": {
+                          "parameters": [],
+                          "name": "u16"
                         }
                       },
                       "value_type": {
@@ -366,7 +487,25 @@
                           }
                         }
                       },
-                      "error": null,
+                      "error": {
+                        "BadAssignment": {
+                          "binding_type": {
+                            "TyRef": {
+                              "parameters": [],
+                              "name": "u16"
+                            }
+                          },
+                          "value_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 0
+                              }
+                            }
+                          },
+                          "binding_name": "i"
+                        }
+                      },
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -408,11 +547,9 @@
                       },
                       "xdata": {
                         "declared_type": {
-                          "Scalar": {
-                            "Integer": {
-                              "lo": 0,
-                              "hi": 65535
-                            }
+                          "TyRef": {
+                            "parameters": [],
+                            "name": "u16"
                           }
                         },
                         "value_type": {
@@ -423,7 +560,25 @@
                             }
                           }
                         },
-                        "error": null,
+                        "error": {
+                          "BadAssignment": {
+                            "binding_type": {
+                              "TyRef": {
+                                "parameters": [],
+                                "name": "u16"
+                              }
+                            },
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 0
+                                }
+                              }
+                            },
+                            "binding_name": "i"
+                          }
+                        },
                         "cond_true": {},
                         "cond_false": {}
                       },

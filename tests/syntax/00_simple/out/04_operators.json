@@ -27,10 +27,19 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "TypeReference",
-        "name": "unit",
-        "parameters": []
+      "return_ty": {
+        "type": "Unit",
+        "span": {
+          "start": 13,
+          "end": 17
+        },
+        "xdata": {
+          "declared_type": "Unit",
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        }
       },
       "body": {
         "type": "Block",

@@ -88,14 +88,50 @@
           },
           "name": "n",
           "typ": {
-            "type": "IntegerRange",
+            "type": "NumberRange",
+            "span": {
+              "start": 13,
+              "end": 24
+            },
+            "xdata": {
+              "declared_type": {
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 10000000
+                  }
+                }
+              },
+              "value_type": null,
+              "error": null,
+              "cond_true": {},
+              "cond_false": {}
+            },
             "inclusive_low": "0",
             "inclusive_high": "10000000"
           }
         }
       ],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 27,
+          "end": 38
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 10000000
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "10000000"
       },

@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
-    parser::{ast::AnonType, Ast},
+    parser::{ast, Ast},
     typecheck::{
         types::{ArrayType, RecordCell, RecordType, TyRef},
         FunctionDeclaration, ScalarType, TypeInfo,
@@ -49,10 +49,27 @@ impl Declarations {
                         .iter()
                         .map(|p| (p.name.clone(), decls.eval_anon_type(&p.typ)))
                         .collect();
-                    let returns = decls.eval_anon_type(&func.return_type);
+                    let returns = decls.eval_anon_type(&func.return_ty);
 
                     decls.functions.insert(
                         func.name.clone(),
+                        FunctionDeclaration {
+                            paramaters,
+                            returns,
+                        },
+                    );
+                }
+
+                Ast::DefExtern(extrm) => {
+                    let paramaters = extrm
+                        .params
+                        .iter()
+                        .map(|p| (p.name.clone(), decls.eval_anon_type(&p.typ)))
+                        .collect();
+                    let returns = decls.eval_anon_type(&extrm.return_ty);
+
+                    decls.functions.insert(
+                        extrm.name.clone(),
                         FunctionDeclaration {
                             paramaters,
                             returns,
@@ -76,7 +93,7 @@ impl Declarations {
                                         .map(|ty| decls.eval_anon_type(&ty)),
                                 })
                                 .collect(),
-                            ty: decls.eval_anon_type(&t.typ),
+                            ty: decls.eval_anon_type(&t.ty),
                         },
                     );
                 }
@@ -100,31 +117,30 @@ impl Declarations {
 
         decls
     }
-
-    pub fn eval_anon_type(&self, t: &AnonType) -> TypeInfo {
+    // TODO: remove this method an merge it into the typechecker,
+    // this requires scanning ahead in the typechecker, for valid function and type names and definitions
+    pub fn eval_anon_type<X: std::fmt::Debug + Clone>(&self, t: &ast::Ty<X>) -> TypeInfo {
         match t {
-            AnonType::IntegerRange {
-                inclusive_low,
-                inclusive_high,
-            } => TypeInfo::integer(
-                inclusive_low.parse().unwrap(),
-                inclusive_high.parse().unwrap(),
+            ast::Ty::NumberRange(r) => TypeInfo::integer(
+                r.inclusive_low.parse().unwrap(),
+                r.inclusive_high.parse().unwrap(),
             ),
-            // TODO: unit keyword type
-            AnonType::TypeReference {
-                name,
-                parameters: _,
-            } if name == "unit" => TypeInfo::Unit,
-            AnonType::TypeReference { name, parameters } => TypeInfo::TyRef(TyRef {
-                parameters: parameters.iter().map(|p| self.eval_anon_type(p)).collect(),
-                name: name.to_string(),
-            }),
-            AnonType::Bool => TypeInfo::Scalar(ScalarType::Boolean(None)),
-            AnonType::StructBody { members } => {
+            ast::Ty::Unit(_) => TypeInfo::Unit,
+            ast::Ty::TyRef(r) => {
+                let parameters = r
+                    .parameters
+                    .iter()
+                    .map(|p| self.eval_anon_type(p))
+                    .collect();
+                let name = r.name.to_string();
+                TypeInfo::TyRef(TyRef { parameters, name })
+            }
+            ast::Ty::Bool(_) => TypeInfo::Scalar(ScalarType::Boolean(None)),
+            ast::Ty::Struct(s) => {
                 let mut fields = BTreeSet::new();
                 let mut offset = 0;
-                for m in members {
-                    let ty = self.eval_anon_type(&m.typ);
+                for m in &s.members {
+                    let ty = self.eval_anon_type(&m.ty);
                     let ty_size = ty.get_size();
                     fields.insert(RecordCell {
                         name: m.name.clone(),
@@ -136,7 +152,7 @@ impl Declarations {
                 }
                 TypeInfo::Record(RecordType { fields })
             }
-            AnonType::Array(a) => TypeInfo::Array(ArrayType {
+            ast::Ty::Array(a) => TypeInfo::Array(ArrayType {
                 length: a.length,
                 element_ty: Box::new(self.eval_anon_type(&a.element_ty)),
             }),

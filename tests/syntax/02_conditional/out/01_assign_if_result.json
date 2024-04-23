@@ -34,8 +34,26 @@
       },
       "name": "get_number",
       "params": [],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 19,
+          "end": 24
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 10
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "10"
       },
@@ -115,10 +133,19 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "TypeReference",
-        "name": "unit",
-        "parameters": []
+      "return_ty": {
+        "type": "Unit",
+        "span": {
+          "start": 50,
+          "end": 54
+        },
+        "xdata": {
+          "declared_type": "Unit",
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        }
       },
       "body": {
         "type": "Block",
@@ -193,8 +220,23 @@
               "cond_false": {}
             },
             "name": "x",
-            "value_type": {
-              "type": "Bool"
+            "ty": {
+              "type": "Bool",
+              "span": {
+                "start": 68,
+                "end": 72
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Boolean": null
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              }
             },
             "mutable": false,
             "value": {

@@ -1,14 +1,17 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     parser::{
         ast::{self, InfixOp, Repaired, XData},
         Ast,
     },
-    util::ast::Declarations,
+    util::ast::{Declarations, TyDecl},
 };
 
-use super::{types::ArrayType, RecordCell, RecordType, ScalarType, TypeError, TypeInfo};
+use super::{
+    types::{ArrayType, TyRef},
+    RecordCell, RecordType, ScalarType, TypeError, TypeInfo,
+};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
@@ -78,7 +81,7 @@ pub struct TypeInterpreter {
 
 pub struct TypeScope {
     pub variables: HashMap<String, TypeTreeXData>,
-    pub types: HashMap<String, TypeInfo>,
+    pub tys: HashMap<String, TyDecl>,
 }
 
 impl TypeInterpreter {
@@ -121,6 +124,18 @@ impl TypeInterpreter {
         top.variables.insert(name.to_string(), data);
     }
 
+    pub fn get_ty(&self, name: &str) -> Option<&TyDecl> {
+        self.scopes.iter().rev().find_map(|s| s.tys.get(name))
+    }
+
+    pub fn set_ty(&mut self, name: &str, data: TyDecl) {
+        let top = self
+            .scopes
+            .last_mut()
+            .expect("no scopes! (should be unreachable)");
+        top.tys.insert(name.to_string(), data);
+    }
+
     pub fn eval_ast(&mut self, ast: Ast) -> TypeTree {
         match ast {
             Ast::LiteralInteger(i) => Ast::LiteralInteger(TypeInterpreter::eval_literal_integer(i)),
@@ -147,29 +162,146 @@ impl TypeInterpreter {
                     .into_iter()
                     .map(|x| self.eval_ty_param(x))
                     .collect();
+                let ty_node = self.eval_ty(t.ty);
                 // handled when scanning decls
                 Ast::DefType(ast::DefType {
                     span: t.span,
                     xdata: Default::default(),
                     name: t.name,
-                    typ: t.typ,
+                    ty: ty_node,
                     ty_params,
                 })
             }
-            Ast::Program(p) => Ast::Program(ast::Program {
-                span: p.span,
-                xdata: Default::default(),
-                definitions: p
-                    .definitions
-                    .into_iter()
-                    .map(|a| self.eval_ast(a))
-                    .collect(),
-            }),
+            Ast::Program(p) => Ast::Program(self.eval_program(p)),
             Ast::FieldAccess(f) => Ast::FieldAccess(self.eval_field_access(f)),
             Ast::StructLiteral(s) => Ast::StructLiteral(self.eval_struct_literal(s)),
             Ast::LiteralArray(a) => Ast::LiteralArray(self.eval_literal_array(a)),
             Ast::ArrayAccess(a) => Ast::ArrayAccess(self.eval_array_access(a)),
             Ast::StmtWhile(w) => Ast::StmtWhile(self.eval_while(w)),
+            Ast::DefExtern(e) => Ast::DefExtern(self.eval_def_extern(e)),
+        }
+    }
+
+    pub fn eval_ty(&mut self, ty: ast::Ty) -> ast::Ty<TypeTreeXData> {
+        match ty {
+            ast::Ty::NumberRange(r) => ast::Ty::NumberRange(self.eval_ty_number_range(r)),
+            ast::Ty::Unit(u) => ast::Ty::Unit(self.eval_ty_unit(u)),
+            ast::Ty::Bool(b) => ast::Ty::Bool(self.eval_ty_bool(b)),
+            ast::Ty::TyRef(r) => ast::Ty::TyRef(self.eval_ty_ty_ref(r)),
+            ast::Ty::Array(a) => ast::Ty::Array(self.eval_ty_array(a)),
+            ast::Ty::Struct(s) => ast::Ty::Struct(self.eval_ty_struct(s)),
+        }
+    }
+
+    pub fn eval_ty_number_range(
+        &mut self,
+        range: ast::TyNumberRange,
+    ) -> ast::TyNumberRange<TypeTreeXData> {
+        let xdata = TypeTreeXData::new(TypeInfo::integer(
+            range.inclusive_low.parse().unwrap(),
+            range.inclusive_high.parse().unwrap(),
+        ));
+        ast::TyNumberRange {
+            xdata,
+            span: range.span,
+            inclusive_high: range.inclusive_high,
+            inclusive_low: range.inclusive_low,
+        }
+    }
+
+    pub fn eval_ty_unit(&mut self, unit: ast::TyUnit) -> ast::TyUnit<TypeTreeXData> {
+        ast::TyUnit {
+            xdata: TypeTreeXData::new(TypeInfo::Unit),
+            span: unit.span,
+        }
+    }
+
+    pub fn eval_ty_bool(&mut self, bool: ast::TyBool) -> ast::TyBool<TypeTreeXData> {
+        ast::TyBool {
+            xdata: TypeTreeXData::new(TypeInfo::bool()),
+            span: bool.span,
+        }
+    }
+
+    pub fn eval_ty_ty_ref(&mut self, r: ast::TyRef) -> ast::TyRef<TypeTreeXData> {
+        let params: Vec<_> = r.parameters.into_iter().map(|x| self.eval_ty(x)).collect();
+
+        ast::TyRef {
+            xdata: TypeTreeXData::new(TypeInfo::TyRef(TyRef {
+                parameters: params
+                    .iter()
+                    .map(|x| x.xdata().current_type())
+                    .cloned()
+                    .collect(),
+                name: r.name.clone(),
+            })),
+            span: r.span,
+            name: r.name,
+            parameters: params,
+        }
+    }
+
+    pub fn eval_struct_member(&mut self, r: ast::StructMember) -> ast::StructMember<TypeTreeXData> {
+        let ty = self.eval_ty(r.ty);
+        ast::StructMember {
+            span: r.span,
+            xdata: TypeTreeXData::new(ty.xdata().current_type().clone()),
+            mutable: r.mutable,
+            name: r.name,
+            ty,
+        }
+    }
+
+    pub fn eval_ty_struct(&mut self, r: ast::TyStruct) -> ast::TyStruct<TypeTreeXData> {
+        let members: Vec<_> = r
+            .members
+            .into_iter()
+            .map(|x| self.eval_struct_member(x))
+            .collect();
+        let mut fields = BTreeSet::new();
+        let mut offset = 0;
+        for ast_ty in &members {
+            // use xdata member here since this isn't an ADT ast type
+            let type_info = ast_ty.xdata.current_type();
+            let size = type_info.get_size();
+            fields.insert(RecordCell {
+                name: ast_ty.name.clone(),
+                offset,
+                length: size,
+                type_info: type_info.clone(),
+            });
+            offset += size
+        }
+        ast::TyStruct {
+            span: r.span,
+            xdata: TypeTreeXData::new(TypeInfo::record(fields)),
+            members,
+        }
+    }
+
+    pub fn eval_ty_array(&mut self, array: ast::TyArray) -> ast::TyArray<TypeTreeXData> {
+        let element_ty_node = self.eval_ty(*array.element_ty);
+        let ty = TypeInfo::Array(ArrayType {
+            length: array.length,
+            element_ty: Box::new(element_ty_node.xdata().current_type().clone()),
+        });
+        ast::TyArray {
+            span: array.span,
+            xdata: TypeTreeXData::new(ty),
+            element_ty: Box::new(element_ty_node),
+            length: array.length,
+        }
+    }
+
+    pub fn eval_program(&mut self, p: ast::Program) -> ast::Program<TypeTreeXData> {
+        ast::Program {
+            span: p.span,
+            xdata: Default::default(),
+            definitions: p
+                .definitions
+                .into_iter()
+                .map(|a| self.eval_ast(a))
+                .collect(),
         }
     }
 
@@ -256,12 +388,32 @@ impl TypeInterpreter {
     }
 
     pub fn eval_param(&mut self, p: ast::Param) -> ast::Param<TypeTreeXData> {
-        let typ = self.eval_anon_type(&p.typ);
+        let ty = self.eval_ty(p.typ);
         ast::Param {
             span: p.span,
-            xdata: TypeTreeXData::new(typ),
+            xdata: TypeTreeXData::new(ty.xdata().current_type().clone()),
             name: p.name,
-            typ: p.typ,
+            typ: ty,
+        }
+    }
+
+    pub fn eval_def_extern(&mut self, f: ast::DefExtern) -> ast::DefExtern<TypeTreeXData> {
+        self.push_scope();
+
+        let mut params: Vec<_> = Vec::new();
+        for p in f.params {
+            let ty_param = self.eval_param(p);
+            self.set_var(&ty_param.name, ty_param.xdata().clone());
+            params.push(ty_param);
+        }
+
+        let return_ty = self.eval_ty(f.return_ty);
+        ast::DefExtern {
+            span: f.span,
+            xdata: TypeTreeXData::new(return_ty.xdata().current_type().clone()),
+            name: f.name,
+            params,
+            return_ty,
         }
     }
 
@@ -275,10 +427,10 @@ impl TypeInterpreter {
         }
 
         let body_type_tree = self.eval_ast(*f.body);
-        let return_ty = self.eval_anon_type(&f.return_type);
-
+        let return_ty_node = self.eval_ty(f.return_ty);
+        let return_ty = return_ty_node.xdata().current_type();
         self.pop_scope();
-        let error = if !body_type_tree.xdata().current_type().is_subset(&return_ty) {
+        let error = if !body_type_tree.xdata().current_type().is_subset(return_ty) {
             Some(TypeError::BadFunctionReturnType {
                 returned: body_type_tree.xdata().current_type().clone(),
                 expected: return_ty.clone(),
@@ -289,7 +441,7 @@ impl TypeInterpreter {
         ast::DefFunction {
             span: f.span,
             xdata: TypeTreeXData {
-                declared_type: return_ty,
+                declared_type: return_ty.clone(),
                 error,
                 value_type: None,
                 cond_false: Default::default(),
@@ -297,7 +449,7 @@ impl TypeInterpreter {
             },
             name: f.name,
             params,
-            return_type: f.return_type,
+            return_ty: return_ty_node,
             body: Box::new(body_type_tree),
         }
     }
@@ -502,13 +654,9 @@ impl TypeInterpreter {
         }
     }
 
-    fn eval_anon_type(&self, ty: &ast::AnonType) -> TypeInfo {
-        let ty = self.declarations.eval_anon_type(ty);
-        self.resolve_ty_refs(ty, &[])
-    }
-
     fn eval_stmt_let(&mut self, l: ast::StmtLet) -> ast::StmtLet<TypeTreeXData> {
-        let binding_type = self.eval_anon_type(&l.value_type);
+        let ty = self.eval_ty(l.ty);
+        let binding_type = ty.xdata().current_type();
         let typed_value_expr = self.eval_ast(*l.value);
         let value_type = typed_value_expr.xdata().current_type().clone();
         let error = if !value_type.is_subset(&binding_type) {
@@ -521,7 +669,7 @@ impl TypeInterpreter {
             None
         };
         let xdata = TypeTreeXData {
-            declared_type: binding_type,
+            declared_type: binding_type.clone(),
             value_type: Some(typed_value_expr.xdata().current_type().clone()),
             error,
             cond_false: Default::default(),
@@ -533,7 +681,7 @@ impl TypeInterpreter {
             xdata,
             name: l.name,
             mutable: l.mutable,
-            value_type: l.value_type,
+            ty,
             value: Box::new(typed_value_expr),
         }
     }
@@ -681,13 +829,13 @@ impl TypeInterpreter {
         }
     }
 
-    fn eval_ty_param(&self, x: ast::TyParam) -> ast::TyParam<TypeTreeXData> {
-        let super_ty = self.eval_anon_type(&x.super_ty);
+    fn eval_ty_param(&mut self, x: ast::TyParam) -> ast::TyParam<TypeTreeXData> {
+        let super_ty = self.eval_ty(x.super_ty);
         ast::TyParam {
             span: x.span,
-            xdata: TypeTreeXData::new(super_ty),
+            xdata: TypeTreeXData::new(super_ty.xdata().current_type().clone()),
             name: x.name,
-            super_ty: x.super_ty,
+            super_ty,
             default_ty: x.default_ty,
         }
     }

@@ -7,8 +7,12 @@ pub enum Token<'input> {
     KeywordLet,
     #[token("mut")]
     KeywordMut,
+    #[token("extern")]
+    KeywordExtern,
     #[token("bool")]
     KeywordBool,
+    #[token("unit")]
+    KeywordUnit,
     #[token("true")]
     KeywordTrue,
     #[token("false")]

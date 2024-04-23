@@ -28,7 +28,7 @@ pub struct Param<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub name: String,
-    pub typ: AnonType,
+    pub typ: Ty<X>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -38,47 +38,85 @@ pub struct TyParam<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub name: String,
-    pub super_ty: AnonType,
+    pub super_ty: Ty<X>,
 
-    pub default_ty: Option<AnonType>,
+    pub default_ty: Option<Ty>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
-pub struct ArrayTy<X: Debug + Clone = ()> {
+pub struct TyArray<X: Debug + Clone = ()> {
     pub span: SourceSpan,
     pub xdata: X,
 
-    pub element_ty: Box<AnonType>,
+    pub element_ty: Box<Ty<X>>,
     pub length: u32,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
-pub struct StructMember {
+pub struct StructMember<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
     pub mutable: bool,
     pub name: String,
-    pub typ: AnonType,
+    pub ty: Ty<X>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyRef<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub name: String,
+    pub parameters: Vec<Ty<X>>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyStruct<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub members: Vec<StructMember<X>>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyNumberRange<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub inclusive_low: String,
+    pub inclusive_high: String,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyBool<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TyUnit<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", serde(tag = "type"))]
-pub enum AnonType {
-    TypeReference {
-        name: String,
-        parameters: Vec<AnonType>,
-    },
-    StructBody {
-        members: Vec<StructMember>,
-    },
-    IntegerRange {
-        /// TODO: figure out how to represent these rust
-        inclusive_low: String,
-        inclusive_high: String,
-    },
-    Array(ArrayTy),
-    Bool,
+pub enum Ty<X: Debug + Clone = ()> {
+    TyRef(TyRef<X>),
+    Struct(TyStruct<X>),
+    NumberRange(TyNumberRange<X>),
+    Array(TyArray<X>),
+    Bool(TyBool<X>),
+    Unit(TyUnit<X>),
 }
 
 /// Trait to access extension data on an ast node
@@ -114,6 +152,7 @@ pub enum Ast<X: Debug + Clone = ()> {
     StmtWhile(StmtWhile<X>),
 
     DefType(DefType<X>),
+    DefExtern(DefExtern<X>),
 
     Program(Program<X>),
 }
@@ -175,7 +214,7 @@ pub struct StmtLet<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub name: String,
-    pub value_type: AnonType,
+    pub ty: Ty<X>,
     pub mutable: bool,
     pub value: Box<Ast<X>>,
 }
@@ -196,8 +235,19 @@ pub struct DefType<X: Debug + Clone = ()> {
     pub xdata: X,
 
     pub name: String,
-    pub typ: AnonType,
+    pub ty: Ty<X>,
     pub ty_params: Vec<TyParam<X>>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct DefExtern<X: Debug + Clone = ()> {
+    pub span: SourceSpan,
+    pub xdata: X,
+
+    pub name: String,
+    pub params: Vec<Param<X>>,
+    pub return_ty: Ty<X>,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -271,7 +321,7 @@ pub struct DefFunction<X: Debug + Clone = ()> {
 
     pub name: String,
     pub params: Vec<Param<X>>,
-    pub return_type: AnonType,
+    pub return_ty: Ty<X>,
     pub body: Box<Ast<X>>,
 }
 
@@ -330,17 +380,14 @@ macro_rules! impl_ast_node {
     };
 }
 
-impl_ast_node! { StructLiteralMember }
-impl_ast_node! { Param }
-
 macro_rules! impl_ast_traits {
-    ($ast_ty:ident : $($member:ident),*) => {
-        $(impl_ast_node!{ $member })*
+    ($ast_ty:ident : $($member:ident ($member_ty:ident)),*) => {
+        $(impl_ast_node!{ $member_ty })*
 
         impl<X: Debug + Clone> Spanned for $ast_ty<X> {
             fn span(&self) -> &SourceSpan {
                 match self {
-                    $(Ast::$member(a) => a.span()),*
+                    $($ast_ty::$member(a) => a.span()),*
                 }
             }
         }
@@ -348,10 +395,13 @@ macro_rules! impl_ast_traits {
         impl<X: Debug + Clone> XData<X> for $ast_ty<X> {
             fn xdata(&self) -> &X {
                 match self {
-                    $(Ast::$member(a) => a.xdata()),*
+                    $($ast_ty::$member(a) => a.xdata()),*
                 }
             }
         }
+    };
+    ($ast_ty:ident : $($member:ident),*) => {
+        impl_ast_traits!($ast_ty : $($member ($member)),*);
     };
 }
 
@@ -359,6 +409,7 @@ impl_ast_traits!(Ast :
     Program,
     Expr,
     DefType,
+    DefExtern,
     ExprCall,
     StmtIf,
     StmtLet,
@@ -373,4 +424,17 @@ impl_ast_traits!(Ast :
     LiteralArray,
     ArrayAccess,
     StmtWhile
+);
+
+impl_ast_node! { StructLiteralMember }
+impl_ast_node! { Param }
+impl_ast_node! { TyParam }
+
+impl_ast_traits!(Ty :
+    TyRef (TyRef),
+    Struct (TyStruct),
+    Array (TyArray),
+    NumberRange (TyNumberRange),
+    Bool (TyBool),
+    Unit (TyUnit)
 );

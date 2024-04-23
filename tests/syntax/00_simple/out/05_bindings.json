@@ -27,10 +27,19 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "TypeReference",
-        "name": "unit",
-        "parameters": []
+      "return_ty": {
+        "type": "Unit",
+        "span": {
+          "start": 13,
+          "end": 17
+        },
+        "xdata": {
+          "declared_type": "Unit",
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        }
       },
       "body": {
         "type": "Block",
@@ -75,8 +84,26 @@
               "cond_false": {}
             },
             "name": "a",
-            "value_type": {
-              "type": "IntegerRange",
+            "ty": {
+              "type": "NumberRange",
+              "span": {
+                "start": 31,
+                "end": 36
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 10
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "inclusive_low": "0",
               "inclusive_high": "10"
             },
@@ -139,8 +166,26 @@
               "cond_false": {}
             },
             "name": "b",
-            "value_type": {
-              "type": "IntegerRange",
+            "ty": {
+              "type": "NumberRange",
+              "span": {
+                "start": 57,
+                "end": 62
+              },
+              "xdata": {
+                "declared_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 10
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "inclusive_low": "0",
               "inclusive_high": "10"
             },

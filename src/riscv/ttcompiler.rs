@@ -396,6 +396,10 @@ impl Compiler {
             Ast::LiteralArray(a) => self.eval_literal_array(a),
             Ast::ArrayAccess(a) => self.eval_array_access(a),
             Ast::StmtWhile(w) => self.eval_while(w),
+            Ast::DefExtern(_) => EvalResult {
+                result: None,
+                buffer: AssemblyWriter::new(),
+            },
         }
     }
 

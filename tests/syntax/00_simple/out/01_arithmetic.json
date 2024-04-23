@@ -55,7 +55,25 @@
           },
           "name": "a",
           "typ": {
-            "type": "IntegerRange",
+            "type": "NumberRange",
+            "span": {
+              "start": 12,
+              "end": 18
+            },
+            "xdata": {
+              "declared_type": {
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 100
+                  }
+                }
+              },
+              "value_type": null,
+              "error": null,
+              "cond_true": {},
+              "cond_false": {}
+            },
             "inclusive_low": "0",
             "inclusive_high": "100"
           }
@@ -81,14 +99,50 @@
           },
           "name": "b",
           "typ": {
-            "type": "IntegerRange",
+            "type": "NumberRange",
+            "span": {
+              "start": 22,
+              "end": 28
+            },
+            "xdata": {
+              "declared_type": {
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 100
+                  }
+                }
+              },
+              "value_type": null,
+              "error": null,
+              "cond_true": {},
+              "cond_false": {}
+            },
             "inclusive_low": "0",
             "inclusive_high": "100"
           }
         }
       ],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 31,
+          "end": 37
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 200
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "200"
       },

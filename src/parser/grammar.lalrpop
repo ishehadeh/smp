@@ -1,4 +1,4 @@
-use crate::parser::{ParseError, ast::{Ast, Param, AnonType, StructMember, InfixOp, self}};
+use crate::parser::{ParseError, ast::{Ast, Param, Ty, StructMember, InfixOp, self}};
 use lalrpop_util::ErrorRecovery;
 use crate::parser::lexer::Token;
 
@@ -15,6 +15,7 @@ extern {
         "let" => Token::KeywordLet,
         "func" => Token::KeywordFunc,
         "bool" => Token::KeywordBool,
+        "unit" => Token::KeywordUnit,
         "false" => Token::KeywordFalse,
         "true" => Token::KeywordTrue,
         "mut" => Token::KeywordMut,
@@ -58,21 +59,6 @@ extern {
     }
 }
 
-pub TypeReference: AnonType = {
-    <name: "ident"> => AnonType::TypeReference {
-        name: name.to_string(),
-        parameters: vec![],
-    },
-
-    // TODO: allow whitespace between name and ty params,
-    // we need to rework anon types in general to have a final " "?
-    // to do that
-    <name: "ident"> <parameters: TyParams> => AnonType::TypeReference {
-        name: name.to_string(),
-        parameters,
-    }
-};
-
 /// One ore more items that are separated by a comma.
 /// Source: https://github.com/RustPython/Parser/blob/9ce55aefdeb35e2f706ce0b02d5a2dfe6295fc57/parser/src/python.lalrpop#L1659
 OneOrMore<T>: Vec<T> = {
@@ -85,7 +71,7 @@ OneOrMore<T>: Vec<T> = {
 
 
 pub Param: Param = {
-    <l: @L> <name:"ident"> " "? ":" " "? <typ:AnonType> <r: @R> " "? => Param {
+    <l: @L> <name:"ident"> " "? ":" " "? <typ:Ty> <r: @R> " "? => Param {
         span: (l, r).into(),
         xdata: (),
 
@@ -94,8 +80,156 @@ pub Param: Param = {
     }
 };
 
+pub DefParams: Vec<Param> = {
+    "(" " "? ")" => vec![],
+    "(" " "?<params: OneOrMore<Param>> ")" => params
+};
+
+
+// START: Type Expressions
+
+pub Ty: ast::Ty = {
+    <t:TyStruct> => ast::Ty::Struct(t),
+    <t:TyArray> => ast::Ty::Array(t),
+    <t:TyNumberRange> => ast::Ty::NumberRange(t),
+    <t:TyBool> => ast::Ty::Bool(t),
+    <t:TyUnit> => ast::Ty::Unit(t),
+    <t:TyRef> => ast::Ty::TyRef(t),
+}
+
+pub TyRef: ast::TyRef = {
+    <l: @L> <name: "ident"> <r: @R> => ast::TyRef {
+        span: (l, r).into(),
+        xdata: (),
+
+        name: name.to_string(),
+        parameters: vec![],
+    },
+
+    // TODO: allow whitespace between name and ty params,
+    // we need to rework anon types in general to have a final " "?
+    // to do that
+    <l: @L> <name: "ident"> <parameters: TyParams> <r: @R> => ast::TyRef {
+        span: (l, r).into(),
+        xdata: (),
+
+        name: name.to_string(),
+        parameters,
+    }
+};
+
+pub TyArray: ast::TyArray = {
+    <l: @L> "[" " "? <element_ty:Ty> " "? ";" " "? <size:"literal-int"> "]" <r: @R> => {
+        ast::TyArray {
+            span: (l, r).into(),
+            xdata: (),
+
+            element_ty: Box::new(element_ty),
+            length: u32::from_str_radix(size, 10).expect("failed to parse literal-int token, this should be unreachable")
+        }
+    }
+};
+
+pub TyNumberRange: ast::TyNumberRange = {
+    <l: @L> <lo:"literal-int"> " "? ".." " "? <hi:"literal-int"> <r: @R> => ast::TyNumberRange {
+        span: (l, r).into(),
+        xdata: (),
+
+        inclusive_low: lo.to_string(),
+        inclusive_high: hi.to_string(),
+    },
+};
+
+pub TyBool: ast::TyBool = {
+    <l: @L> "bool" <r: @R> => ast::TyBool {
+        span: (l, r).into(),
+        xdata: (),
+    }
+}
+
+pub TyUnit: ast::TyUnit = {
+    <l: @L> "unit" <r: @R> => ast::TyUnit {
+        span: (l, r).into(),
+        xdata: (),
+    }
+}
+
+pub TyStruct: ast::TyStruct = {
+    <l: @L> "{" " "? "}" <r: @R> => ast::TyStruct {
+        span: (l, r).into(),
+        xdata: (),
+
+        members: vec![]
+    },
+
+    <l: @L> "{" " "? <members: OneOrMore<DefStructMember>> " "? "}" <r: @R> => {
+        ast::TyStruct {
+            span: (l, r).into(),
+            xdata: (),
+
+            members,
+        }
+    }
+}
+
+pub DefFunction: ast::DefFunction = {
+    <l: @L> "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:Ty> " "? <block: Block> <r: @R> => {
+        ast::DefFunction {
+            span: (l, r).into(),
+            xdata: (),
+
+            name: name.to_string(),
+            params,
+            return_ty: typ,
+            body: Box::new(Ast::Block(block))
+        }
+    }
+};
+
+pub DefExtern: ast::DefExtern = {
+    <l: @L> "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:Ty> " "? ";" " "? <r: @R> => {
+        ast::DefExtern {
+            span: (l, r).into(),
+            xdata: (),
+
+            name: name.to_string(),
+            params,
+            return_ty: typ,
+        }
+    }
+};
+
+pub DefStructMember: StructMember = {
+    <l:@L> "mut" " " <name:"ident"> " "? ":" " "? <ty:Ty> <r:@R> => {
+        StructMember {
+            span: (l, r).into(),
+            xdata: (),
+
+            name: name.to_string(),
+            ty,
+            mutable: true,
+        }
+    },
+
+    <l:@L><name:"ident"> ":" " "? <ty:Ty> <r:@R> => {
+        StructMember {
+            span: (l, r).into(),
+            xdata: (),
+
+            name: name.to_string(),
+            ty,
+            mutable: false,
+        }
+    },
+};
+
+pub TyParams: Vec<Ty> = {
+    "<{" " "? "}>" => vec![], // TODO: make this an error
+    "<{" " "? <ty_params: OneOrMore<Ty>> "}>" => ty_params
+};
+
 pub TyParam: ast::TyParam = {
-    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:AnonType> <r: @R> " "? => ast::TyParam {
+    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:Ty> <r: @R> " "? => ast::TyParam {
         span: (l, r).into(),
         xdata: (),
 
@@ -104,7 +238,7 @@ pub TyParam: ast::TyParam = {
         default_ty: None,
     },
 
-    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:AnonType> " "? "=" " "? <default_ty:AnonType> <r: @R> " "? => ast::TyParam {
+    <l: @L> <name:"ident"> " "? ":" " "? <super_ty:Ty> " "? "=" " "? <default_ty:Ty> <r: @R> " "? => ast::TyParam {
         span: (l, r).into(),
         xdata: (),
 
@@ -114,116 +248,37 @@ pub TyParam: ast::TyParam = {
     }
 }
 
-pub DefTyParams: Vec<ast::TyParam> = {
-    "<{" " "? "}>" => vec![], // TODO: make this an error
-    "<{" " "? <ty_params: OneOrMore<TyParam>> "}>" => ty_params
-};
+// END: Type Expressions
 
-pub TyParams: Vec<AnonType> = {
-    "<{" " "? "}>" => vec![], // TODO: make this an error
-    "<{" " "? <ty_params: OneOrMore<AnonType>> "}>" => ty_params
-};
-
-pub DefParams: Vec<Param> = {
-    "(" " "? ")" => vec![],
-    "(" " "?<params: OneOrMore<Param>> ")" => params
-};
-
-pub DefFunction: ast::DefFunction = {
-    <l: @L> "func" " " <name:"ident"> <params:DefParams> " "? ":" " "? <typ:AnonType> " "? <block: Block> <r: @R> => {
-        ast::DefFunction {
-            span: (l, r).into(),
-            xdata: (),
-
-            name: name.to_string(),
-            params,
-            return_type: typ,
-            body: Box::new(Ast::Block(block))
-        }
-    }
-};
-
-pub DefStructMember: StructMember = {
-    "mut" " " <name:"ident"> " "? ":" " "? <typ:AnonType> => {
-        StructMember {
-            name: name.to_string(),
-            typ,
-            mutable: true,
-        }
-    },
-
-    <name:"ident"> ":" " "? <typ:AnonType> => {
-        StructMember {
-            name: name.to_string(),
-            typ,
-            mutable: false,
-        }
-    },
-};
-
-pub TyArray: AnonType = {
-    <l: @L> "[" " "? <element_ty:AnonType> " "? ";" " "? <size:"literal-int"> "]" <r: @R> => {
-        AnonType::Array(ast::ArrayTy {
-            span: (l, r).into(),
-            xdata: (),
-
-            element_ty: Box::new(element_ty),
-            length: u32::from_str_radix(size, 10).expect("failed to parse literal-int token, this should be unreachable")
-        })
-    }
-};
-
-pub TypeIntegerRange: AnonType = {
-    <lo:"literal-int"> " "? ".." " "? <hi:"literal-int"> => AnonType::IntegerRange {
-        inclusive_low: lo.to_string(),
-        inclusive_high: hi.to_string(),
-    },
-};
-
-pub TypeBoolean: AnonType = {
-    "bool" => AnonType::Bool
-}
-
-pub StructBody: AnonType = {
-    "{" " "? "}" => AnonType::StructBody { members: vec![] },
-    "{" " "? <members: OneOrMore<DefStructMember>> " "? "}" => {
-        AnonType::StructBody {
-            members
-        }
-    }
-}
-
-pub AnonType: AnonType = {
-    StructBody,
-    TypeIntegerRange,
-    TypeReference,
-    TypeBoolean,
-    TyArray,
-}
 
 pub DefType: ast::DefType = {
-    <l: @L> "type" " " <name:"ident"> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
+    <l: @L> "type" " " <name:"ident"> " "? "=" " "? <ty:Ty> " "? ";"  <r: @R> => {
         ast::DefType {
             span: (l, r).into(),
             xdata: (),
 
             name: name.to_string(),
-            typ,
+            ty,
             ty_params: vec![]
         }
     },
 
-    <l: @L> "type" " " <name:"ident"> " "? <ty_params:DefTyParams> " "? "=" " "? <typ:AnonType> " "? ";"  <r: @R> => {
+    <l: @L> "type" " " <name:"ident"> " "? <ty_params:DefTyParams> " "? "=" " "? <ty:Ty> " "? ";"  <r: @R> => {
         ast::DefType {
             span: (l, r).into(),
             xdata: (),
 
             name: name.to_string(),
-            typ,
+            ty,
             ty_params,
         }
     }
 }
+
+pub DefTyParams: Vec<ast::TyParam> = {
+    "<{" " "? "}>" => vec![], // TODO: make this an error
+    "<{" " "? <ty_params: OneOrMore<TyParam>> "}>" => ty_params
+};
 
 pub StmtIf: ast::StmtIf = {
     <l: @L> "if" " " <condition:Expr> <body:Block> <r: @R> => ast::StmtIf {
@@ -294,23 +349,23 @@ pub Expr: Ast = {
 
 
 pub StmtLet: ast::StmtLet = {
-    <l: @L> "let" " " "mut" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
+    <l: @L> "let" " " "mut" " " <name:"ident"> " "? ":" " "? <typ:Ty> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
         span: (l, r).into(),
         xdata: (),
 
         mutable: true,
         name: name.to_string(),
-        value_type: typ,
+        ty: typ,
         value: Box::new(value),
     },
 
-    <l: @L> "let" " " <name:"ident"> " "? ":" " "? <typ:AnonType> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
+    <l: @L> "let" " " <name:"ident"> " "? ":" " "? <typ:Ty> " "? "=" " "? <value:Expr> <r: @R> => ast::StmtLet {
         span: (l, r).into(),
         xdata: (),
 
         mutable: false,
         name: name.to_string(),
-        value_type: typ,
+        ty: typ,
         value: Box::new(value),
     }
 }
@@ -493,6 +548,7 @@ pub Ident: ast::Ident = {
 
 TopLevel: Ast = {
     <a:DefFunction> => Ast::DefFunction(a),
+    <a:DefExtern> => Ast::DefExtern(a),
     <a:DefType> " "? => Ast::DefType(a)
 };
 

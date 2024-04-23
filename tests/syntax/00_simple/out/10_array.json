@@ -46,8 +46,26 @@
       },
       "name": "main",
       "params": [],
-      "return_type": {
-        "type": "IntegerRange",
+      "return_ty": {
+        "type": "NumberRange",
+        "span": {
+          "start": 15,
+          "end": 20
+        },
+        "xdata": {
+          "declared_type": {
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 10
+              }
+            }
+          },
+          "value_type": null,
+          "error": null,
+          "cond_true": {},
+          "cond_false": {}
+        },
         "inclusive_low": "0",
         "inclusive_high": "10"
       },
@@ -142,15 +160,51 @@
               "cond_false": {}
             },
             "name": "a",
-            "value_type": {
+            "ty": {
               "type": "Array",
               "span": {
                 "start": 34,
                 "end": 44
               },
-              "xdata": null,
+              "xdata": {
+                "declared_type": {
+                  "Array": {
+                    "length": 5,
+                    "element_ty": {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 10
+                        }
+                      }
+                    }
+                  }
+                },
+                "value_type": null,
+                "error": null,
+                "cond_true": {},
+                "cond_false": {}
+              },
               "element_ty": {
-                "type": "IntegerRange",
+                "type": "NumberRange",
+                "span": {
+                  "start": 35,
+                  "end": 40
+                },
+                "xdata": {
+                  "declared_type": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 10
+                      }
+                    }
+                  },
+                  "value_type": null,
+                  "error": null,
+                  "cond_true": {},
+                  "cond_false": {}
+                },
                 "inclusive_low": "0",
                 "inclusive_high": "10"
               },
