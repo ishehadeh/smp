@@ -178,9 +178,22 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "S"
+                "Record": {
+                  "fields": [
+                    {
+                      "name": "a",
+                      "offset": 0,
+                      "length": 4,
+                      "type_info": {
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 100
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               },
               "value_type": {
@@ -205,9 +218,22 @@
               "error": {
                 "BadAssignment": {
                   "binding_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "S"
+                    "Record": {
+                      "fields": [
+                        {
+                          "name": "a",
+                          "offset": 0,
+                          "length": 4,
+                          "type_info": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 100
+                              }
+                            }
+                          }
+                        }
+                      ]
                     }
                   },
                   "value_type": {
@@ -244,9 +270,22 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "S"
+                  "Record": {
+                    "fields": [
+                      {
+                        "name": "a",
+                        "offset": 0,
+                        "length": 4,
+                        "type_info": {
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 0,
+                              "hi": 100
+                            }
+                          }
+                        }
+                      }
+                    ]
                   }
                 },
                 "value_type": null,
@@ -413,9 +452,22 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "S"
+                    "Record": {
+                      "fields": [
+                        {
+                          "name": "a",
+                          "offset": 0,
+                          "length": 4,
+                          "type_info": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": 0,
+                                "hi": 100
+                              }
+                            }
+                          }
+                        }
+                      ]
                     }
                   },
                   "value_type": {
@@ -440,9 +492,22 @@
                   "error": {
                     "BadAssignment": {
                       "binding_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "S"
+                        "Record": {
+                          "fields": [
+                            {
+                              "name": "a",
+                              "offset": 0,
+                              "length": 4,
+                              "type_info": {
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 100
+                                  }
+                                }
+                              }
+                            }
+                          ]
                         }
                       },
                       "value_type": {

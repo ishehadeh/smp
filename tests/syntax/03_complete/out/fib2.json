@@ -59,30 +59,15 @@
       },
       "xdata": {
         "declared_type": {
-          "TyRef": {
-            "parameters": [],
-            "name": "u16"
-          }
-        },
-        "value_type": null,
-        "error": {
-          "BadFunctionReturnType": {
-            "expected": {
-              "TyRef": {
-                "parameters": [],
-                "name": "u16"
-              }
-            },
-            "returned": {
-              "Scalar": {
-                "Integer": {
-                  "lo": 0,
-                  "hi": 0
-                }
-              }
+          "Scalar": {
+            "Integer": {
+              "lo": 0,
+              "hi": 65535
             }
           }
         },
+        "value_type": null,
+        "error": null,
         "cond_true": {},
         "cond_false": {}
       },
@@ -96,9 +81,11 @@
         },
         "xdata": {
           "declared_type": {
-            "TyRef": {
-              "parameters": [],
-              "name": "u16"
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 65535
+              }
             }
           },
           "value_type": null,
@@ -117,9 +104,11 @@
         },
         "xdata": {
           "declared_type": {
-            "TyRef": {
-              "parameters": [],
-              "name": "u16"
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 65535
+              }
             }
           },
           "value_type": {
@@ -130,25 +119,7 @@
               }
             }
           },
-          "error": {
-            "BadAssignment": {
-              "binding_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
-                }
-              },
-              "value_type": {
-                "Scalar": {
-                  "Integer": {
-                    "lo": 0,
-                    "hi": 0
-                  }
-                }
-              },
-              "binding_name": "acc"
-            }
-          },
+          "error": null,
           "cond_true": {},
           "cond_false": {}
         },
@@ -162,9 +133,11 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 65535
+                  }
                 }
               },
               "value_type": {
@@ -175,25 +148,7 @@
                   }
                 }
               },
-              "error": {
-                "BadAssignment": {
-                  "binding_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
-                    }
-                  },
-                  "value_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 10,
-                        "hi": 10
-                      }
-                    }
-                  },
-                  "binding_name": "N"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -206,9 +161,11 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "u16"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 65535
+                    }
                   }
                 },
                 "value_type": null,
@@ -261,9 +218,11 @@
                 "Array": {
                   "length": 2,
                   "element_ty": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 65535
+                      }
                     }
                   }
                 }
@@ -295,49 +254,7 @@
                   }
                 }
               },
-              "error": {
-                "BadAssignment": {
-                  "binding_type": {
-                    "Array": {
-                      "length": 2,
-                      "element_ty": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
-                        }
-                      }
-                    }
-                  },
-                  "value_type": {
-                    "Array": {
-                      "length": 2,
-                      "element_ty": {
-                        "Union": {
-                          "types": [
-                            {
-                              "Scalar": {
-                                "Integer": {
-                                  "lo": 0,
-                                  "hi": 0
-                                }
-                              }
-                            },
-                            {
-                              "Scalar": {
-                                "Integer": {
-                                  "lo": 1,
-                                  "hi": 1
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "binding_name": "memory"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -353,9 +270,11 @@
                   "Array": {
                     "length": 2,
                     "element_ty": {
-                      "TyRef": {
-                        "parameters": [],
-                        "name": "u16"
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 65535
+                        }
                       }
                     }
                   }
@@ -373,9 +292,11 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 65535
+                      }
                     }
                   },
                   "value_type": null,
@@ -498,9 +419,11 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 65535
+                  }
                 }
               },
               "value_type": {
@@ -511,25 +434,7 @@
                   }
                 }
               },
-              "error": {
-                "BadAssignment": {
-                  "binding_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
-                    }
-                  },
-                  "value_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 0,
-                        "hi": 0
-                      }
-                    }
-                  },
-                  "binding_name": "acc"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -542,9 +447,11 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "u16"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 65535
+                    }
                   }
                 },
                 "value_type": null,
@@ -594,9 +501,11 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 65535
+                  }
                 }
               },
               "value_type": {
@@ -607,25 +516,7 @@
                   }
                 }
               },
-              "error": {
-                "BadAssignment": {
-                  "binding_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
-                    }
-                  },
-                  "value_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 0,
-                        "hi": 0
-                      }
-                    }
-                  },
-                  "binding_name": "i"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -638,9 +529,11 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "u16"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 65535
+                    }
                   }
                 },
                 "value_type": null,
@@ -735,9 +628,11 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 65535
+                      }
                     }
                   },
                   "value_type": {
@@ -748,25 +643,7 @@
                       }
                     }
                   },
-                  "error": {
-                    "BadAssignment": {
-                      "binding_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
-                        }
-                      },
-                      "value_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 0,
-                            "hi": 0
-                          }
-                        }
-                      },
-                      "binding_name": "i"
-                    }
-                  },
+                  "error": null,
                   "cond_true": {},
                   "cond_false": {}
                 },
@@ -781,9 +658,11 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 65535
+                      }
                     }
                   },
                   "value_type": {
@@ -794,25 +673,7 @@
                       }
                     }
                   },
-                  "error": {
-                    "BadAssignment": {
-                      "binding_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
-                        }
-                      },
-                      "value_type": {
-                        "Scalar": {
-                          "Integer": {
-                            "lo": 10,
-                            "hi": 10
-                          }
-                        }
-                      },
-                      "binding_name": "N"
-                    }
-                  },
+                  "error": null,
                   "cond_true": {},
                   "cond_false": {}
                 },
@@ -869,9 +730,11 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 65535
+                          }
                         }
                       },
                       "value_type": {
@@ -882,25 +745,7 @@
                           }
                         }
                       },
-                      "error": {
-                        "BadAssignment": {
-                          "binding_type": {
-                            "TyRef": {
-                              "parameters": [],
-                              "name": "u16"
-                            }
-                          },
-                          "value_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 0,
-                                "hi": 0
-                              }
-                            }
-                          },
-                          "binding_name": "acc"
-                        }
-                      },
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -1042,9 +887,11 @@
                             "Array": {
                               "length": 2,
                               "element_ty": {
-                                "TyRef": {
-                                  "parameters": [],
-                                  "name": "u16"
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 65535
+                                  }
                                 }
                               }
                             }
@@ -1076,49 +923,7 @@
                               }
                             }
                           },
-                          "error": {
-                            "BadAssignment": {
-                              "binding_type": {
-                                "Array": {
-                                  "length": 2,
-                                  "element_ty": {
-                                    "TyRef": {
-                                      "parameters": [],
-                                      "name": "u16"
-                                    }
-                                  }
-                                }
-                              },
-                              "value_type": {
-                                "Array": {
-                                  "length": 2,
-                                  "element_ty": {
-                                    "Union": {
-                                      "types": [
-                                        {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 0,
-                                              "hi": 0
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 1,
-                                              "hi": 1
-                                            }
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  }
-                                }
-                              },
-                              "binding_name": "memory"
-                            }
-                          },
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -1200,9 +1005,11 @@
                             "Array": {
                               "length": 2,
                               "element_ty": {
-                                "TyRef": {
-                                  "parameters": [],
-                                  "name": "u16"
+                                "Scalar": {
+                                  "Integer": {
+                                    "lo": 0,
+                                    "hi": 65535
+                                  }
                                 }
                               }
                             }
@@ -1234,49 +1041,7 @@
                               }
                             }
                           },
-                          "error": {
-                            "BadAssignment": {
-                              "binding_type": {
-                                "Array": {
-                                  "length": 2,
-                                  "element_ty": {
-                                    "TyRef": {
-                                      "parameters": [],
-                                      "name": "u16"
-                                    }
-                                  }
-                                }
-                              },
-                              "value_type": {
-                                "Array": {
-                                  "length": 2,
-                                  "element_ty": {
-                                    "Union": {
-                                      "types": [
-                                        {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 0,
-                                              "hi": 0
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "Scalar": {
-                                            "Integer": {
-                                              "lo": 1,
-                                              "hi": 1
-                                            }
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  }
-                                }
-                              },
-                              "binding_name": "memory"
-                            }
-                          },
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -1393,9 +1158,11 @@
                           "Array": {
                             "length": 2,
                             "element_ty": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 65535
+                                }
                               }
                             }
                           }
@@ -1427,49 +1194,7 @@
                             }
                           }
                         },
-                        "error": {
-                          "BadAssignment": {
-                            "binding_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "TyRef": {
-                                    "parameters": [],
-                                    "name": "u16"
-                                  }
-                                }
-                              }
-                            },
-                            "value_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "Union": {
-                                    "types": [
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 0
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 1,
-                                            "hi": 1
-                                          }
-                                        }
-                                      }
-                                    ]
-                                  }
-                                }
-                              }
-                            },
-                            "binding_name": "memory"
-                          }
-                        },
+                        "error": null,
                         "cond_true": {},
                         "cond_false": {}
                       },
@@ -1551,9 +1276,11 @@
                           "Array": {
                             "length": 2,
                             "element_ty": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 65535
+                                }
                               }
                             }
                           }
@@ -1585,49 +1312,7 @@
                             }
                           }
                         },
-                        "error": {
-                          "BadAssignment": {
-                            "binding_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "TyRef": {
-                                    "parameters": [],
-                                    "name": "u16"
-                                  }
-                                }
-                              }
-                            },
-                            "value_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "Union": {
-                                    "types": [
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 0
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 1,
-                                            "hi": 1
-                                          }
-                                        }
-                                      }
-                                    ]
-                                  }
-                                }
-                              }
-                            },
-                            "binding_name": "memory"
-                          }
-                        },
+                        "error": null,
                         "cond_true": {},
                         "cond_false": {}
                       },
@@ -1743,9 +1428,11 @@
                           "Array": {
                             "length": 2,
                             "element_ty": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 65535
+                                }
                               }
                             }
                           }
@@ -1777,49 +1464,7 @@
                             }
                           }
                         },
-                        "error": {
-                          "BadAssignment": {
-                            "binding_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "TyRef": {
-                                    "parameters": [],
-                                    "name": "u16"
-                                  }
-                                }
-                              }
-                            },
-                            "value_type": {
-                              "Array": {
-                                "length": 2,
-                                "element_ty": {
-                                  "Union": {
-                                    "types": [
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 0,
-                                            "hi": 0
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "Scalar": {
-                                          "Integer": {
-                                            "lo": 1,
-                                            "hi": 1
-                                          }
-                                        }
-                                      }
-                                    ]
-                                  }
-                                }
-                              }
-                            },
-                            "binding_name": "memory"
-                          }
-                        },
+                        "error": null,
                         "cond_true": {},
                         "cond_false": {}
                       },
@@ -1835,9 +1480,11 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 65535
+                          }
                         }
                       },
                       "value_type": {
@@ -1848,25 +1495,7 @@
                           }
                         }
                       },
-                      "error": {
-                        "BadAssignment": {
-                          "binding_type": {
-                            "TyRef": {
-                              "parameters": [],
-                              "name": "u16"
-                            }
-                          },
-                          "value_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 0,
-                                "hi": 0
-                              }
-                            }
-                          },
-                          "binding_name": "acc"
-                        }
-                      },
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -1908,9 +1537,11 @@
                     },
                     "xdata": {
                       "declared_type": {
-                        "TyRef": {
-                          "parameters": [],
-                          "name": "u16"
+                        "Scalar": {
+                          "Integer": {
+                            "lo": 0,
+                            "hi": 65535
+                          }
                         }
                       },
                       "value_type": {
@@ -1921,25 +1552,7 @@
                           }
                         }
                       },
-                      "error": {
-                        "BadAssignment": {
-                          "binding_type": {
-                            "TyRef": {
-                              "parameters": [],
-                              "name": "u16"
-                            }
-                          },
-                          "value_type": {
-                            "Scalar": {
-                              "Integer": {
-                                "lo": 0,
-                                "hi": 0
-                              }
-                            }
-                          },
-                          "binding_name": "i"
-                        }
-                      },
+                      "error": null,
                       "cond_true": {},
                       "cond_false": {}
                     },
@@ -1981,9 +1594,11 @@
                       },
                       "xdata": {
                         "declared_type": {
-                          "TyRef": {
-                            "parameters": [],
-                            "name": "u16"
+                          "Scalar": {
+                            "Integer": {
+                              "lo": 0,
+                              "hi": 65535
+                            }
                           }
                         },
                         "value_type": {
@@ -1994,25 +1609,7 @@
                             }
                           }
                         },
-                        "error": {
-                          "BadAssignment": {
-                            "binding_type": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
-                              }
-                            },
-                            "value_type": {
-                              "Scalar": {
-                                "Integer": {
-                                  "lo": 0,
-                                  "hi": 0
-                                }
-                              }
-                            },
-                            "binding_name": "i"
-                          }
-                        },
+                        "error": null,
                         "cond_true": {},
                         "cond_false": {}
                       },
@@ -2061,9 +1658,11 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 65535
+                  }
                 }
               },
               "value_type": {
@@ -2074,25 +1673,7 @@
                   }
                 }
               },
-              "error": {
-                "BadAssignment": {
-                  "binding_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
-                    }
-                  },
-                  "value_type": {
-                    "Scalar": {
-                      "Integer": {
-                        "lo": 0,
-                        "hi": 0
-                      }
-                    }
-                  },
-                  "binding_name": "acc"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -2109,18 +1690,22 @@
       },
       "xdata": {
         "declared_type": {
-          "TyRef": {
-            "parameters": [],
-            "name": "u16"
+          "Scalar": {
+            "Integer": {
+              "lo": 0,
+              "hi": 65535
+            }
           }
         },
         "value_type": null,
         "error": {
           "BadFunctionReturnType": {
             "expected": {
-              "TyRef": {
-                "parameters": [],
-                "name": "u16"
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 65535
+                }
               }
             },
             "returned": {
@@ -2134,7 +1719,14 @@
                       }
                     }
                   },
-                  "Unit"
+                  {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 1
+                      }
+                    }
+                  }
                 ]
               }
             }
@@ -2152,9 +1744,11 @@
           },
           "xdata": {
             "declared_type": {
-              "TyRef": {
-                "parameters": [],
-                "name": "u16"
+              "Scalar": {
+                "Integer": {
+                  "lo": 0,
+                  "hi": 65535
+                }
               }
             },
             "value_type": null,
@@ -2171,9 +1765,11 @@
             },
             "xdata": {
               "declared_type": {
-                "TyRef": {
-                  "parameters": [],
-                  "name": "u16"
+                "Scalar": {
+                  "Integer": {
+                    "lo": 0,
+                    "hi": 65535
+                  }
                 }
               },
               "value_type": null,
@@ -2194,9 +1790,11 @@
         },
         "xdata": {
           "declared_type": {
-            "TyRef": {
-              "parameters": [],
-              "name": "u16"
+            "Scalar": {
+              "Integer": {
+                "lo": 0,
+                "hi": 65535
+              }
             }
           },
           "value_type": null,
@@ -2225,7 +1823,14 @@
                     }
                   }
                 },
-                "Unit"
+                {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                }
               ]
             }
           },
@@ -2240,15 +1845,18 @@
                     }
                   }
                 },
-                "Unit"
+                {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                }
               ]
             }
           },
-          "error": {
-            "ExpectedCondition": {
-              "recieved": "Unit"
-            }
-          },
+          "error": null,
           "cond_true": {},
           "cond_false": {}
         },
@@ -2272,7 +1880,14 @@
                         }
                       }
                     },
-                    "Unit"
+                    {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 1
+                        }
+                      }
+                    }
                   ]
                 }
               },
@@ -2287,15 +1902,18 @@
                         }
                       }
                     },
-                    "Unit"
+                    {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 1
+                        }
+                      }
+                    }
                   ]
                 }
               },
-              "error": {
-                "ExpectedCondition": {
-                  "recieved": "Unit"
-                }
-              },
+              "error": null,
               "cond_true": {},
               "cond_false": {}
             },
@@ -2306,30 +1924,32 @@
                 "end": 354
               },
               "xdata": {
-                "declared_type": "Unit",
-                "value_type": null,
-                "error": {
-                  "BadExpression": {
-                    "lhs": {
-                      "TyRef": {
-                        "parameters": [],
-                        "name": "u16"
-                      }
-                    },
-                    "rhs": {
-                      "TyRef": {
-                        "parameters": [],
-                        "name": "u16"
-                      }
-                    },
-                    "op": "CmpLt"
+                "declared_type": {
+                  "Scalar": {
+                    "Boolean": null
                   }
                 },
+                "value_type": null,
+                "error": null,
                 "cond_true": {
-                  "n": "Unit"
+                  "n": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 1
+                      }
+                    }
+                  }
                 },
                 "cond_false": {
-                  "n": "Unit"
+                  "n": {
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 2,
+                        "hi": 65535
+                      }
+                    }
+                  }
                 }
               },
               "lhs": {
@@ -2340,9 +1960,11 @@
                 },
                 "xdata": {
                   "declared_type": {
-                    "TyRef": {
-                      "parameters": [],
-                      "name": "u16"
+                    "Scalar": {
+                      "Integer": {
+                        "lo": 0,
+                        "hi": 65535
+                      }
                     }
                   },
                   "value_type": null,
@@ -2391,12 +2013,21 @@
               },
               "xdata": {
                 "declared_type": {
-                  "TyRef": {
-                    "parameters": [],
-                    "name": "u16"
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 65535
+                    }
                   }
                 },
-                "value_type": "Unit",
+                "value_type": {
+                  "Scalar": {
+                    "Integer": {
+                      "lo": 0,
+                      "hi": 1
+                    }
+                  }
+                },
                 "error": null,
                 "cond_true": {},
                 "cond_false": {}
@@ -2411,12 +2042,21 @@
                   },
                   "xdata": {
                     "declared_type": {
-                      "TyRef": {
-                        "parameters": [],
-                        "name": "u16"
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 65535
+                        }
                       }
                     },
-                    "value_type": "Unit",
+                    "value_type": {
+                      "Scalar": {
+                        "Integer": {
+                          "lo": 0,
+                          "hi": 1
+                        }
+                      }
+                    },
                     "error": null,
                     "cond_true": {},
                     "cond_false": {}
@@ -2496,15 +2136,23 @@
                           "end": 400
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "BadExpression": {
-                              "lhs": "Unit",
-                              "rhs": "Unit",
-                              "op": "Sub"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": -65533,
+                                "hi": 65533
+                              }
                             }
                           },
+                          "value_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": -65533,
+                                "hi": 65533
+                              }
+                            }
+                          },
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -2516,12 +2164,21 @@
                           },
                           "xdata": {
                             "declared_type": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 65535
+                                }
                               }
                             },
-                            "value_type": "Unit",
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 2,
+                                  "hi": 65535
+                                }
+                              }
+                            },
                             "error": null,
                             "cond_true": {},
                             "cond_false": {}
@@ -2591,15 +2248,23 @@
                           "end": 417
                         },
                         "xdata": {
-                          "declared_type": "Unit",
-                          "value_type": null,
-                          "error": {
-                            "BadExpression": {
-                              "lhs": "Unit",
-                              "rhs": "Unit",
-                              "op": "Sub"
+                          "declared_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": -65533,
+                                "hi": 65533
+                              }
                             }
                           },
+                          "value_type": {
+                            "Scalar": {
+                              "Integer": {
+                                "lo": -65533,
+                                "hi": 65533
+                              }
+                            }
+                          },
+                          "error": null,
                           "cond_true": {},
                           "cond_false": {}
                         },
@@ -2611,12 +2276,21 @@
                           },
                           "xdata": {
                             "declared_type": {
-                              "TyRef": {
-                                "parameters": [],
-                                "name": "u16"
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 0,
+                                  "hi": 65535
+                                }
                               }
                             },
-                            "value_type": "Unit",
+                            "value_type": {
+                              "Scalar": {
+                                "Integer": {
+                                  "lo": 2,
+                                  "hi": 65535
+                                }
+                              }
+                            },
                             "error": null,
                             "cond_true": {},
                             "cond_false": {}

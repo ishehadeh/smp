@@ -10,6 +10,11 @@ use types::{IntegerType, RecordCell, RecordType};
 
 use self::types::{ArrayType, TyRef};
 pub use self::typetree::TypeTree;
+pub mod ty_typecheck;
+pub struct TypeContext {}
+pub trait IntoTypedNode<T> {
+    fn into_typed_node(self, ctx: TypeContext) -> T;
+}
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
