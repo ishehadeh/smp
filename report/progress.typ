@@ -73,10 +73,48 @@ That is to say, these choices are fairly arbitrary.
 What matters is that the language looks "normal", in effect, some remix of the current popular languages.
 And, secondarily, particular language structures carry a consistent syntactic motif throughout the language.
 
-=== Arrays and Fat Pointers
 
-Arrays are most similar to C arrays, both sematically and syntactically.
-Both arrays
+=== Numbers
+Numbers in howlite are ways expressed as a range:
+```hlt
+let i: 0..255 = 127; 
+```
+It supports the radix prefixes, `0x` (hexadecimal), `0b` (binary), `0o` (octal).
+Numbers may also include underscores as seperators. This syntax was mostly lifted from rust  
+
+=== Null
+The Howlite `null` type is a unit type - that is, there is a value in the language `null` of type `null`.
+```hlt
+let nothing: null = null;
+```
+This is identitcal to Rust's unit type `()`. 
+We chose "null" as the keyword because it is common in popular languages today: JavaScript, Java, C and C++ (although `NULL`/`nullptr` are pointer constants, not a unit type).
+
+=== Arrays and Slice
+Arrays are sematically similar to C arrays but differ slightly in syntax:
+```hlt
+let array: [1..5; 5] = [1, 2, 3, 4, 5];
+```
+
+Slices are similar, but their length is unknown at compile time.
+Furthermore, slices are a type of pointer, so this they are expressed as:
+```
+let slice: &[1..5] = &array[3..5]
+```
+
+We chose this syntax because looks better than C-style arrays when combined with number ranges.
+
+=== Characters & Strings
+Characters and strings both have dedicated types and syntax:
+```hlt
+let h: char = 'h';
+let greet: &string = ...; 
+```
+
+The literal syntax is identical to C.
+"&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of unicode characters.
+
+
 === Reversing Binding/Type Order
 In Howlite, variable types, parameter types and function return types are the last part of the declaration, as opposed
 to C, where they lead. For example consider the equivalent snippets:
