@@ -27,11 +27,18 @@ pub enum CompileError {
     IncompatibleValueMapStructure { dest: Value, src: Value },
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Arch {
+    RV32I,
+    RV64I,
+}
+
+#[derive(Clone, Debug)]
 pub struct Compiler {
     scopes: ScopeManager,
     register_stack: VecDeque<Register>,
     stack: StackState,
+    target: Arch,
 }
 
 #[derive(Default, Clone, Debug)]
@@ -104,8 +111,9 @@ pub struct EvalResult {
 
 const TEMPORARY_REGISTERS: [Register; 4] = [Register::T0, Register::T1, Register::T2, Register::T3];
 impl Compiler {
-    pub fn new() -> Compiler {
+    pub fn new(target: Arch) -> Compiler {
         Compiler {
+            target,
             scopes: Default::default(),
             register_stack: VecDeque::from([
                 Register::S1,
@@ -123,6 +131,7 @@ impl Compiler {
             stack: StackState::default(),
         }
     }
+
 
     pub fn copy_value(
         &mut self,
@@ -192,7 +201,15 @@ impl Compiler {
                             padded_value = (*x as u64) << (i * 8);
                         }
                         buffer.li(r, padded_value);
-                        buffer.sd(r, word_offset.try_into().unwrap(), base_reg);
+                        match self.target {
+                            Arch::RV64I => {
+                                buffer.sd(r, word_offset.try_into().unwrap(), base_reg);
+                            }
+                            Arch::RV32I => {
+                                buffer.sw(r, word_offset.try_into().unwrap(), base_reg);
+                    
+                            }
+                        }                
                     } else {
                         for (j, byte) in word.iter().enumerate() {
                             buffer.li(r, *byte as u64);
@@ -213,7 +230,13 @@ impl Compiler {
             base: Box::new(Slot::Register(Register::Fp)),
         };
         assert!(offset < 2048);
-        buffer.sd(reg, -(offset as i16), Register::Fp);
+        match self.target {
+            Arch::RV64I => {
+                buffer.sd(reg, -(offset as i16), Register::Fp)            }
+            Arch::RV32I => {
+                buffer.sw(reg, -(offset as i16), Register::Fp)    
+            }
+        }    
         save_ref
     }
 
@@ -222,7 +245,10 @@ impl Compiler {
             Slot::Indirect { offset, base } => {
                 assert!(*offset < 2048);
                 let base_reg = self.slot_to_register(buffer, &TEMPORARY_REGISTERS, base.as_ref());
-                buffer.ld(dest, *offset as i16, base_reg);
+                match self.target {
+                    Arch::RV64I => buffer.ld(dest, *offset as i16, base_reg),
+                    Arch::RV32I => buffer.lw(dest, *offset as i16, base_reg)
+                }
             }
             &Slot::Immediate(imm) => {
                 buffer.addi(dest, Register::Zero, imm);
@@ -318,7 +344,10 @@ impl Compiler {
                 let r_dest_base =
                     self.slot_to_register(state, &TEMPORARY_REGISTERS, base_dest.as_ref());
                 assert!(*offset_dest < 2048);
-                state.sd(r_src, *offset_dest as i16, r_dest_base);
+                match self.target {
+                    Arch::RV64I => state.sd(r_src, *offset_dest as i16, r_dest_base),
+                    Arch::RV32I => state.sw(r_src, *offset_dest as i16, r_dest_base)
+                }
             }
         }
     }
@@ -809,15 +838,32 @@ impl Compiler {
         for r in mutated_callee_saved_regs {
             // add 4 since index is negative and store/load read upwards
             let offset = self.stack.alloc(REGISTER_WIDTH) + REGISTER_WIDTH as i32;
-
-            prolog.sd(r, -offset as i16, Register::Fp);
-            epilog.ld(r, -offset as i16, Register::Fp);
+            
+            match self.target {
+                Arch::RV64I => {
+                    prolog.sd(r, -offset as i16, Register::Fp);
+                    epilog.ld(r, -offset as i16, Register::Fp);
+                }
+                Arch::RV32I => {
+                    prolog.sw(r, -offset as i16, Register::Fp);
+                    epilog.lw(r, -offset as i16, Register::Fp);
+        
+                }
+            }
         }
 
         let fp_stack_offset = self.stack.size() as i32 - self.stack.alloc(REGISTER_WIDTH);
 
         buffer.addi(Register::Sp, Register::Sp, -(self.stack.size() as i16) );
-        buffer.sd(Register::Fp, fp_stack_offset as i16, Register::Sp);
+        match self.target {
+            Arch::RV64I => {
+                buffer.sd(Register::Fp, fp_stack_offset as i16, Register::Sp);
+            }
+            Arch::RV32I => {
+                buffer.sw(Register::Fp, fp_stack_offset as i16, Register::Sp);
+    
+            }
+        }
         buffer.addi(Register::Fp, Register::Sp, self.stack.size() as i16);
         buffer.include(prolog);
 
@@ -827,7 +873,17 @@ impl Compiler {
         }
 
         buffer.include(epilog);
-        buffer.ld(Register::Fp, fp_stack_offset as i16, Register::Sp);
+
+        match self.target {
+            Arch::RV64I => {
+                buffer.ld(Register::Fp, fp_stack_offset as i16, Register::Sp);
+            }
+            Arch::RV32I => {
+                buffer.lw(Register::Fp, fp_stack_offset as i16, Register::Sp);
+    
+            }
+        }
+
         buffer.addi(Register::Sp, Register::Sp, self.stack.size() as i16 );
 
         buffer.jr(Register::Ra);

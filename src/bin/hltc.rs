@@ -6,7 +6,9 @@ use std::{
 };
 
 use howlite::{
-    riscv::ttcompiler::Compiler, typecheck::typetree::TypeInterpreter, util::ast::Declarations,
+    riscv::ttcompiler::{Arch, Compiler},
+    typecheck::typetree::TypeInterpreter,
+    util::ast::Declarations,
 };
 
 const DEBUG_PRELUDE: &str = r"
@@ -30,6 +32,10 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     debug: bool,
 
+    /// add debug prelude
+    #[arg(short, long, default_value_t = Arch::RV64I)]
+    arch: Arch,
+
     /// file to compile, defaults to stdin
     file: Option<PathBuf>,
 }
@@ -48,7 +54,7 @@ fn main() {
     let mut type_interp = TypeInterpreter::new(decl);
     let type_tree = type_interp.eval_ast(parse_result.ast);
 
-    let mut compiler = Compiler::new();
+    let mut compiler = Compiler::new(args.arch);
     let result = compiler.eval_ast(&type_tree);
     println!(".text\n{}", result.buffer.get_text());
 
