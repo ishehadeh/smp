@@ -25,6 +25,14 @@ very low-level performance critical systems.
 
 == Project Goals
 
+This project is designed to be finished in two semesters.
+By the end of the second semester, Howlite will be capable of self-hosting (i.e. writing a Howlite compiler in Howlite).
+Although, we have no intention of writing the full compiler.
+
+Ideally, all the features outlined below will be implemented. But, some may be dropped in order to prioritize creating a _complete_ language.
+For example, right now the language is missing several operators and integer types are only unsigned.
+While this hasn't caused in issue at this stage of development, these features will take priority next semester.
+
 = Language Design
 
 Before describing the language, consider this example of a non-recursive fuction to get the `n`#super[th] number in the
