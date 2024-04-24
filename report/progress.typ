@@ -372,15 +372,13 @@ will riple throughout code generation and typechecking, so it's first on the to-
 
 === Modules
 
-=== Symbol Types
-Some kind of enumerable or symbol type is a hole in the language's design.
-These will be essential in descriminating union types.
-
-=== Union Types
-
-=== Floating Point Types
+=== Core Types
+*Floating-Point Numbers*, *Fat Pointers*, *Symbols/Enums*, and *Union* types are almost entirely unimplemented.
 
 === Integer Range Types
+While partially implemented, integer range types are unchecked.
+This will be one of the last additions to the language, since it weaves its way into just about every system.
+
 == Refactoring, Documentation
 Once reference types are implemented we plan to slow development to write documentation, and try to refactor the code
 into clearly seperated modules.
