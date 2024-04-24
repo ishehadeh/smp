@@ -66,6 +66,17 @@ languages. We use curly-braces to mark blocks, square brackets for arrays, and s
 
 The departures from this well-established lineage is more notable.
 
+=== Meaningful Symbols
+Howlite maintains clarity by keeping the meaning of symbols consistent.
+How symbols are chosen is decided by some combination 1) what similar languages do, and 2) the authors personal taste.
+That is to say, these choices are fairly arbitrary.
+What matters is that the language looks "normal", in effect, some remix of the current popular languages.
+And, secondarily, particular language structures carry a consistent syntactic motif throughout the language.
+
+=== Arrays and Fat Pointers
+
+Arrays are most similar to C arrays, both sematically and syntactically.
+Both arrays
 === Reversing Binding/Type Order
 In Howlite, variable types, parameter types and function return types are the last part of the declaration, as opposed
 to C, where they lead. For example consider the equivalent snippets:
