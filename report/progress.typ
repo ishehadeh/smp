@@ -35,59 +35,63 @@ While these omissions have not caused issues at this stage of development, these
 
 = Language Design
 
-Before describing the language, consider this example of a non-recursive fuction to get the `n`#super[th] number in the
-fibonacci sequence.
-
-```
-type uint16 = 0..65535;
-
-func fib(n: uint16): uint16 {
-    let mut memory: [uint16; 2] = [0, 1];
-    let mut acc: uint16 = 0;
-
-    let i: uint16 = 0;
-    while i < n {
-        acc = memory.[0] + memory.[1];
-        memory.[0] = memory.[1];
-        memory.[1] = acc;
-        i = i + 1;
-    };
-
-    acc
-}
-```
-
-We'll use parts of this example throughout this section.
-
 == Syntax
 
-Howlite's syntax is designed to be clear, concise and most importantly: immediately legible to those familiar with "c-like"
-languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators.
+Howlite's syntax is designed to be clear, concise and immediately legible to people familiar with C-like
+languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators. To maintain clarity Howlite's syntax keeps the symbols within the same context as much as possible. For example `:` prespcribes types. It is always preceded by an some entity and followed by that entities type. But this consistency is broken if it would require straying to far from mainstrain language syntax
 
-The departures from this well-established lineage is more notable.
+Aside from C, Howlite's syntax takes inspiration from some several new languages. The type syntax was inspired by TypeScript@typescript, hints were taken from Rust@rust on bringing ML nicieties to a C-like syntax, and notes were taken from Go@go on how to implement a small easily-parsed grammar.
 
-=== Meaningful Symbols
-Howlite maintains clarity by keeping the meaning of symbols consistent.
-How symbols are chosen is decided by some combination 1) what similar languages do, and 2) the authors personal taste.
-That is to say, these choices are fairly arbitrary.
-What matters is that the language looks "normal", in effect, some remix of the current popular languages.
-And, secondarily, particular language structures carry a consistent syntactic motif throughout the language.
+== Semantics
+
+Howlite is an imperative, eagerly-evaluated, statically typed, and lexically scoped language. This section walks through a number of common howlite expressions.
+
+=== Variables
+Variables are declared with a `let` statement.
+```hlt
+let a: <TYPE> = <VALUE>;
+let mut b: <TYPE> = <VALUE>;
+```
+All variables must be immediately initialized. Identifiers may not be redeclared. Only variables declared with "`mut`" may be reassigned or modified.
+The syntax was taken from Rust@rust, TypeScript@typescript has a similar binding syntax. We prefer this syntax over the C type-first declarations because it clearly defines when an variable is declared. Furthermore, because type names are arbitrary, they may be difficult for humans to parse. Thus, we precede every type with ':' throughout the language.
 
 === Numbers
-Numbers in howlite are ways expressed as a range:
-```hlt
+Number types in Howlite are expressed as an inclusive range. `i` may be `0`, `255` or any integer between the two:
+```
 let i: 0..255 = 127;
 ```
-It supports the radix prefixes, `0x` (hexadecimal), `0b` (binary), `0o` (octal).
-Numbers may also include underscores as seperators. This syntax was mostly lifted from rust
+
+Integer literals supports the radix prefixes, `0x` (hexadecimal), `0b` (binary), `0o` (octal).
+Numbers may also include underscores as seperators. This syntax was mostly lifted from Rust@rust, although there are a number of languages with similar integer literals.
+
+There are two builtin IEEE-754 floating point types, `float32` and `float64`. Float literal syntax is identical to C.
 
 === Null
-The Howlite `null` type is a unit type - that is, there is a value in the language `null` of type `null`.
+The Howlite `null` type is a unit type, a variable of type `null` has a single value. This value is also called `null`.
 ```hlt
 let nothing: null = null;
 ```
-This is identitcal to Rust's unit type `()`.
+This is identitcal to TypeScript's@typescript `null` type, and Rust's@rust unit type "`()`".
 We chose "null" as the keyword because it is common in popular languages today: JavaScript, Java, C and C++ (although `NULL`/`nullptr` are pointer constants, not a unit type).
+
+=== Structures
+
+Structures are similar to C `struct`s.
+```hlt
+let pair: { a: bool, b: bool } = struct { a: true, b: false };
+```
+Howlite supports several operators which can control a structure's layout in memory:
+```hlt
+{
+  a: bool,
+  @align(4) {
+    b1: 0..5
+    b2: 5..10
+  }
+  c: u16
+}
+```
+This defines a structure which takes up 4 bytes for `a` (by default all structs are 32-bit aligned), then packs `b1`, and `b2` into a single byte. `c` directly follows this byte, and is padded by another byte, so following fields may return to the default alignment.
 
 === Arrays and Slice
 Arrays are sematically similar to C arrays but differ slightly in syntax:
@@ -96,12 +100,13 @@ let array: [1..5; 5] = [1, 2, 3, 4, 5];
 ```
 
 Slices are similar, but their length is unknown at compile time.
-Furthermore, slices are a type of pointer, so this they are expressed as:
+Furthermore, slices are a type of pointer, so they are expressed as:
 ```
-let slice: &[1..5] = &array[3..5]
+let slice: &[1..5] = &array.[3..5]
 ```
+We chose to place the type inside the brackets, unlike C-style arrays because it looks better when combined with number ranges. This syntax also disambiguates arrays from type parameters.
 
-We chose this syntax because looks better than C-style arrays when combined with number ranges.
+The `.` in the array index syntax disambiguates calling a function pointer in an array from calling a function with a type parameter.
 
 === Characters & Strings
 Characters and strings both have dedicated types and syntax:
@@ -111,14 +116,6 @@ let greet: &string = ...;
 ```
 The literal syntax is identical to C.
 "&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of Unicode characters.
-
-=== Structures
-
-Structures are similar to C, in their syntax and semantics.
-
-```hlt
-let pair: { a: bool, b: bool } = struct { a: true, b: false };
-```
 
 === Expressions
 
@@ -155,52 +152,6 @@ Note that like in Go and Rust, parentheses may be omitted from for flow control 
 
 Syntactically switch statements are identical to C, but they break after each case.
 They are intended as syntactic sugar for long if-else chains.
-
-=== Reversing Binding/Type Order
-In Howlite, variable types, parameter types and function return types are the last part of the declaration, as opposed
-to C, where they lead. For example consider the equivalent snippets:
-
-#figure(caption: "Binding Syntax Comparison")[
-  #grid(
-    columns: (2fr, 18fr),
-    rows: (auto, auto),
-    gutter: 8pt,
-    align: left,
-    [*c*],
-    `uint16 fib(uint16 n)`,
-    [*hlt*],
-    [`func fib(n: uint16): uint16`],
-  )
-
-  #grid(
-    columns: (2fr, 18fr),
-    rows: (auto, auto),
-    gutter: 8pt,
-    align: left,
-    [*c*],
-    `uint16 acc = 0`,
-    [*hlt*],
-    [`let mut acc: uint16 = 0`],
-  )
-]
-
-We prefer this prefix notation because it prioritizes _alignment_ and _orders information_ from most general to least
-right-to-left.
-
-Ordering of information is important when reading long series of declarations. When every mutable variable is prefixed
-with "`let mut`" and every immutable variable prefixed with "`let`", it makes it easy to quickly find variable names
-when scanning a function declaration. Every line starting with "let" binds a name to some value. If the `let` is
-followed by `mut` than that binding my be mutated. Throughout the language keywords are used first, to express the
-purpose of the following text.
-
-Furthermore, this helps with aligning similar statements into columns. All mutable variable names start in the same
-location; All immutable variable names start in the same location. The programmer knows exactly where to look for name,
-or the type.
-
-The `:` is also a device reused throughout the language for denoting type information. For any text, if is preceded by a
-colon, the programmer immediately knows it is a type.
-
-/* TODO: this section could use more work, I need to take a second pass to clarify */
 
 == Type System
 The primary goal of Howlite as a project is to study expressive modeling of data, with minimal constraints. We create a
