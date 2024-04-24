@@ -29,7 +29,7 @@ This project is designed to be finished in two semesters.
 By the end of the second semester, Howlite will be capable of self-hosting (i.e. writing a Howlite compiler in Howlite).
 Although, we have no intention of writing the full compiler.
 
-Ideally, all the features outlined below will be implemented. But, some may be dropped in order to prioritize creating a _complete_ language.
+Ideally, all the features outlined below will be implemented. But some may be dropped in order to prioritize creating a _complete_ language.
 For example, right now the language is missing several operators and integer types are only unsigned.
 While this hasn't caused in issue at this stage of development, these features will take priority next semester.
 
@@ -73,21 +73,20 @@ That is to say, these choices are fairly arbitrary.
 What matters is that the language looks "normal", in effect, some remix of the current popular languages.
 And, secondarily, particular language structures carry a consistent syntactic motif throughout the language.
 
-
 === Numbers
 Numbers in howlite are ways expressed as a range:
 ```hlt
-let i: 0..255 = 127; 
+let i: 0..255 = 127;
 ```
 It supports the radix prefixes, `0x` (hexadecimal), `0b` (binary), `0o` (octal).
-Numbers may also include underscores as seperators. This syntax was mostly lifted from rust  
+Numbers may also include underscores as seperators. This syntax was mostly lifted from rust
 
 === Null
 The Howlite `null` type is a unit type - that is, there is a value in the language `null` of type `null`.
 ```hlt
 let nothing: null = null;
 ```
-This is identitcal to Rust's unit type `()`. 
+This is identitcal to Rust's unit type `()`.
 We chose "null" as the keyword because it is common in popular languages today: JavaScript, Java, C and C++ (although `NULL`/`nullptr` are pointer constants, not a unit type).
 
 === Arrays and Slice
@@ -108,12 +107,54 @@ We chose this syntax because looks better than C-style arrays when combined with
 Characters and strings both have dedicated types and syntax:
 ```hlt
 let h: char = 'h';
-let greet: &string = ...; 
+let greet: &string = ...;
+```
+The literal syntax is identical to C.
+"&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of Unicode characters.
+
+=== Structures
+
+Structures are similar to C, in their syntax and semantics.
+
+```hlt
+let pair: { a: bool, b: bool } = struct { a: true, b: false };
 ```
 
-The literal syntax is identical to C.
-"&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of unicode characters.
+=== Expressions
 
+Howlite expressions look similar to expressions in most C-adjacent languages.
+We have infix, postfix and unary operators.
+There are function calls, variable declarations, assignment and so on.
+It also supports the usual flow control: `while`, `for`, `if`, and `switch`.
+
+There are slight cosmetic changes, mostly inherited from Rust.
+All blocks and flow control have a value and type.
+The value is the last statement in the executed block.
+The type is the union of all possible branch's value's types.
+For example:
+```hlt
+let a: 1 | 2 = if cond {
+  1
+} else {
+  2
+}
+```
+This feature was lifted from Rust, which itself was inspired by ML.
+
+For loops are always given an explicit range.
+There is no other form.
+```hlt
+for let i: uint in a..b {
+
+}
+```
+
+While loops are nearly identical to C.
+
+Note that like in Go and Rust, parentheses may be omitted from for flow control expressions.
+
+Syntactically switch statements are identical to C, but they break after each case.
+They are intended as syntactic sugar for long if-else chains.
 
 === Reversing Binding/Type Order
 In Howlite, variable types, parameter types and function return types are the last part of the declaration, as opposed
