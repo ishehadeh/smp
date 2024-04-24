@@ -18,20 +18,20 @@
   bibliography: bibliography("refs.bib"),
 )
 
-= Introducing Howlite
+= Introduction
 
-The Howlite (abbr. _hlt_) programming language is a small systems programming language aimed at embedded devices and
-very low-level performance critical systems.
+We present Howlite, a programming language which targets the RISC-V instruction set. It is a small language, with features optimized for writing low-level performance critical systems.
 
 == Project Goals
 
 This project is designed to be finished in two semesters.
 By the end of the second semester, Howlite will be capable of self-hosting (i.e. writing a Howlite compiler in Howlite).
-Although, we have no intention of writing the full compiler.
 
-Ideally, all the features outlined below will be implemented. But some may be dropped in order to prioritize creating a _complete_ language.
-For example, right now the language is missing several operators and integer types are only unsigned.
-While this hasn't caused in issue at this stage of development, these features will take priority next semester.
+Ideally, all the features outlined below will be implemented, but some may be dropped in order to prioritize creating a _complete_ language.
+For example, right now the language is missing several operators, and integer types are only unsigned.
+While these omissions have not caused issues at this stage of development, these features will take priority going forward semester.
+
+==
 
 = Language Design
 
@@ -42,7 +42,7 @@ fibonacci sequence.
 type uint16 = 0..65535;
 
 func fib(n: uint16): uint16 {
-    let mut memory: [uint16; 2] = [ 0, 1 ];
+    let mut memory: [uint16; 2] = [0, 1];
     let mut acc: uint16 = 0;
 
     let i: uint16 = 0;
