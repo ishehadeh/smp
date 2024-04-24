@@ -4,13 +4,19 @@
   We introduce the Howlite programming language. Where it's from, and where it's going.
 ]
 
-#show: ieee.with(title: [The Howlite Programming Language - First Semester Progress], authors: ((
-  name: "Ian Shehadeh",
-  department: [Computer Science],
-  organization: [St. Mary's College of Maryland],
-  location: [St. Mary's City, Maryland],
-  email: "irshehadeh@smcm.edu",
-),), bibliography: bibliography("refs.bib"))
+#show: ieee.with(
+  title: [The Howlite Programming Language - First Semester Progress],
+  authors: (
+    (
+      name: "Ian Shehadeh",
+      department: [Computer Science],
+      organization: [St. Mary's College of Maryland],
+      location: [St. Mary's City, Maryland],
+      email: "irshehadeh@smcm.edu",
+    ),
+  ),
+  bibliography: bibliography("refs.bib"),
+)
 
 = Introducing Howlite
 
@@ -57,27 +63,27 @@ In Howlite, variable types, parameter types and function return types are the la
 to C, where they lead. For example consider the equivalent snippets:
 
 #figure(caption: "Binding Syntax Comparison")[
-#grid(
-  columns: (2fr, 18fr),
-  rows: (auto, auto),
-  gutter: 8pt,
-  align: left,
-  [*c*],
-  `uint16 fib(uint16 n)`,
-  [*hlt*],
-  [`func fib(n: uint16): uint16`],
-)
+  #grid(
+    columns: (2fr, 18fr),
+    rows: (auto, auto),
+    gutter: 8pt,
+    align: left,
+    [*c*],
+    `uint16 fib(uint16 n)`,
+    [*hlt*],
+    [`func fib(n: uint16): uint16`],
+  )
 
-#grid(
-  columns: (2fr, 18fr),
-  rows: (auto, auto),
-  gutter: 8pt,
-  align: left,
-  [*c*],
-  `uint16 acc = 0`,
-  [*hlt*],
-  [`let mut acc: uint16 = 0`],
-)
+  #grid(
+    columns: (2fr, 18fr),
+    rows: (auto, auto),
+    gutter: 8pt,
+    align: left,
+    [*c*],
+    `uint16 acc = 0`,
+    [*hlt*],
+    [`let mut acc: uint16 = 0`],
+  )
 ]
 
 We prefer this prefix notation because it prioritizes _alignment_ and _orders information_ from most general to least
@@ -134,19 +140,19 @@ convention and allowing easy, strongly-typed interop with other languages.
 For example: Say we want to write a definition for FreeRTOS `xTaskCreate`
 
 #par(justify: false)[
-```
-type TaskFunction[P: any] = func(param: &rw P): unit;
-type CStr = &0..127;
-type TaskHandle = uint;
+  ```
+  type TaskFunction[P: any] = func(param: &rw P): unit;
+  type CStr = &0..127;
+  type TaskHandle = uint;
 
-uint
-xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
-                     pcName: CStr,
-                     uxStackDepth: uint32,
-                     pvParameters: &P,
-                     uxPriority: uint,
-                     taskHandle: &w TaskHandle );
-```
+  uint
+  xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
+                       pcName: CStr,
+                       uxStackDepth: uint32,
+                       pvParameters: &P,
+                       uxPriority: uint,
+                       taskHandle: &w TaskHandle );
+  ```
 ]\
 
 === Subtype Polymorphism
@@ -344,7 +350,7 @@ By the end of next semester we will have a complete implementation of the langua
 
 == The Minor To-Do List
 
-These are partially implemented features, 
+These are partially implemented features,
 1. Operator Precedence
 2. Logical, bitwise, and arithmetic with assignment, binary operators
 3. Unary operators
@@ -367,7 +373,7 @@ These will be essential in descriminating union types.
 === Floating Point Types
 
 === Integer Range Types
-==  Refactoring, Documentation
+== Refactoring, Documentation
 Once reference types are implemented we plan to slow development to write documentation, and try to refactor the code
 into clearly seperated modules.
 
