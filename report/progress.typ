@@ -19,11 +19,9 @@
 )
 
 = Introduction
-
 We present Howlite, a programming language which targets the RISC-V instruction set. It is a small language, with features optimized for writing low-level performance critical systems.
 
-== Project Goals
-
+== Project Timeline & Objectives
 This project is designed to be finished in two semesters.
 By the end of the second semester, Howlite will be capable of self-hosting (i.e. writing a Howlite compiler in Howlite).
 
@@ -31,20 +29,25 @@ Ideally, all the features outlined below will be implemented, but some may be dr
 For example, right now the language is missing several operators, and integer types are only unsigned.
 While these omissions have not caused issues at this stage of development, these features will take priority going forward semester.
 
-==
+== Language Objective
+We use Howlite to study expressive modeling of data, with minimal constraints. Howlite's type system allows supports common patterns in embedded programming, while allowing the programmer to freely and explicitly manage memory and program behavior.
+
+In practice this means a strong support for _subtype-polymorphism_, _numeric subtypes_, and explicit behavior with regard
+to how data structures are encoded. The syntax and semantics are inspired by TypeScripts@ts type system around JavaScript@js Objects.
 
 = Language Design
 
 == Syntax
-
 Howlite's syntax is designed to be clear, concise and immediately legible to people familiar with C-like
-languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators. To maintain clarity Howlite's syntax keeps the symbols within the same context as much as possible. For example `:` prespcribes types. It is always preceded by an some entity and followed by that entities type. But this consistency is broken if it would require straying to far from mainstrain language syntax
+languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators. To maintain clarity Howlite's syntax keeps symbols within the same context as much as possible. For example colons always relate type signatures. But this consistency is broken if it would require straying to far from mainstrain language syntax
 
-Aside from C, Howlite's syntax takes inspiration from some several new languages. The type syntax was inspired by TypeScript@typescript, hints were taken from Rust@rust on bringing ML nicieties to a C-like syntax, and notes were taken from Go@go on how to implement a small easily-parsed grammar.
+Aside from C, Howlite's syntax takes inspiration from some several new languages. The type syntax was inspired by TypeScript@ts, hints were taken from Rust@rust on bringing ML nicieties to a C-like syntax, and notes were taken from Go@go on how to implement a small easily-parsed grammar.
 
 == Semantics
 
-Howlite is an imperative, eagerly-evaluated, statically typed, and lexically scoped language. This section walks through a number of common howlite expressions.
+Howlite is an imperative, eagerly-evaluated, statically typed, and lexically scoped language. The language is designed to make program behavior obvious and easily controlled. Being a high-level language, abstractions are a given, but we aim to keep behavior consistent whenever some abstraction is applied. This is relatively easy to achieve for the Howlite compiler, since it targets a single architecture and is non-optimizing.
+
+This section walks through a number of common Howlite expressions. It is not a full specification, or even proper documentation, but should give context for the following sections.
 
 === Variables
 Variables are declared with a `let` statement.
@@ -53,7 +56,7 @@ let a: <TYPE> = <VALUE>;
 let mut b: <TYPE> = <VALUE>;
 ```
 All variables must be immediately initialized. Identifiers may not be redeclared. Only variables declared with "`mut`" may be reassigned or modified.
-The syntax was taken from Rust@rust, TypeScript@typescript has a similar binding syntax. We prefer this syntax over the C type-first declarations because it clearly defines when an variable is declared. Furthermore, because type names are arbitrary, they may be difficult for humans to parse. Thus, we precede every type with ':' throughout the language.
+The syntax was taken from Rust@rust, TypeScript@ts has a similar binding syntax. We prefer this syntax over the C type-first declarations because it clearly defines when an variable is declared. Furthermore, because type names are arbitrary, they may be difficult for humans to parse. Thus, we precede every type with ':' throughout the language.
 
 === Numbers
 Number types in Howlite are expressed as an inclusive range. `i` may be `0`, `255` or any integer between the two:
@@ -61,24 +64,26 @@ Number types in Howlite are expressed as an inclusive range. `i` may be `0`, `25
 let i: 0..255 = 127;
 ```
 
-Integer literals supports the radix prefixes, `0x` (hexadecimal), `0b` (binary), `0o` (octal).
+Integer literals support radix prefixes: `0x` (hexadecimal), `0b` (binary), `0o` (octal).
 Numbers may also include underscores as seperators. This syntax was mostly lifted from Rust@rust, although there are a number of languages with similar integer literals.
 
 There are two builtin IEEE-754 floating point types, `float32` and `float64`. Float literal syntax is identical to C.
 
 === Null
-The Howlite `null` type is a unit type, a variable of type `null` has a single value. This value is also called `null`.
+The `null` type has a single value called `null`.
 ```hlt
 let nothing: null = null;
 ```
-This is identitcal to TypeScript's@typescript `null` type, and Rust's@rust unit type "`()`".
-We chose "null" as the keyword because it is common in popular languages today: JavaScript, Java, C and C++ (although `NULL`/`nullptr` are pointer constants, not a unit type).
+This is identitcal to TypeScript's@ts `null` type, and Rust's@rust unit type "`()`".
+We chose "`null`" as the keyword because it is common in popular languages today: JavaScript@js[4.4.16], Java@null_java, C@null_c and C++@null_cxx.
 
 === Structures
-
 Structures are similar to C `struct`s.
 ```hlt
-let pair: { a: bool, b: bool } = struct { a: true, b: false };
+let pair: { a: bool, b: bool } = struct {
+  a: true,
+  b: false
+};
 ```
 Howlite supports several operators which can control a structure's layout in memory:
 ```hlt
@@ -93,17 +98,25 @@ Howlite supports several operators which can control a structure's layout in mem
 ```
 This defines a structure which takes up 4 bytes for `a` (by default all structs are 32-bit aligned), then packs `b1`, and `b2` into a single byte. `c` directly follows this byte, and is padded by another byte, so following fields may return to the default alignment.
 
-=== Arrays and Slice
-Arrays are sematically similar to C arrays but differ slightly in syntax:
+=== References
+Howlite does not support pointers with integer semantics like C. Instead it has opaque "reference" types.
 ```hlt
-let array: [1..5; 5] = [1, 2, 3, 4, 5];
+let tuple_ref: &Tuple = &tuple_val;
+```
+By default, the only operation that may be performed on a reference is access: `tuple_ref.first`, and dereference: `*tuple_ref`. References cannot be `null`. They may be downgraded with a cast: `(tuple_ref : uint)`. Upgrading a reference requires using the compiler built-in function `@toReference`.
+
+=== Arrays and Slice
+Arrays are semantically similar to C arrays but differ slightly in syntax:
+```hlt
+let array: [bool; 4] = [true, false, true, false];
 ```
 
 Slices are similar, but their length is unknown at compile time.
 Furthermore, slices are a type of pointer, so they are expressed as:
 ```
-let slice: &[1..5] = &array.[3..5]
+let slice: &[bool] = &array.[1..3]
 ```
+`slice` refers to the elements of `array` at indices 1, 2, and 3.
 We chose to place the type inside the brackets, unlike C-style arrays because it looks better when combined with number ranges. This syntax also disambiguates arrays from type parameters.
 
 The `.` in the array index syntax disambiguates calling a function pointer in an array from calling a function with a type parameter.
@@ -117,51 +130,50 @@ let greet: &string = ...;
 The literal syntax is identical to C.
 "&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of Unicode characters.
 
-=== Expressions
+=== Unions
+Howlite supports C-like union types. Unions are constructed from 2 or more _subtypes_, seperated by `|`: `type U = bool | null`.
+A union represents all possible values of all its child types. Unlike C `union`s, Howlite unions forbid invalid access to the underlying data. To enforce this only operations on all _subtypes_ of a union may be performed.
+For example, The type `{ a: null } | { b: null }` may not be accessed, since we cannot know if either `a` or `b` is present.
 
+=== Expressions
 Howlite expressions look similar to expressions in most C-adjacent languages.
-We have infix, postfix and unary operators.
+The language supports infix, postfix and unary operators.
 There are function calls, variable declarations, assignment and so on.
 It also supports the usual flow control: `while`, `for`, `if`, and `switch`.
 
-There are slight cosmetic changes, mostly inherited from Rust.
 All blocks and flow control have a value and type.
 The value is the last statement in the executed block.
 The type is the union of all possible branch's value's types.
 For example:
 ```hlt
-let a: 1 | 2 = if cond {
-  1
+let a: char | float = if cond {
+  'a'
 } else {
-  2
+  1.2
 }
 ```
-This feature was lifted from Rust, which itself was inspired by ML.
+This feature was lifted from Rust@rust, which itself was inspired by OCaml@ocaml.
 
 For loops are always given an explicit range.
 There is no other form.
 ```hlt
-for let i: uint in a..b {
-
-}
+for let i: uint in a..b { ... }
 ```
 
 While loops are nearly identical to C.
 
-Note that like in Go and Rust, parentheses may be omitted from for flow control expressions.
+Note that like in Go and Rust, parentheses may be omitted from flow control condition expressions.
 
 Syntactically switch statements are identical to C, but they break after each case.
 They are intended as syntactic sugar for long if-else chains.
-
-== Type System
-The primary goal of Howlite as a project is to study expressive modeling of data, with minimal constraints. We create a
-type system which allows modeling of common patterns in embedded programming, while avoiding constraints that force the
-programmer into a specific pattern. For example, regions, borrow-checking, or linear types.
-
-In practice this means a strong support for _subtype-polymorphism_, numeric subtypes, and explicit behavior with regard
-to how data structures are encoded. The syntax and semantics are inspired by TypeScripts type system around JavaScript
-Objects.
-
+```hlt
+switch value {
+  case 1: ... // implicit break
+  case 2: ... // implicit break
+  // etc...
+  default: ...
+}
+```
 === Type Parameters
 ```
 type MyArray[T: any] {
@@ -185,40 +197,6 @@ Box types may be included, with the limitation they may be no larger than the sy
 This limited parametric polymorphism give's the programmer the ability to get strong typing, without specializing the
 datastructure. More importantly, parameterized procedures don't need to be specialized either, simplifying the calling
 convention and allowing easy, strongly-typed interop with other languages.
-
-For example: Say we want to write a definition for FreeRTOS `xTaskCreate`
-
-#par(justify: false)[
-  ```
-  type TaskFunction[P: any] = func(param: &rw P): unit;
-  type CStr = &0..127;
-  type TaskHandle = uint;
-
-  uint
-  xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
-                       pcName: CStr,
-                       uxStackDepth: uint32,
-                       pvParameters: &P,
-                       uxPriority: uint,
-                       taskHandle: &w TaskHandle );
-  ```
-]\
-
-=== Subtype Polymorphism
-When passing by reference, a superset of the required type can be used instead of the requested type. The key limitation
-is obvious: the types have to be _identical_ - meaning the size, alignment and order of the fields all must be
-identical. To compensate for this limitation Howlite enforces strong rules on how types are encoded, and allows the
-programmer to make explicit exceptions.
-
-=== Type Encoding
-If not otherwise specificed, all fields are aligned to 32 bit boundaries. They are encoded in the order specified. The
-programmer may change field order with "decorators". Support is planned for the following decorators:
-
-- `@align(bits)`, aligns all included fields in by `bits`.
-- `@order(n)`, make this field the `n`'th in the encoded structure, no matter where it appears in the declaration. All
-  following fields are shifted up by 1.
-- `@size(bits)`, force the field to `bits` wide, throws an error if the type cannot be encoded in the specified number of
-  bits.
 
 = Compiler Architecture
 The compiler is organized into three stages:
@@ -414,7 +392,7 @@ will riple throughout code generation and typechecking, so it's first on the to-
 === Modules
 
 === Core Types
-*Floating-Point Numbers*, *Fat Pointers*, *Symbols/Enums*, and *Union* types are almost entirely unimplemented.
+*Floating-Point Numbers*, *Slices*, *Symbols/Enums*, and *Union* types are almost entirely unimplemented.
 
 === Integer Range Types
 While partially implemented, integer range types are unchecked.
