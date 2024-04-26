@@ -245,6 +245,8 @@ The fundamental limitation of this approach is that the returned code is opaque 
 
 The code generator emits a RISC-V assembly string, which is expect to be passed to an external assembler and linker. The compiler includes a structure holds a buffer a block of assembler. Each individual instruction has a method which adds it to the buffer. This allows the structure to tracj which registers have been read or mutated. With this information, when the parent node recieves the child's assembler block, it is able to determine which registers must be saved if used around the block.
 
+There is no clever register allocation. If a register is needed the compiler checks which registers are free, and allocates the first unused one it finds. If no registers are free it allocates space on the stack.
+
 = Current Implementation <curr-impl>
 
 The focus for this semester was to get a small core language to compile. This builds a solid foundation, which can be
