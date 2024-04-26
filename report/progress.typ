@@ -92,9 +92,9 @@ Howlite supports several operators which can control a structure's layout in mem
 {
   a: bool,
   @align(4) {
-    b1: 0..5
-    b2: 5..10
-  }
+    b1: 0..5,
+    b2: 5..10,
+  },
   c: u16
 }
 ```
@@ -127,7 +127,7 @@ The `.` in the array index syntax disambiguates calling a function pointer in an
 Characters and strings both have dedicated types and syntax:
 ```hlt
 let h: char = 'h';
-let greet: &string = ...;
+let greet: &string = "hello";
 ```
 The literal syntax is identical to C.
 "&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of Unicode characters.
@@ -143,7 +143,7 @@ To ensure unions are not accessed incorrectly, only operation is valid on a subt
 For example `bool` and `null` equality is defined differently (`== : (bool, bool) -> bool` vs `== : (null, null) -> bool`) so `U` has no valid `==` operator.
 `if` statements may narrow the union by checking values of specific fields:
 ```hlt
-let v: { a: 1..1, b: null } | { a: 2..2, b: bool } = { a: 1, b: null };
+let v: { a: 1..1, b: null } | { a: 2..2, b: bool } = struct { a: 1, b: null };
 if v.a == 1 {
   /* v : { a: 1..1, b: null } */
 }
@@ -389,7 +389,7 @@ Modules have not been designed. We have some rudimentary ideas of how they may f
 === Union Types
 Union types have some parts implemented in the type checker, but there is no syntax for them, and the type checking is fairly rudimentary.
 
-=== Polymorphism Types
+=== Polymorphic Types
 Although the syntax is implemented, parametric polymorphism is unsupported in the type checker. Subtype polymorphism is partially implemented, but broken.
 
 === Integer Range Types
