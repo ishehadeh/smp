@@ -410,7 +410,15 @@ These are partially implemented features or ones which we expect to be relativel
 == Refactoring, Documentation
 Once reference types are implemented we plan to slow development to write documentation, and try to refactor some sections of the compiler that have become overly complex.
 
-When iterating quickly this is usually an afterthough, leading to giant files all part of a tangled web of dependencies.
+When iterating quickly this is usually an after though, leading to giant files all part of a tangled web of dependencies.
 Periodically stopping and cleaning up help speed future development.
 
 = Summary
+Howlite is a language created to study programming language design and implementation.
+It has a particular focus on the type system and expressive modeling of data.
+
+In the first phase of the project, during spring semester of 2024, we have implemented a rudimentary compiler capable of compiling parts of the Howlite language.
+During the fall semester, we will build on this foundation to create a full language, which can be applied to real-world use cases.
+
+#colbreak()
+#colbreak()
