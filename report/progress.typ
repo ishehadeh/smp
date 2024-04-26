@@ -222,12 +222,8 @@ We'll discuss this more in the next section, but initially this field has the un
 parser it may be used to hold error information and syntax trivia (such as whitespace, keywords, etc.).
 
 == Typechecking
-Typechecking is performed via recursive descent of the AST. The typecher annotates each node with type information.
-There is no type inference.
 
-This part of the compiler is the biggest, and least developed. The current implementation is mostly in a single, rough
-1,000 line file. Every node has a transformer method, which first recurses to the child nodes, by calling their
-transformers, then based on the result add's its own type information.
+Typechecking is performed via recursive descent of the AST. The typecher annotates each node with type information. The typechecker accepts the tree produced by the parser, that is - a tree with no extra data attached. It produces a tree with with type information attached to each node. Errors are included alongside this type information, but they don't preclude each node getting a type. So in the case of an invalid operation, like `1 + "a"`, the type checker will add an error, then choose a valid type that the parent node may reference.
 
 == Code Generation
 
