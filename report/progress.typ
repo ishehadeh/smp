@@ -184,19 +184,25 @@ type MyArray[T: any] {
 
 There are two kinds of type parameters in Howlite, "Boxed" and "Any". An "Any" type may only be referenced. They cannot
 be inlined into the structure. For example, the following definition is illegal:
-
+```hlt
+type Pair[L: any, R: any] = { left: L, right: R }
 ```
-type Pair[L: any, R: any] {
-  left: L,
-  right: R
-}
+`L` and `R` may only be referenced, so
+```hlt
+type Pair[L: any, R: any] = { left: &L, right: &R }
 ```
+is allowed.
 
-Box types may be included, with the limitation they may be no larger than the system's register size.
+Box types may be included, with the limitation they may be no larger than the system's register size. For example:
+```
+type Vec2[T: boxed] = { x: T, y: T };
+```
 
 This limited parametric polymorphism give's the programmer the ability to get strong typing, without specializing the
-datastructure. More importantly, parameterized procedures don't need to be specialized either, simplifying the calling
+datastructure. This is especially useful for parameterized procedures don't need to be specialized either, simplifying the calling
 convention and allowing easy, strongly-typed interop with other languages.
+
+We have adapted these types from _Cyclone_@ref_cyclone, they are described by Dan Grossman in _Quantified types in an imperative language_@cyclone_types
 
 = Compiler Architecture
 The compiler is organized into three stages:

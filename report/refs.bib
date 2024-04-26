@@ -1,3 +1,43 @@
+@article{cp,
+  title = {Copy-and-{{Patch Compilation}}: {{A}} Fast Compilation Algorithm for High-Level Languages and Bytecode},
+  shorttitle = {Copy-and-{{Patch Compilation}}},
+  author = {Xu, Haoran and Kjolstad, Fredrik},
+  date = {2021-10-20},
+  journaltitle = {Proceedings of the ACM on Programming Languages},
+  shortjournal = {Proc. ACM Program. Lang.},
+  volume = {5},
+  eprint = {2011.13127},
+  eprinttype = {arxiv},
+  eprintclass = {cs},
+  pages = {1--30},
+  issn = {2475-1421},
+  doi = {10.1145/3485513},
+  url = {http://arxiv.org/abs/2011.13127},
+  urldate = {2024-04-26},
+  abstract = {Fast compilation is important when compilation occurs at runtime, such as query compilers in modern database systems and WebAssembly virtual machines in modern browsers. We present copy-and-patch, an extremely fast compilation technique that also produces good quality code. It is capable of lowering both high-level languages and low-level bytecode programs to binary code, by stitching together code from a large library of binary implementation variants. We call these binary implementations stencils because they have holes where missing values must be inserted during code generation. We show how to construct a stencil library and describe the copy-and-patch algorithm that generates optimized binary code. We demonstrate two use cases of copy-and-patch: a compiler for a high-level C-like language intended for metaprogramming and a compiler for WebAssembly. Our high-level language compiler has negligible compilation cost: it produces code from an AST in less time than it takes to construct the AST. We have implemented an SQL database query compiler on top of this metaprogramming system and show that on TPC-H database benchmarks, copy-and-patch generates code two orders of magnitude faster than LLVM -O0 and three orders of magnitude faster than higher optimization levels. The generated code runs an order of magnitude faster than interpretation and 14\% faster than LLVM -O0. Our WebAssembly compiler generates code 4.9X-6.5X faster than Liftoff, the WebAssembly baseline compiler in Google Chrome. The generated code also outperforms Liftoff's by 39\%-63\% on the Coremark and PolyBenchC WebAssembly benchmarks.},
+  issue = {OOPSLA},
+  keywords = {Computer Science - Programming Languages},
+  file = {/home/ian/Zotero/storage/IFPNP7YR/Xu and Kjolstad - 2021 - Copy-and-Patch Compilation A fast compilation algorithm for high-level languages and bytecode.pdf;/home/ian/Zotero/storage/GWGL26G4/2011.html}
+}
+
+@article{cyclone_types,
+  title = {Quantified Types in an Imperative Language},
+  author = {Grossman, Dan},
+  date = {2006-05-01},
+  journaltitle = {ACM Transactions on Programming Languages and Systems},
+  shortjournal = {ACM Trans. Program. Lang. Syst.},
+  volume = {28},
+  number = {3},
+  pages = {429--475},
+  issn = {0164-0925},
+  doi = {10.1145/1133651.1133653},
+  url = {https://dl.acm.org/doi/10.1145/1133651.1133653},
+  urldate = {2024-04-26},
+  abstract = {We describe universal types, existential types, and type constructors in Cyclone, a strongly typed C-like language. We show how the language naturally supports first-class polymorphism and polymorphic recursion while requiring an acceptable amount of explicit type information. More importantly, we consider the soundness of type variables in the presence of C-style mutation and the address-of operator. For polymorphic references, we describe a solution more natural for the C level than the ML-style “value restriction.” For existential types, we discover and subsequently avoid a subtle unsoundness issue resulting from the address-of operator. We develop a formal abstract machine and type-safety proof that capture the essence of type variables at the C level.},
+  keywords = {Cyclone,existential types,polymorphism,type variables},
+  file = {/home/ian/Zotero/storage/8LURK7JA/Grossman - 2006 - Quantified types in an imperative language.pdf}
+}
+
 @software{go,
   title = {The {{Go Programming Language}}},
   url = {https://go.dev/},
@@ -5,6 +45,23 @@
   abstract = {Go is an open source programming language that makes it simple to build secure, scalable systems.},
   organization = {Google},
   file = {/home/ian/Zotero/storage/JXA4BPP6/go.dev.html}
+}
+
+@article{hindley_types,
+  title = {The {{Principal Type-Scheme}} of an {{Object}} in {{Combinatory Logic}}},
+  author = {Hindley, R.},
+  date = {1969},
+  journaltitle = {Transactions of the American Mathematical Society},
+  volume = {146},
+  eprint = {1995158},
+  eprinttype = {jstor},
+  pages = {29--60},
+  publisher = {American Mathematical Society},
+  issn = {0002-9947},
+  doi = {10.2307/1995158},
+  url = {https://www.jstor.org/stable/1995158},
+  urldate = {2024-04-26},
+  file = {/home/ian/Zotero/storage/FA47R3ZP/Hindley - 1969 - The Principal Type-Scheme of an Object in Combinatory Logic.pdf}
 }
 
 @standard{js,
@@ -38,6 +95,23 @@
   keywords = {lexer,lexer-generator,parser,parsing,rust}
 }
 
+@article{milner_types,
+  title = {A Theory of Type Polymorphism in Programming},
+  author = {Milner, Robin},
+  date = {1978-12-01},
+  journaltitle = {Journal of Computer and System Sciences},
+  shortjournal = {Journal of Computer and System Sciences},
+  volume = {17},
+  number = {3},
+  pages = {348--375},
+  issn = {0022-0000},
+  doi = {10.1016/0022-0000(78)90014-4},
+  url = {https://www.sciencedirect.com/science/article/pii/0022000078900144},
+  urldate = {2024-04-26},
+  abstract = {The aim of this work is largely a practical one. A widely employed style of programming, particularly in structure-processing languages which impose no discipline of types, entails defining procedures which work well on objects of a wide variety. We present a formal type discipline for such polymorphic procedures in the context of a simple programming language, and a compile time type-checking algorithm W which enforces the discipline. A Semantic Soundness Theorem (based on a formal semantics for the language) states that well-type programs cannot “go wrong” and a Syntactic Soundness Theorem states that if W accepts a program then it is well typed. We also discuss extending these results to richer languages; a type-checking algorithm based on W is in fact already implemented and working, for the metalanguage ML in the Edinburgh LCF system.},
+  file = {/home/ian/Zotero/storage/XCMZNCKZ/Milner - 1978 - A theory of type polymorphism in programming.pdf;/home/ian/Zotero/storage/T5S5JG9U/0022000078900144.html}
+}
+
 @online{null_c,
   title = {{{NULL}}},
   url = {https://en.cppreference.com/w/c/types/NULL},
@@ -69,6 +143,15 @@
   langid = {english},
   organization = {OCaml},
   file = {/home/ian/Zotero/storage/LB87B8YW/ocaml.org.html}
+}
+
+@software{ref_cyclone,
+  title = {Cyclone},
+  date = {2001},
+  url = {https://cyclone.thelanguage.org/},
+  urldate = {2024-04-26},
+  organization = {AT\&T Labs},
+  file = {/home/ian/Zotero/storage/NWN53EQY/cyclone.thelanguage.org.html}
 }
 
 @software{ref_gleam,
@@ -151,26 +234,4 @@
   organization = {Microsoft},
   version = {5.4},
   file = {/home/ian/Zotero/storage/HQSDDNQ2/www.typescriptlang.org.html}
-}
-
-@article{xuCopyandPatchCompilationFast2021,
-  title = {Copy-and-{{Patch Compilation}}: {{A}} Fast Compilation Algorithm for High-Level Languages and Bytecode},
-  shorttitle = {Copy-and-{{Patch Compilation}}},
-  author = {Xu, Haoran and Kjolstad, Fredrik},
-  date = {2021-10-20},
-  journaltitle = {Proceedings of the ACM on Programming Languages},
-  shortjournal = {Proc. ACM Program. Lang.},
-  volume = {5},
-  eprint = {2011.13127},
-  eprinttype = {arxiv},
-  eprintclass = {cs},
-  pages = {1--30},
-  issn = {2475-1421},
-  doi = {10.1145/3485513},
-  url = {http://arxiv.org/abs/2011.13127},
-  urldate = {2024-04-26},
-  abstract = {Fast compilation is important when compilation occurs at runtime, such as query compilers in modern database systems and WebAssembly virtual machines in modern browsers. We present copy-and-patch, an extremely fast compilation technique that also produces good quality code. It is capable of lowering both high-level languages and low-level bytecode programs to binary code, by stitching together code from a large library of binary implementation variants. We call these binary implementations stencils because they have holes where missing values must be inserted during code generation. We show how to construct a stencil library and describe the copy-and-patch algorithm that generates optimized binary code. We demonstrate two use cases of copy-and-patch: a compiler for a high-level C-like language intended for metaprogramming and a compiler for WebAssembly. Our high-level language compiler has negligible compilation cost: it produces code from an AST in less time than it takes to construct the AST. We have implemented an SQL database query compiler on top of this metaprogramming system and show that on TPC-H database benchmarks, copy-and-patch generates code two orders of magnitude faster than LLVM -O0 and three orders of magnitude faster than higher optimization levels. The generated code runs an order of magnitude faster than interpretation and 14\% faster than LLVM -O0. Our WebAssembly compiler generates code 4.9X-6.5X faster than Liftoff, the WebAssembly baseline compiler in Google Chrome. The generated code also outperforms Liftoff's by 39\%-63\% on the Coremark and PolyBenchC WebAssembly benchmarks.},
-  issue = {OOPSLA},
-  keywords = {Computer Science - Programming Languages},
-  file = {/home/ian/Zotero/storage/IFPNP7YR/Xu and Kjolstad - 2021 - Copy-and-Patch Compilation A fast compilation algorithm for high-level languages and bytecode.pdf;/home/ian/Zotero/storage/GWGL26G4/2011.html}
 }
