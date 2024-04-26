@@ -27,21 +27,21 @@ By the end of the second semester, Howlite will be capable of self-hosting (i.e.
 
 Ideally, all the features outlined below will be implemented, but some may be dropped in order to prioritize creating a _complete_ language.
 For example, right now the language is missing several operators, and integer types are only unsigned.
-While these omissions have not caused issues at this stage of development, these features will take priority going forward semester.
+While these omissions have not caused issues at this stage of development, these features will take priority going forward.
 
 == Language Objective
-We use Howlite to study expressive modeling of data, with minimal constraints. Howlite's type system allows supports common patterns in embedded programming, while allowing the programmer to freely and explicitly manage memory and program behavior.
+We use Howlite to study expressive modeling of data, with minimal constraints. Howlite's type system supports common patterns in embedded programming, while allowing the programmer to freely and explicitly manage memory and program behavior.
 
-In practice this means a strong support for _subtype-polymorphism_, _numeric subtypes_, and explicit behavior with regard
-to how data structures are encoded. The syntax and semantics are inspired by TypeScripts@ts type system around JavaScript@js Objects.
+In practice this means a strong support for _subtype polymorphism_, _numeric subtypes_, and explicit behavior with regard
+to how data structures are encoded. The syntax and semantics are inspired by TypeScript's@ts type system around JavaScript@js Objects.
 
 = Language Design <lang-design>
 
 == Syntax
 Howlite's syntax is designed to be clear, concise and immediately legible to people familiar with C-like
-languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators. To maintain clarity Howlite's syntax keeps symbols within the same context as much as possible. For example colons always relate type signatures. But this consistency is broken if it would require straying to far from mainstrain language syntax
+languages. We use curly-braces to mark blocks, square brackets for arrays, and semicolons as statement terminators. To maintain clarity Howlite's syntax keeps symbols within the same context as much as possible. For example colons always relate type signatures. But this consistency is broken if it would require straying too far from mainstream language syntax
 
-Aside from C, Howlite's syntax takes inspiration from some several new languages. The type syntax was inspired by TypeScript@ts, hints were taken from Rust@rust on bringing ML nicieties to a C-like syntax, and notes were taken from Go@go on how to implement a small easily-parsed grammar.
+Aside from C, Howlite's syntax takes inspiration from several new languages. The type syntax was inspired by TypeScript@ts, hints were taken from Rust@rust on bringing ML niceties to C-like syntax, and notes were taken from Go@go on how to implement a small easily-parsed grammar.
 
 == Semantics
 
@@ -59,15 +59,17 @@ All variables must be immediately initialized. Identifiers may not be redeclared
 The syntax was taken from Rust@rust, TypeScript@ts has a similar binding syntax. We prefer this syntax over the C type-first declarations because it clearly defines when an variable is declared. Furthermore, because type names are arbitrary, they may be difficult for humans to parse. Thus, we precede every type with ':' throughout the language.
 
 === Numbers
-Number types in Howlite are expressed as an inclusive range. `i` may be `0`, `255` or any integer between the two:
+Number types in Howlite are expressed as an inclusive range.
+The integers in this range must be representable in at most two registers on the target machine.
+`i` may be `0`, `255` or any integer between the two:
 ```
 let i: 0..255 = 127;
 ```
 
 Integer literals support radix prefixes: `0x` (hexadecimal), `0b` (binary), `0o` (octal).
-Numbers may also include underscores as seperators. This syntax was mostly lifted from Rust@rust, although there are a number of languages with similar integer literals.
+Numbers may also include underscores as separators. This syntax was mostly lifted from Rust@rust, although there are a number of languages with similar integer literals.
 
-There are two builtin IEEE-754 floating point types, `float32` and `float64`. Float literal syntax is identical to C.
+There are two built-in EEE-754 floating point types, `float32` and `float64`. Float literal syntax is identical to C.
 
 === Null
 The `null` type has a single value called `null`.
@@ -103,7 +105,7 @@ Howlite does not support pointers with integer semantics like C. Instead it has 
 ```hlt
 let tuple_ref: &Tuple = &tuple_val;
 ```
-By default, the only operation that may be performed on a reference is access: `tuple_ref.first`, and dereference: `*tuple_ref`. References cannot be `null`. They may be downgraded with a cast: `(tuple_ref : uint)`. Upgrading a reference requires using the compiler built-in function `@toReference`.
+By default, the only operation that may be performed on a reference is access: `tuple_ref.first`, and dereference: `*tuple_ref`. Dereference is used when an operation must be performed on the referenced value itself, for example: assignment or addition. References cannot be `null`. They may be downgraded with a cast: `(tuple_ref : uint)`. Upgrading a reference requires using the compiler built-in function `@toReference`.
 
 === Arrays and Slice
 Arrays are semantically similar to C arrays but differ slightly in syntax:
@@ -131,9 +133,21 @@ The literal syntax is identical to C.
 "&string" is a subtype of "&[0..255]", which is understood to be valid UTF-8 encoding of a series of Unicode characters.
 
 === Unions
-Howlite supports C-like union types. Unions are constructed from 2 or more _subtypes_, seperated by `|`: `type U = bool | null`.
-A union represents all possible values of all its child types. Unlike C `union`s, Howlite unions forbid invalid access to the underlying data. To enforce this only operations on all _subtypes_ of a union may be performed.
-For example, The type `{ a: null } | { b: null }` may not be accessed, since we cannot know if either `a` or `b` is present.
+Howlite supports C-like union types. Unions are constructed from two or more _subtypes_, separated by `|`: `type U = bool | null`.
+`U` may be a `bool` or `null`. Unlike dynamic languages, C++'s `std::variant`@cxx_variant Howlite does not know the current type of `U` at runtime.
+
+To ensure unions are not accessed incorrectly, only operation is valid on a subtype only if it is
+1. Valid on _all_ subtypes
+2. And, has the same definition on all subtypes
+
+For example `bool` and `null` equality is defined differently (`== : (bool, bool) -> bool` vs `== : (null, null) -> bool`) so `U` has no valid `==` operator.
+`if` statements may narrow the union by checking values of specific fields:
+```hlt
+let v: { a: 1..1, b: null } | { a: 2..2, b: bool } = { a: 1, b: null };
+if v.a == 1 {
+  /* v : { a: 1..1, b: null } */
+}
+```
 
 === Expressions
 Howlite expressions look similar to expressions in most C-adjacent languages.
@@ -198,9 +212,9 @@ Box types may be included, with the limitation they may be no larger than the sy
 type Vec2[T: boxed] = { x: T, y: T };
 ```
 
-This limited parametric polymorphism give's the programmer the ability to get strong typing, without specializing the
-datastructure. This is especially useful for parameterized procedures don't need to be specialized either, simplifying the calling
-convention and allowing easy, strongly-typed interop with other languages.
+This limited parametric polymorphism gives the programmer the ability to get strong typing, without specializing the
+data structure. This is especially useful for parameterized procedures don't need to be specialized either, simplifying the calling
+convention and allowing easy, strongly-typed interoperation with other languages.
 
 We have adapted these types from _Cyclone_@ref_cyclone, they are described by Dan Grossman in _Quantified types in an imperative language_@cyclone_types
 
@@ -208,20 +222,20 @@ We have adapted these types from _Cyclone_@ref_cyclone, they are described by Da
 The compiler is organized into three stages:
 
 1. Parsing
-2. Typechecking
+2. Type checking
 3. Code generation
 
-Unlike many compilers Howlite does not have an intermediate representation. We chose to omit this pass because Howlite is non-omptimizing and targets a single architecture, so it would have considerably slowed development for little benefit.
+Unlike many compilers Howlite does not have an intermediate representation. We chose to omit this pass because Howlite is non-optimizing and targets a single architecture, so it would have considerably slowed development for little benefit.
 
-The compiler is written in Rust. We chose Rust because the author had the most expierence with this language. Rust also has a number of other programming languages written in it, which we used as a reference. Specifically, we looked at _Gluon_@ref_gluon, _Gleam_@ref_gleam, and _RustPython_@ref_rspy. We also read through sections of the _Tiny C Compiler_@ref_tcc, because it compiles directly to assembler. The _Rust_@ref_rustc and _Swift_@ref_swiftc compilers were referenced for their abstract syntax tree representations.
+The compiler is written in Rust. We chose Rust because the author had the most experience with this language. Rust also has a number of other programming languages written in it, which we used as a reference. Specifically, we looked at _Gluon_@ref_gluon, _Gleam_@ref_gleam, and _RustPython_@ref_rspy. We also read through sections of the _Tiny C Compiler_@ref_tcc, because it compiles directly to assembler. The _Rust_@ref_rustc and _Swift_@ref_swiftc compilers were referenced for their abstract syntax tree representations.
 
 == Parsing
 The lexer is generated by the Rust library _logos_@lib_logos, and the parser by _lalrpop_@lib_lalrpop. _lalrpop_ is an LR(1) parser generator
 for Rust. We did not write a custom recursive descent parser to speed development.
 
-We chose lalrpop because it is well supported, and has a few complex grammars we can use as reference (_Gluon_@ref_gluon, _Gleam_@ref_gleam, and _RustPython_@ref_rspy). By using a generated parser we trade faster development for worse error handling and a lower performance ceiling. But since precise, well formatted errors, and quick compile times are not stated goals of the project, the ability to rapidly prototype the grammar was well-worth the tradeoff.
+We chose _lalrpop_ because it is well-supported and has a few complex grammars we can use as reference (_Gluon_@ref_gluon, _Gleam_@ref_gleam, and _RustPython_@ref_rspy). By using a generated parser we trade faster development for worse error handling and a lower performance ceiling. But since precise, well formatted errors, and quick compile times are not stated goals of the project, the ability to rapidly prototype the grammar was well-worth the tradeoff.
 
-The generated parser directly emits an abstract syntax tree (AST). Errors are just another node in the AST. Keeping errors siloed in the AST has the advantage it forces each pass to explicitly handle them as they are encountered. So, a program may be compiled as much as possible, with each pass trying to work around the invalid nodes. Information typically kept in the parse tree is not encoded in the abstract syntax tree. Some languages keep individual tokens (e.g. _Rust_@ref_rustc), or "trivia" nodes (e.g. _Swift_@ref_swiftc), along side the abstract tree contents.
+The generated parser directly emits an abstract syntax tree (AST). Errors are just another node in the AST. Keeping errors siloed in the AST has the advantage it forces each pass to explicitly handle them as they are encountered. So, a program may be compiled as much as possible, with each pass trying to work around the invalid nodes. Information typically kept in the parse tree is not encoded in the abstract syntax tree. Some languages keep individual tokens (e.g. _Rust_@ref_rustc), or "trivia" nodes (e.g. _Swift_@ref_swiftc), alongside the abstract tree contents.
 
 Howlite's AST is a parameterized type. Each node in the AST has a field containing arbitrary data.
 We'll discuss this more in the next section, but initially this field has the unit type. In further iterations of the
@@ -229,13 +243,13 @@ parser it may be used to hold error information and syntax trivia (such as white
 
 == Typechecking
 
-Typechecking is performed via recursive descent of the AST. The typecher annotates each node with type information. The typechecker accepts the tree produced by the parser, that is - a tree with no extra data attached. It produces a tree with with type information attached to each node. Errors are included alongside this type information, but they don't preclude each node getting a type. So in the case of an invalid operation, like `1 + "a"`, the type checker will add an error, then choose a valid type that the parent node may reference.
+Typechecking is performed via recursive descent of the AST. The type checker annotates each node with type information. The type checker accepts the tree produced by the parser, that is - a tree with no extra data attached. It produces a tree with type information attached to each node. Errors are included alongside this type information, but they don't preclude each node getting a type. So in the case of an invalid operation, like `1 + "a"`, the type checker will add an error, then choose a valid type that the parent node may reference.
 
-At the time of writing, the Howlite type checker is lacking. While we are confident in the the broad strokes outlined above, it's difficult to give more specifics. Especially in the context of yet unimplement language features, like polymorphism and full support for integer range types. @curr-impl will elaborate on the current implementation further. The current architecture is _just enough_ to allow for well-formed code generation.
+At the time of writing, the Howlite type checker is lacking. While we are confident in the broad strokes outlined above, it's difficult to give more specifics. Especially because many language features are not fully implemented like polymorphism and support for integer range types. @curr-impl will elaborate on the current implementation further. The current architecture is _just enough_ to allow for well-formed code generation.
 
 == Code Generation
 Similar to type checking the code generator works by recursively crawling the AST. Unlike type checking it does not
-annotate each node (i.e. creating a new AST). Instead each node is transformed into a structure containing.
+annotate each node (i.e. creating a new AST). Instead, each node is transformed into a structure containing.
 
 1. The compiled assembly
 2. Error information (if any)
@@ -247,9 +261,9 @@ li a0, 1          ; move literal '1' into register a0
 li a1, 1          ; move literal '1' into register a1
 add a0, a0, a1   ; a0 = a0 + a1
 ```
-The fundamental limitation of this approach is that the returned code is opaque to the calling procedure, This limitation blocks a number of optimisations. Again, like with our use of a parser generator we chose this method because it allows for quick development and prototyping. Runtime performance is not a goal of the project.
+The fundamental limitation of this approach is that the returned code is opaque to the calling procedure, This limitation blocks a number of optimizations. Again, like with our use of a parser generator we chose this method because it allows for quick development and prototyping. Runtime performance is not a goal of the project.
 
-The code generator emits a RISC-V assembly string, which is expect to be passed to an external assembler and linker. The compiler includes a structure holds a buffer a block of assembler. Each individual instruction has a method which adds it to the buffer. This allows the structure to tracj which registers have been read or mutated. With this information, when the parent node recieves the child's assembler block, it is able to determine which registers must be saved if used around the block.
+The code generator emits a RISC-V assembly string, which is expected to be passed to an external assembler and linker. The compiler includes a structure holds a buffer a block of assembler. Each individual instruction has a method which adds it to the buffer. This allows the structure to track which registers have been read or mutated. With this information, when the parent node receives the child's assembler block, it is able to determine which registers must be saved if used around the block.
 
 There is no clever register allocation. If a register is needed the compiler checks which registers are free, and allocates the first unused one it finds. If no registers are free it allocates space on the stack.
 
@@ -258,11 +272,11 @@ There is no clever register allocation. If a register is needed the compiler che
 The focus of this semester was creating a small core language which compiles to RISC-V assembler. We have built a solid foundation which can be
 iterated on next semester.
 
-The most notable omissions are in the typechecker. Currently it doesn't handle any kind of polymorphism, and only has
+The most notable omissions are in the type checker. Currently, it doesn't handle any kind of polymorphism, and only has
 basic support for numbers.
 
-The compiler is well partitioned, each step outlined in @hltc-arch is clearly seperated. An AST is generated by the
-parser, passed through the typechecker then transformed into an assembler file. Each module has minimal dependencies on
+The compiler is well partitioned, each step outlined in @hltc-arch is clearly separated. An AST is generated by the
+parser, passed through the type checker then transformed into an assembler file. Each module has minimal dependencies on
 any other.
 
 == Syntax Progress
@@ -279,7 +293,7 @@ assignment. Bindings are supported via `let` and `let mut`. Identifiers and may 
 
 Comments have not been implemented.
 == Type Checking Progress
-The most significant progress in the typechecker is crawling the AST, adding type annotations. The actual _checking_ of
+The most significant progress in the type checker is crawling the AST, adding type annotations. The actual _checking_ of
 these annotations is limited.
 
 Simple types are checked, for example:
@@ -288,23 +302,23 @@ Simple types are checked, for example:
 let a: bool = 5    // this causes an error
 ```
 
-But all statements aren't checked, for example function calls and return expressions are ignored by the typecheker.
+But all statements aren't checked, for example function calls and return expressions are ignored by the type cheker.
 
-The fundamental architecture of the type checker is solid. The type checker derives a type based on _the child types of the current node_ and the specifics in of _current AST node_. Making this information long-lived and tightly coupled is useful. This architecture has been essential in debugging the typechecker and compiler. This pattern could also help provide better error messages in the future, although that is mostly out of scope for the project.
+The fundamental architecture of the type checker is solid. The type checker derives a type based on _the child types of the current node_ and the specifics in of _current AST node_. Making this information long-lived and tightly coupled is useful. This architecture has been essential in debugging the type checker and compiler. This pattern could also help provide better error messages in the future, although that is mostly out of scope for the project.
 
 Despite our belief in the architecture, the current implementation has a few critical flaws:
 
 === Performance
 During type checking _the entire_ AST is copied while annotating it with type information. Alternative representations of
-the AST could work around this limitation. For example, we could extended the AST presented in _Compilers_@compilers.
+the AST could work around this limitation. For example, we could extend the AST presented in _Compilers_@compilers.
 This implementation has each node added to an array, and children are referenced using an index into this
-array. Then, extension data could be stored in a seperate, equally-sized array with each element corrosponding to the AST Node at the same index, in effect we turn the AST into a structure of arrays.
+array. Then, extension data could be stored in a separate, equally-sized array with each element corresponding to the AST Node at the same index, in effect we turn the AST into a structure of arrays.
 
 === Monolithic
-The current AST walker type resides in a nearly 1,000 line file, with no clear way to break it into seperate parts.
+The current AST walker type resides in a nearly 1,000 line file, with no clear way to break it into seseparateparts.
 Again, there are a few paths to remedy this, but similar to the performance issue it will require a large project refactor.
 
-Both these points are two say: while the current type checker provides a rough outline of what we hope the final product
+Both these points are to say: while the current type checker provides a rough outline of what we hope the final product
 will look like, there will likely need to be a large restructuring and rewrite of the system.
 
 == Code Generation
@@ -324,7 +338,7 @@ even when they are small enough that the calling convention requires they be pas
 multi-register return values are not supported either, although this is less critical, since it's not as common to
 return large values and, only two registers are used for the return value.
 
-Although there are missing peices in the compiler, we don't expect filling these gaps will require a major shift, like the typechecker.
+Although there are missing ppiecesin the compiler, we don't expect filling these gaps will require a major shift, like the type checker.
 
 == Documentation
 There is some documentation. But most notes are out of date and irrelevant; One
@@ -340,11 +354,11 @@ As alluded to previously, a number of example programs were developed, which ser
 
 === Tracking Impact
 When compiling source test programs, the result of each compiler pass is written to a file, which is stored in version
-control. This way, we can see the result of changes to the typechecker and code generation over the course of
+control. This way, we can see the result of changes to the type checker and code generation over the course of
 development.
 
 === Verify Changes
-As a side effect of tracking compiler output in version control, we can immediately observe any change since since the last
+As a side effect of tracking compiler output in version control, we can immediately observe any change since the last
 commit by simply running `git diff HEAD tests/`. This isn't a replacement for real tests, since it requires the
 programmer correctly verify the changes are intended (which they have failed to do a number of times). But it allows
 rapid iteration and prototyping without constantly updating expected test results.
@@ -357,7 +371,7 @@ type information stored_? and _how is code generated_?
 
 By answering these questions we built a foundation, The compiler architecture has mostly been decided. Now, we are free to iterate on this design and implement more complex language features. We are confident that the language outlined in @lang-design will be completed over the next 7 months.
 
-The remaining tasks have been split into a Major and Minor To-do list. The major tasks will likely be long-lived, and require consideration as the compiler developes. They may also need to some sections of the compiler's design to be reconsidered. The Minor To-do list are small tasks that can be quickly implemented without to much consideration. Most of these have a well established design, and partial support in the compiler already.
+The remaining tasks have been split into a Major and Minor To-do list. The major tasks will likely be long-lived, and require consideration as the compiler ddevelops They may also need to some sections of the compiler's design to be reconsidered. The Minor To-do list are small tasks that can be quickly implemented without too uch consideration. Most of these have a well established design, and partial support in the compiler already.
 
 == The Major To-Do List
 
@@ -365,9 +379,9 @@ The remaining tasks have been split into a Major and Minor To-do list. The major
 During the course of implementing the current version of Howlite we became aware of Copy-and-Patch@cp compilation and Hindley-Milner type systems@hindley_types@milner_types. While neither of these systems are directly applicable its worth reading through the material. Especially since our type checker is one of the largest areas needing improvement.
 
 === Reference Types
-The most sorely missing feature in the core language, which prevents Howlite for being used in conjuction with C
+The most sorely missing feature in the core language, which prevents Howlite for being used in conjunction with C
 libraries is the lack of support for any kind of indirection. We expect this to also be a fairly significant change that
-will riple throughout code generation and typechecking, so it's first on the to-do list.
+will riple throughout code generation and type checking so it's first on the to-do list.
 
 === Modules
 Modules have not been designed. We have some rudimentary ideas of how they may fit into the language, but nothing solid.
@@ -376,7 +390,7 @@ Modules have not been designed. We have some rudimentary ideas of how they may f
 Union types have some parts implemented in the type checker, but there is no syntax for them, and the type checking is fairly rudimentary.
 
 === Polymorphism Types
-Although the syntax is implemented, parametric polymorphism is unsupported in the typechecker. Subtype polymorphism is partially implemented, but broken.
+Although the syntax is implemented, parametric polymorphism is unsupported in the type checker. Subtype polymorphism is partially implemented, but broken.
 
 === Integer Range Types
 While partially implemented, integer range types are unchecked.
@@ -389,7 +403,7 @@ These are partially implemented features or ones which we expect to be relativel
 1. Operator Precedence
 2. Logical, bitwise, and arithmetic with assignment, binary operators
 3. Unary operators
-4. Core types: Reference/Length pairs (slices), strings, enumerables and floating point numbers, and characters.
+4. Core types: Reference/Length pairs (slices), strings, enumerables, floating point numbers, and characters.
 5. Structure encoding control (`@align`, `@pad` etc.)
 6. Literals: characters, floats, radix-prefix integers.
 
