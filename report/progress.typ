@@ -35,7 +35,7 @@ We use Howlite to study expressive modeling of data, with minimal constraints. H
 In practice this means a strong support for _subtype-polymorphism_, _numeric subtypes_, and explicit behavior with regard
 to how data structures are encoded. The syntax and semantics are inspired by TypeScripts@ts type system around JavaScript@js Objects.
 
-= Language Design
+= Language Design <lang-design>
 
 == Syntax
 Howlite's syntax is designed to be clear, concise and immediately legible to people familiar with C-like
@@ -176,7 +176,7 @@ switch value {
 ```
 === Type Parameters
 ```
-type MyArray[T: any] {
+type MyArray[T: any] = {
   elements: &rw[T],
   length: uint
 }
@@ -204,7 +204,7 @@ convention and allowing easy, strongly-typed interop with other languages.
 
 We have adapted these types from _Cyclone_@ref_cyclone, they are described by Dan Grossman in _Quantified types in an imperative language_@cyclone_types
 
-= Compiler Architecture
+= Compiler Architecture <hltc-arch>
 The compiler is organized into three stages:
 
 1. Parsing
@@ -255,7 +255,7 @@ There is no clever register allocation. If a register is needed the compiler che
 
 = Current Implementation <curr-impl>
 
-The focus of this semester was creating a small core language which was able to compile to RISC-V assembler. This builds a solid foundation, which can be
+The focus of this semester was creating a small core language which compiles to RISC-V assembler. We have built a solid foundation which can be
 iterated on next semester.
 
 The most notable omissions are in the typechecker. Currently it doesn't handle any kind of polymorphism, and only has
@@ -266,20 +266,18 @@ parser, passed through the typechecker then transformed into an assembler file. 
 any other.
 
 == Syntax Progress
-Type expressions support a subset of the possible scalars: `unit` and `bool`, and integer types. Support for number
+Type expressions support a subset of the possible scalars: `unit`, `bool`, and integer types. Support for number
 (i.e. integer) ranges (`0..10`) has been established, although negative numbers are not included. Container types,
 arrays and structures have been fully implemented in syntax. Named references to other types have also been implemented,
 which may include type parameters. The most notable omission in the current type expression grammar is that there is no
 union operator, or any kind of reference type.
 
-Most of the top level definitions have been implemented: `type`, `func`, and `extern func`. The most notable omission is
-proper module syntax. Each of the these definitions also has support for type parameters.
+Most top level definitions have been implemented: `type`, `func`, and `extern func`. Each of the these definitions also has support for type parameters. There is no syntax for module imports or exports.
 
-Expression syntax is lacking. There is only support for integer comparison operators, basic arithmetic operations, and
-assignment. Bindings are supported via `let`, and may be referenced by name. Container type access is also supported..
-Basic branching via `if` and `while` (`if`, `while`, and `let`, all have a value and type, allowing them to be used in
-expressions).\
-\
+Expression Support for integer comparison operators, basic arithmetic operations, and
+assignment. Bindings are supported via `let` and `let mut`. Identifiers and may be accessed and called. Literals have been implemented for integers, booleans, structures and arrays. Basic branching via `if`/`else` and `while` has been implemented, but there is no `else if`, `switch` or `for` expressions.
+
+Comments have not been implemented.
 == Type Checking Progress
 The most significant progress in the typechecker is crawling the AST, adding type annotations. The actual _checking_ of
 these annotations is limited.
@@ -287,40 +285,35 @@ these annotations is limited.
 Simple types are checked, for example:
 
 ```
-let a: bool = 5
+let a: bool = 5    // this causes an error
 ```
 
-But all statements aren't checked, for example function calls and returns. Typechecking is by far the pass with the most
-holes.
+But all statements aren't checked, for example function calls and return expressions are ignored by the typecheker.
 
-The fundamental architecture of the type checker is solid; Attaching type information to AST nodes, then recursively
-resolving types, has been useful for debugging and clarity of type checker code. We hope this pattern will also be
-useful for providing clear and detailed error information, in the future.
+The fundamental architecture of the type checker is solid. The type checker derives a type based on _the child types of the current node_ and the specifics in of _current AST node_. Making this information long-lived and tightly coupled is useful. This architecture has been essential in debugging the typechecker and compiler. This pattern could also help provide better error messages in the future, although that is mostly out of scope for the project.
 
 Despite our belief in the architecture, the current implementation has a few critical flaws:
 
 === Performance
-During type checking _the entire_ AST is copied in annotating it with type information. Alternative representations of
-the AST could work around this limitation. We could extended the AST presented in _Compilers (Aho, 2007)_ /* TODO cite */.
-In this implementation each node would be added to an array, and children would be referenced using an index into this
-array. Then, extension data could be stored in a seperate, equally-sized array with each element corrosponding to the
-AST Node at the same index (i.e. A Structure of Arrays)
+During type checking _the entire_ AST is copied while annotating it with type information. Alternative representations of
+the AST could work around this limitation. For example, we could extended the AST presented in _Compilers_@compilers.
+This implementation has each node added to an array, and children are referenced using an index into this
+array. Then, extension data could be stored in a seperate, equally-sized array with each element corrosponding to the AST Node at the same index, in effect we turn the AST into a structure of arrays.
 
 === Monolithic
 The current AST walker type resides in a nearly 1,000 line file, with no clear way to break it into seperate parts.
-Again, there are a few paths to remedy this, but similar to the performance issue it will require a fairly large
-restructuring.
+Again, there are a few paths to remedy this, but similar to the performance issue it will require a large project refactor.
 
 Both these points are two say: while the current type checker provides a rough outline of what we hope the final product
-will look like, therewill likely need to be a large restructuring and rewrite of the system.
+will look like, there will likely need to be a large restructuring and rewrite of the system.
 
 == Code Generation
-Most features are fairly easily implemented in the code generator. Most expressions that can be parsed, and annotated
+Most features are fairly easily implemented in the code generator. Expressions that can be parsed, and annotated
 with types are able to transformed into assembler. The only notable omissions are around container types: Structure
 accessories are not implemented, and there is only limited support for the RISC-V calling convention when working with
 values larger than the register width.
 
-There is no support for integers greater than the register size anywhere in the language
+There is no support for integers greater than the register size anywhere in the language.
 
 _ASIDE_: The actual integer representations used through the compiler are brittle, and badly needs to be re-thought. The
 compiler just uses the pointer-sized signed integers everywhere, which may lead to non-representable numbers
@@ -328,18 +321,19 @@ compiler just uses the pointer-sized signed integers everywhere, which may lead 
 
 Consequently, multi-register function arguments are an afterthought. Arrays and structures are always put on the stack,
 even when they are small enough that the calling convention requires they be passed using registers. It's worth noting
-multi-register return values are not supported either, although this is less critical, since 1) It's not as common to
-return large values and 2) Only two registers are used for the return value.
+multi-register return values are not supported either, although this is less critical, since it's not as common to
+return large values and, only two registers are used for the return value.
+
+Although there are missing peices in the compiler, we don't expect filling these gaps will require a major shift, like the typechecker.
 
 == Documentation
-There is documentation, though it entirely lives in the author's head. Most notes are out of date and irrelevant; One
-could count the number of documented functions on a single hand (or, possibly, no hands); And there have been enough
-changes that what few comments exist cause more harm than good.
+There is some documentation. But most notes are out of date and irrelevant; One
+could count the number of documented functions on at-most one hand; And there have been enough changes that what few comments exist cause more harm than good.
 
 == Tests
 
 Howlite's test suite isn't lacking to the same degree as documentation, although it's not far off. There are a few
-broken tests scattered throughout the code. Running `cargo test` - The rust package manager's test runner will fail. We
+broken tests scattered throughout the code. Running the compiler's unit tests will fail, they are long out of date. We
 gave up on maintaining a solid set of unit tests due to how rapidly the repository was shifting.
 
 As alluded to previously, a number of example programs were developed, which serve two purposes:
@@ -350,30 +344,25 @@ control. This way, we can see the result of changes to the typechecker and code 
 development.
 
 === Verify Changes
-As a side effect of tracking compiler output in version control, we can immediately observe any since since the last
+As a side effect of tracking compiler output in version control, we can immediately observe any change since since the last
 commit by simply running `git diff HEAD tests/`. This isn't a replacement for real tests, since it requires the
-programmer correctly verify the changes are intended (which they have failed to do a number of times), it does allow
-rapid iteration without constantly updating expected test result.
+programmer correctly verify the changes are intended (which they have failed to do a number of times). But it allows
+rapid iteration and prototyping without constantly updating expected test results.
 
 = Roadmap
 
 This semester has been spent learning how to make a compiler. The challenge came from fitting each piece into place. We
-answered seemingly simple questions, like what does the AST look like, what information is retained from parsing, how is
-type information stored, how is code generated.
+answered seemingly simple questions, like _what does the AST look like_? _what information is retained from parsing_? _How is
+type information stored_? and _how is code generated_?
 
-That is to say - this semester we built a foundation, more in knowledge than in any "physical" work. Using this,
-foundation, iteration on the core compiler will be significantly faster going forward.
+By answering these questions we built a foundation, The compiler architecture has mostly been decided. Now, we are free to iterate on this design and implement more complex language features. We are confident that the language outlined in @lang-design will be completed over the next 7 months.
 
-By the end of next semester we will have a complete implementation of the language described in section II.
-
-== The Minor To-Do List
-
-These are partially implemented features,
-1. Operator Precedence
-2. Logical, bitwise, and arithmetic with assignment, binary operators
-3. Unary operators
+The remaining tasks have been split into a Major and Minor To-do list. The major tasks will likely be long-lived, and require consideration as the compiler developes. They may also need to some sections of the compiler's design to be reconsidered. The Minor To-do list are small tasks that can be quickly implemented without to much consideration. Most of these have a well established design, and partial support in the compiler already.
 
 == The Major To-Do List
+
+=== Addition Research
+During the course of implementing the current version of Howlite we became aware of Copy-and-Patch@cp compilation and Hindley-Milner type systems@hindley_types@milner_types. While neither of these systems are directly applicable its worth reading through the material. Especially since our type checker is one of the largest areas needing improvement.
 
 === Reference Types
 The most sorely missing feature in the core language, which prevents Howlite for being used in conjuction with C
@@ -381,17 +370,31 @@ libraries is the lack of support for any kind of indirection. We expect this to 
 will riple throughout code generation and typechecking, so it's first on the to-do list.
 
 === Modules
+Modules have not been designed. We have some rudimentary ideas of how they may fit into the language, but nothing solid.
 
-=== Core Types
-*Floating-Point Numbers*, *Slices*, *Symbols/Enums*, and *Union* types are almost entirely unimplemented.
+=== Union Types
+Union types have some parts implemented in the type checker, but there is no syntax for them, and the type checking is fairly rudimentary.
+
+=== Polymorphism Types
+Although the syntax is implemented, parametric polymorphism is unsupported in the typechecker. Subtype polymorphism is partially implemented, but broken.
 
 === Integer Range Types
 While partially implemented, integer range types are unchecked.
 This will be one of the last additions to the language, since it weaves its way into just about every system.
 
+== The Minor To-Do List
+
+These are partially implemented features or ones which we expect to be relatively easy to implement. None should require major design changes.
+
+1. Operator Precedence
+2. Logical, bitwise, and arithmetic with assignment, binary operators
+3. Unary operators
+4. Core types: Reference/Length pairs (slices), strings, enumerables and floating point numbers, and characters.
+5. Structure encoding control (`@align`, `@pad` etc.)
+6. Literals: characters, floats, radix-prefix integers.
+
 == Refactoring, Documentation
-Once reference types are implemented we plan to slow development to write documentation, and try to refactor the code
-into clearly seperated modules.
+Once reference types are implemented we plan to slow development to write documentation, and try to refactor some sections of the compiler that have become overly complex.
 
 When iterating quickly this is usually an afterthough, leading to giant files all part of a tangled web of dependencies.
 Periodically stopping and cleaning up help speed future development.
