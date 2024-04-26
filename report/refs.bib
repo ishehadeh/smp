@@ -53,6 +53,37 @@
   file = {/home/ian/Zotero/storage/LB87B8YW/ocaml.org.html}
 }
 
+@software{ref_gleam,
+  title = {Gleam-Lang/Gleam},
+  date = {2024-04-26T09:54:28Z},
+  origdate = {2016-06-30T20:52:30Z},
+  url = {https://github.com/gleam-lang/gleam},
+  urldate = {2024-04-26},
+  abstract = {⭐️ A friendly language for building type-safe, scalable systems!},
+  organization = {Gleam},
+  keywords = {compiler,erlang,gleam,programming-language,statically-typed}
+}
+
+@software{ref_gluon,
+  title = {Gluon-Lang/Gluon},
+  date = {2024-04-25T10:54:37Z},
+  origdate = {2015-08-02T12:35:56Z},
+  url = {https://github.com/gluon-lang/gluon},
+  urldate = {2024-04-26},
+  abstract = {A static, type inferred and embeddable language written in Rust.},
+  organization = {gluon-lang},
+  keywords = {compiler,embeddable,functional,gluon,language,programming-language,repl,rust,type-inference}
+}
+
+@software{ref_rspy,
+  title = {{{RustPython}}/{{Parser}}},
+  date = {2024-04-25T09:35:56Z},
+  origdate = {2023-05-05T15:07:12Z},
+  url = {https://github.com/RustPython/Parser},
+  urldate = {2024-04-26},
+  organization = {RustPython}
+}
+
 @software{rust,
   title = {Rust Programming Language},
   url = {https://www.rust-lang.org/},
@@ -72,4 +103,26 @@
   organization = {Microsoft},
   version = {5.4},
   file = {/home/ian/Zotero/storage/HQSDDNQ2/www.typescriptlang.org.html}
+}
+
+@article{xuCopyandPatchCompilationFast2021,
+  title = {Copy-and-{{Patch Compilation}}: {{A}} Fast Compilation Algorithm for High-Level Languages and Bytecode},
+  shorttitle = {Copy-and-{{Patch Compilation}}},
+  author = {Xu, Haoran and Kjolstad, Fredrik},
+  date = {2021-10-20},
+  journaltitle = {Proceedings of the ACM on Programming Languages},
+  shortjournal = {Proc. ACM Program. Lang.},
+  volume = {5},
+  eprint = {2011.13127},
+  eprinttype = {arxiv},
+  eprintclass = {cs},
+  pages = {1--30},
+  issn = {2475-1421},
+  doi = {10.1145/3485513},
+  url = {http://arxiv.org/abs/2011.13127},
+  urldate = {2024-04-26},
+  abstract = {Fast compilation is important when compilation occurs at runtime, such as query compilers in modern database systems and WebAssembly virtual machines in modern browsers. We present copy-and-patch, an extremely fast compilation technique that also produces good quality code. It is capable of lowering both high-level languages and low-level bytecode programs to binary code, by stitching together code from a large library of binary implementation variants. We call these binary implementations stencils because they have holes where missing values must be inserted during code generation. We show how to construct a stencil library and describe the copy-and-patch algorithm that generates optimized binary code. We demonstrate two use cases of copy-and-patch: a compiler for a high-level C-like language intended for metaprogramming and a compiler for WebAssembly. Our high-level language compiler has negligible compilation cost: it produces code from an AST in less time than it takes to construct the AST. We have implemented an SQL database query compiler on top of this metaprogramming system and show that on TPC-H database benchmarks, copy-and-patch generates code two orders of magnitude faster than LLVM -O0 and three orders of magnitude faster than higher optimization levels. The generated code runs an order of magnitude faster than interpretation and 14\% faster than LLVM -O0. Our WebAssembly compiler generates code 4.9X-6.5X faster than Liftoff, the WebAssembly baseline compiler in Google Chrome. The generated code also outperforms Liftoff's by 39\%-63\% on the Coremark and PolyBenchC WebAssembly benchmarks.},
+  issue = {OOPSLA},
+  keywords = {Computer Science - Programming Languages},
+  file = {/home/ian/Zotero/storage/IFPNP7YR/Xu and Kjolstad - 2021 - Copy-and-Patch Compilation A fast compilation algorithm for high-level languages and bytecode.pdf;/home/ian/Zotero/storage/GWGL26G4/2011.html}
 }
