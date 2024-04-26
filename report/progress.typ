@@ -225,6 +225,7 @@ parser it may be used to hold error information and syntax trivia (such as white
 
 Typechecking is performed via recursive descent of the AST. The typecher annotates each node with type information. The typechecker accepts the tree produced by the parser, that is - a tree with no extra data attached. It produces a tree with with type information attached to each node. Errors are included alongside this type information, but they don't preclude each node getting a type. So in the case of an invalid operation, like `1 + "a"`, the type checker will add an error, then choose a valid type that the parent node may reference.
 
+At the time of writing, the Howlite type checker is lacking. While we are confident in the the broad strokes outlined above, it's difficult to give more specifics. Especially in the context of yet unimplement language features, like polymorphism and full support for integer range types. @curr-impl will elaborate on the current implementation further. The current architecture is _just enough_ to allow for well-formed code generation.
 == Code Generation
 
 Similar to type checking the code generator works by recursively crawling the AST. Unlike type checking it does not
@@ -235,31 +236,14 @@ annotate each node (i.e. creating a new AST). Instead each node is transformed i
 3. Where to find the result of any computation performed by the given node.
 
 For example, the node corrosponding to `1 + 1` may return:
-
 ```s
-li a0, 1
-li a1, 1
-add a0, a0, a1
+li a0, 1          ; move literal '1' into register a0
+li a1, 1          ; move literal '1' into register a1
+add a0, a0, a1   ; a0 = a0 + a1
 ```
+The fundamental limitation of this approach is that the returned code is opaque to the calling procedure, This limitation blocks a number of optimisations. Again, like with our use of a parser generator we chose this method because it allows for quick development and prototyping. Runtime performance is not a goal of the project.
 
-The fundamental limitation of this approach is that the returned code is complete opaque to the calling procedure.
-
-_Aside_: Technically, this is not true, the result _could_ be inspect, if the text was parsed and interpreted. But there
-would be _much_ better ways to accomplish any benefits of that technique.
-
-This limitation blocks a number of optimisations. However, the goal of this compiler is to get implement a complete
-programming language. So, optimization is an afterthought.
-
-Some care is taken to not emit completely absurd code. Immediates may be encoded as the result of an an expression. So,
-with a small change to the compiler it would be possible to use immediate-arithmetic instructions, for example: Instead
-of the above we could emit
-
-```s
-li a0, 1
-add a0, a0, a1
-```
-
-= Current Implementation
+= Current Implementation <curr-impl>
 
 The focus for this semester was to get a small core language to compile. This builds a solid foundation, which can be
 iterated on next semester.
