@@ -223,7 +223,7 @@ digraph Compiler {
 
 ---
 
-### Typecheck
+## Typecheck
 
 ```dot
 digraph TC {
@@ -270,7 +270,7 @@ digraph TC {
 
 ---
 
-### Type Error
+## Type Error
 
 ```dot
 digraph TCBad {
@@ -309,6 +309,65 @@ digraph TCBad {
         c_2[label="'a' : char"]
         c -> c_1
         c -> c_2
+    }
+}
+```
+
+---
+
+## Code Generation
+
+```dot
+digraph CG {
+    bgcolor="transparent"
+    node[shape=record];
+
+    subgraph cluster_0 {
+        label="[1] Typed AST for 1 + 1"
+        peripheries=0
+        margin=20
+
+        a[label="+ : int"]
+        a_1[label="1 : int"]
+        a_2[label="1 : int"]
+        a -> a_1
+        a -> a_2
+    }
+
+    subgraph cluster_1 {
+        label="[2] Compile LHS"
+        peripheries=0
+        margin=20
+
+        b[label="+ : int"]
+        b_1[label="li a0, 1"]
+        b_2[label="1 : int"]
+        b->b_1[headlabel="a0" dir=back labelangle=60.0, labeldistance=1.2]
+        b->b_2
+    }
+
+    subgraph cluster_2 {
+        label="[3] Compile RHS"
+        peripheries=0
+        margin=20
+
+        c[label="+ : int"]
+        c_1[label="li a0, 1"]
+        c_2[label="li a1, 1"]
+        c->c_1[headlabel="a0" dir=back labelangle=60.0, labeldistance=1.5]
+        c->c_2[headlabel="a1" dir=back labelangle=-60.0, labeldistance=1.5]
+    }
+
+    subgraph cluster_3 {
+        label="[4] Compile '+'"
+        peripheries=0
+        margin=10
+        d[label="+ : int"]
+        d_1[label="\<removed\>"]
+        d_2[label="\<removed\>"]
+        d->d_1[dir=back]
+        d->d_2[dir=back]
+        d[label="li a0, 1\nli a1, 1\nadd a0, a0, a1"]
     }
 }
 ```
