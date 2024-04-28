@@ -206,13 +206,81 @@ if v.a == 1 {
 
 # Compiler
 
----
 
 ```dot
-digraph G {
-    A -> C
-    A -> D
-    B -> E
-    B -> F
+digraph Compiler {
+    bgcolor="transparent"
+    rankdir="LR"
+    P [label="Parser", shape=square]
+    T [label="Typechecker", shape=square]
+    C [label="Code Generation", shape=square]
+    L [label="Assemble/Link", shape=square]
+    P -> T [label="AST"]
+    T -> C [label="Type Annotated AST"]
+    C -> L [label="Assembler"]
+}
+```
+
+---
+
+### Typecheck `1 + 2`
+
+```dot
+digraph TC {
+    bgcolor="transparent"
+
+    subgraph {
+        a[label="+"]
+        a -> "1"
+        a -> "2"
+    }
+
+    subgraph {
+        b[label="+"]
+        b_1[label="1 : int"]
+        b_2[label="2 : int"]
+        b -> b_1
+        b -> b_2
+    }
+
+    subgraph {
+        c[label="+ : int"]
+        c_1[label="1 : int"]
+        c_2[label="2 : int"]
+        c -> c_1
+        c -> c_2
+    }
+}
+```
+
+---
+
+### Type Error
+
+```dot
+digraph TCBad {
+    bgcolor="transparent"
+
+    subgraph {
+        a[label="+"]
+        a -> "1"
+        a -> "'a'"
+    }
+
+    subgraph {
+        b[label="+"]
+        b_1[label="1 : int"]
+        b_2[label="'a' : char"]
+        b -> b_1
+        b -> b_2
+    }
+
+    subgraph {
+        c[label="+ : int [error]"]
+        c_1[label="1 : int"]
+        c_2[label="'a' : char"]
+        c -> c_1
+        c -> c_2
+    }
 }
 ```
