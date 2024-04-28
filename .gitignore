@@ -10,3 +10,8 @@ report/progress.pdf
 
 # Other
 /notes/simon_riscv_notes
+
+# Lock Files
+.~*
+~*
+*.lock
