@@ -223,30 +223,45 @@ digraph Compiler {
 
 ---
 
-### Typecheck `1 + 2`
+### Typecheck
 
 ```dot
 digraph TC {
     bgcolor="transparent"
+    node[shape=record];
 
-    subgraph {
+    subgraph cluster_0 {
+        label="[1] AST for 1 + 1"
+        peripheries=0
+        margin=20
+
         a[label="+"]
-        a -> "1"
-        a -> "2"
+        a_1[label="1"]
+        a_2[label="1"]
+        a -> a_1
+        a -> a_2
     }
 
-    subgraph {
+    subgraph cluster_1 {
+        label="[2] Type Child Nodes"
+        peripheries=0
+        margin=20
+
         b[label="+"]
         b_1[label="1 : int"]
-        b_2[label="2 : int"]
+        b_2[label="1 : int"]
         b -> b_1
         b -> b_2
     }
 
-    subgraph {
+    subgraph cluster_2 {
+        label="[3] Type Parent"
+        peripheries=0
+        margin=20
+
         c[label="+ : int"]
         c_1[label="1 : int"]
-        c_2[label="2 : int"]
+        c_2[label="1 : int"]
         c -> c_1
         c -> c_2
     }
@@ -260,14 +275,23 @@ digraph TC {
 ```dot
 digraph TCBad {
     bgcolor="transparent"
+    node[shape=record];
 
-    subgraph {
+    subgraph cluster_0 {
+        label="[1] AST for 1 + 'a'"
+        peripheries=0
+        margin=20
+
         a[label="+"]
         a -> "1"
         a -> "'a'"
     }
 
-    subgraph {
+    subgraph cluster_1 {
+        label="[2] Type Child Nodes"
+        peripheries=0
+        margin=20
+
         b[label="+"]
         b_1[label="1 : int"]
         b_2[label="'a' : char"]
@@ -275,7 +299,11 @@ digraph TCBad {
         b -> b_2
     }
 
-    subgraph {
+    subgraph cluster_2 {
+        label="[3] Note Error"
+        peripheries=0
+        margin=20
+
         c[label="+ : int [error]"]
         c_1[label="1 : int"]
         c_2[label="'a' : char"]
