@@ -6,7 +6,7 @@
 ## Syntax
 
 - C-like with a dash of Typescript and Rust
-- stick to popular conventions
+- Stick to popular conventions
 - Abbreviations: "bool", "int", etc.
 - Symbols: "+", "-", "<", ">", etc.
 
@@ -42,7 +42,8 @@ func fib(): u16 {
 
 ---
 
-# Expressions
+# Language Tour
+## Expressions
 
 --- 
 
@@ -89,34 +90,22 @@ switch value {
 
 ---
 
-
-```
-type TaskFunction[P: any] = func(param: &rw P): unit;
-type CStr = &[0..127];
-type TaskHandle = uint;
-extern func
-xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
-                     pcName: Cstr,
-                     uxStackDepth: uint32,
-			         pvParameters: &mut P, 
-			         uxPriority: uint, 
-			         taskHandle: &mut TaskHandle );
-```
-
----
-
-
----
-
 # Types
 
 --- 
 
+## Integers
+
 ```
-let i: 0..255 = 127;
+let dec: 0..255 = 128;
+let hex: 0..255 = 0x80;
+let bin: 0..255 = 0b1000_0000;
+let oct: 0..255 = 0o200;
 ```
 
 ---
+
+## Null
 
 ```
 let nothing: null = null;
@@ -124,17 +113,24 @@ let nothing: null = null;
 
 ---
 
+## Boolean
+
 ```
 let b: bool = true
 ```
 
 ---
 
+## IEEE 754 Floats
+
 ```
-let f: float64 = 1.333e4;
+let e: float64 = 2718e-3;
+let pi: float32 = 3.14;
 ```
 
 ---
+
+## References
 
 ```
 let b_ref: &bool = &b;
@@ -142,11 +138,17 @@ let b_ref: &bool = &b;
 
 ---
 
+## Arrays
+
 ```
 let array: [bool; 4] = [true, false, true, false];
+
+if array.[0] == array.[3] { /* ... */ }
 ```
 
 ---
+
+## Slices (Fat Pointers)
 
 ```
 let slice: &[bool] = &array.[1..3];
@@ -154,11 +156,15 @@ let slice: &[bool] = &array.[1..3];
 
 ---
 
+## Characters
+
 ```
 let h: char = 'h';
 ```
 
 ---
+
+## Strings
 
 ```
 let greet: &string = "hello ";
@@ -167,11 +173,16 @@ let greet: &string = "hello ";
 
 ---
 
+## Structures
+
 ```
 type A[T: boxed] = {
   a: T,
-  @align(4) { b1: 0..5, b2: 5..10 },
-   c: u16
+  @align(4) {
+    b1: 0..5,
+    b2: 5..10
+  },
+  c: u16
 };
 ```
 
@@ -179,13 +190,18 @@ type A[T: boxed] = {
 ---
 
 ```
-let a: A[1..2] = struct { a: 2, b1: 0, b2: 5, c:  0 }
+let a: A[0..2] = struct { a: 2, b1: 0, b2: 5, c:  0 }
+
+a.a + a.b1 + a.b2
 ```
 
 ---
 
+## Unions
+
 ```
 type U = bool | null;
+
 let a: U = true;
 if a == true { }      /* type error */
 ```
@@ -200,6 +216,21 @@ let v : V = struct { a: 1, b: null };
 if v.a == 1 {
   /* v : { a: 1..1, b: null } */
 }
+```
+
+---
+
+```
+type TaskFunction[P: any] = func(param: &mut P): null;
+type CStr = &[0..127];
+type TaskHandle = uint;
+extern func
+xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
+                     pcName: CStr,
+                     uxStackDepth: uint32,
+			         pvParameters: &mut P, 
+			         uxPriority: uint, 
+			         taskHandle: &mut TaskHandle );
 ```
 
 ---
@@ -270,7 +301,7 @@ digraph TC {
 
 ---
 
-## Type Error
+### Type Error
 
 ```dot
 digraph TCBad {
@@ -371,3 +402,36 @@ digraph CG {
     }
 }
 ```
+
+---
+
+# This Semester
+
+- Language Design
+- Compiler Architecture
+- Base Language
+
+---
+
+## Unimplemented
+
+- Unions
+- References
+- Mutability Guarentees
+- Type narrowing
+- Polymorphism
+- Modules (!)
+
+---
+
+## Next Steps
+
+- Cleanup codebase
+- Design modules
+- Constraint solving and unification
+- Copy & patch compilation
+- Write a thorough test suite
+
+---
+
+# Questions

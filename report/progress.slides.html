@@ -394,7 +394,7 @@ background-color: var(--r-background-color);
 <h2 id="syntax">Syntax</h2>
 <ul>
 <li>C-like with a dash of Typescript and Rust</li>
-<li>stick to popular conventions</li>
+<li>Stick to popular conventions</li>
 <li>Abbreviations: “bool”, “int”, etc.</li>
 <li>Symbols: “+”, “-”, “&lt;”, “&gt;”, etc.</li>
 </ul>
@@ -427,8 +427,9 @@ background-color: var(--r-background-color);
 <li>Scopes: Lexical</li>
 </ul>
 </section>
-<section id="expressions" class="slide level1">
-<h1>Expressions</h1>
+<section id="language-tour" class="slide level1">
+<h1>Language Tour</h1>
+<h2 id="expressions">Expressions</h2>
 </section>
 <section class="slide level1">
 
@@ -464,76 +465,83 @@ for a &lt; b {
   Default: ...
 }</code></pre>
 </section>
-<section class="slide level1">
-
-<pre><code>type TaskFunction[P: any] = func(param: &amp;rw P): unit;
-type CStr = &amp;[0..127];
-type TaskHandle = uint;
-extern func
-xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
-                     pcName: Cstr,
-                     uxStackDepth: uint32,
-                     pvParameters: &amp;mut P, 
-                     uxPriority: uint, 
-                     taskHandle: &amp;mut TaskHandle );</code></pre>
-</section>
-<section class="slide level1">
-
-</section>
 <section id="types" class="slide level1">
 <h1>Types</h1>
 </section>
 <section class="slide level1">
 
-<pre><code>let i: 0..255 = 127;</code></pre>
+<h2 id="integers">Integers</h2>
+<pre><code>let dec: 0..255 = 128;
+let hex: 0..255 = 0x80;
+let bin: 0..255 = 0b1000_0000;
+let oct: 0..255 = 0o200;</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="null">Null</h2>
 <pre><code>let nothing: null = null;</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="boolean">Boolean</h2>
 <pre><code>let b: bool = true</code></pre>
 </section>
 <section class="slide level1">
 
-<pre><code>let f: float64 = 1.333e4;</code></pre>
+<h2 id="ieee-754-floats">IEEE 754 Floats</h2>
+<pre><code>let e: float64 = 2718e-3;
+let pi: float32 = 3.14;</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="references">References</h2>
 <pre><code>let b_ref: &amp;bool = &amp;b;</code></pre>
 </section>
 <section class="slide level1">
 
-<pre><code>let array: [bool; 4] = [true, false, true, false];</code></pre>
+<h2 id="arrays">Arrays</h2>
+<pre><code>let array: [bool; 4] = [true, false, true, false];
+
+if array.[0] == array.[3] { /* ... */ }</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="slices-fat-pointers">Slices (Fat Pointers)</h2>
 <pre><code>let slice: &amp;[bool] = &amp;array.[1..3];</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="characters">Characters</h2>
 <pre><code>let h: char = &#39;h&#39;;</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="strings">Strings</h2>
 <pre><code>let greet: &amp;string = &quot;hello &quot;;</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="structures">Structures</h2>
 <pre><code>type A[T: boxed] = {
   a: T,
-  @align(4) { b1: 0..5, b2: 5..10 },
-   c: u16
+  @align(4) {
+    b1: 0..5,
+    b2: 5..10
+  },
+  c: u16
 };</code></pre>
 </section>
 <section class="slide level1">
 
-<pre><code>let a: A[1..2] = struct { a: 2, b1: 0, b2: 5, c:  0 }</code></pre>
+<pre><code>let a: A[0..2] = struct { a: 2, b1: 0, b2: 5, c:  0 }
+
+a.a + a.b1 + a.b2</code></pre>
 </section>
 <section class="slide level1">
 
+<h2 id="unions">Unions</h2>
 <pre><code>type U = bool | null;
+
 let a: U = true;
 if a == true { }      /* type error */</code></pre>
 </section>
@@ -546,6 +554,19 @@ let v : V = struct { a: 1, b: null };
 if v.a == 1 {
   /* v : { a: 1..1, b: null } */
 }</code></pre>
+</section>
+<section class="slide level1">
+
+<pre><code>type TaskFunction[P: any] = func(param: &amp;mut P): null;
+type CStr = &amp;[0..127];
+type TaskHandle = uint;
+extern func
+xTaskCreate[P: any]( pvTaskCode: TaskFunction[P],
+                     pcName: CStr,
+                     uxStackDepth: uint32,
+                     pvParameters: &amp;mut P, 
+                     uxPriority: uint, 
+                     taskHandle: &amp;mut TaskHandle );</code></pre>
 </section>
 <section id="compiler" class="slide level1">
 <h1>Compiler</h1>
@@ -716,7 +737,7 @@ if v.a == 1 {
 </section>
 <section class="slide level1">
 
-<h2 id="type-error">Type Error</h2>
+<h3 id="type-error">Type Error</h3>
 <svg width="590pt" height="199pt" viewBox="0.00 0.00 590.00 199.25">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 195.25)">
 <title>TCBad</title>
@@ -981,6 +1002,40 @@ if v.a == 1 {
 </g>
 </g>
 </svg>
+</section>
+<section id="this-semester" class="slide level1">
+<h1>This Semester</h1>
+<ul>
+<li>Language Design</li>
+<li>Compiler Architecture</li>
+<li>Base Language</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="unimplemented">Unimplemented</h2>
+<ul>
+<li>Unions</li>
+<li>References</li>
+<li>Mutability Guarentees</li>
+<li>Type narrowing</li>
+<li>Polymorphism</li>
+<li>Modules (!)</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="next-steps">Next Steps</h2>
+<ul>
+<li>Cleanup codebase</li>
+<li>Design modules</li>
+<li>Constraint solving and unification</li>
+<li>Copy &amp; patch compilation</li>
+<li>Write a thorough test suite</li>
+</ul>
+</section>
+<section id="questions" class="slide level1">
+<h1>Questions</h1>
 </section>
     </div>
   </div>
