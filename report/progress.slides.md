@@ -69,11 +69,11 @@ let a: bool = {
 
 ```
 for let i: uint in 0..10 {
-    arr.[i]
+    arr.[i];
 }
 
-for a < b {
-  arr.[i]
+while a < b {
+  a += 1;
 }
 ```
 
