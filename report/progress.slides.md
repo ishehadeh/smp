@@ -417,7 +417,7 @@ digraph CG {
 
 - Unions
 - References
-- Mutability Guarentees
+- Mutability Guarantees
 - Type narrowing
 - Polymorphism
 - Modules (!)
