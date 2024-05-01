@@ -1,0 +1,61 @@
+{
+    "name": "Howlite",
+    "scopeName": "source.howlite",
+    "patterns": [
+        {
+            "include": "#decl-kw-func"
+        },
+        {
+            "include": "#decl-kw-type"
+        },
+        {
+            "include": "#decl-kw-extern"
+        },
+        {
+            "include": "#ty-primitive-null"
+        },
+        {
+            "include": "#ty-primitive-bool"
+        },
+        {
+            "include": "#ty-primitive-int-range"
+        }
+    ],
+    "repository": {
+        "decl-kw-func": {
+            "name": "storage.type.function.howlite",
+            "match": "\\b(func)\\b"
+        },
+        "decl-kw-type": {
+            "name": "storage.type.type.howlite",
+            "match": "\\b(type)\\b"
+        },
+        "decl-kw-extern": {
+            "name": "storage.modifier.extern.howlite",
+            "match": "\\b(extern)\\b"
+        },
+        "ty-primitive-null": {
+            "name": "support.type.primitive.null.howlite",
+            "match": "\\b(null)\\b"
+        },
+        "ty-primitive-bool": {
+            "name": "support.type.primitive.bool.howlite",
+            "match": "\\b(bool)\\b"
+        },
+        "ty-primitive-int-range": {
+            "name": "support.type.primitive.int.howlite",
+            "match": "([+-]?(0x([0-9A-Fa-f]*))|(0o[0-7]*)|(0b[01]*)|[0-9]+)\\s*(\\.\\.)\\s*([+-]?(0x([0-9A-Fa-f]*))|(0o[0-7]*)|(0b[01]*)|[0-9]+)",
+            "captures": {
+                "1": {
+                    "name": "constant.numeric.int.howlite"
+                },
+                "2": {
+                    "name": "keyword.operator.range.howlite"
+                },
+                "3": {
+                    "name": "constant.numeric.int.howlite"
+                }
+            }
+        }
+    }
+}

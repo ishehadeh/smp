@@ -6,7 +6,7 @@ report/progress.pdf
 /out/
 
 # Editor Configs
-.vscode/
+.vscode/settings.json
 
 # Other
 /notes/simon_riscv_notes

@@ -1,0 +1,25 @@
+{
+  "name": "howlite-vscode",
+  "displayName": "howlite-vscode",
+  "description": "Howlite support for visual studio code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "howlite",
+      "aliases": ["Howlite", "howlite"],
+      "extensions": [".hlt"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "howlite",
+      "scopeName": "source.howlite",
+      "path": "./syntaxes/howlite.tmLanguage.json"
+    }]
+  }
+}
