@@ -27,6 +27,88 @@ export type TmLanguage<NameT extends string = Name> = Grammar<NameT> & {
   firstLineMatch?: string;
   [k: string]: unknown;
 };
+
+export interface Repository<NameT extends string> {
+  [k: string]: Pattern<NameT>;
+}
+
+export interface Grammar<NameT extends string> {
+  patterns: Pattern<NameT>[];
+  /**
+   * a dictionary (i.e. key/value pairs) of rules which can be included from other places in the grammar. The key is the name of the rule and the value is the actual rule. Further explanation (and example) follow with the description of the include rule key.
+   */
+  repository?: Repository<NameT>;
+  [k: string]: unknown;
+}
+export interface Pattern<NameT extends string> {
+  comment?: string;
+  /**
+   * set this property to 1 to disable the current pattern
+   */
+  disabled?: number;
+  /**
+   * this allows you to reference a different language, recursively reference the grammar itself or a rule declared in this file’s repository.
+   */
+  include?: string;
+  /**
+   * a regular expression which is used to identify the portion of text to which the name should be assigned. Example: '\b(true|false)\b'.
+   */
+  match?: string;
+  /**
+   * the name which gets assigned to the portion matched. This is used for styling and scope-specific settings and actions, which means it should generally be derived from one of the standard names.
+   */
+  name?: NameT;
+  /**
+   * this key is similar to the name key but only assigns the name to the text between what is matched by the begin/end patterns.
+   */
+  contentName?: NameT;
+
+  /**
+   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and end is the pattern which ends the block. Captures from the begin pattern can be referenced in the end pattern by using normal regular expression back-references. This is often used with here-docs. A begin/end rule can have nested patterns using the patterns key.
+   */
+  begin?: string;
+  /**
+   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and end is the pattern which ends the block. Captures from the begin pattern can be referenced in the end pattern by using normal regular expression back-references. This is often used with here-docs. A begin/end rule can have nested patterns using the patterns key.
+   */
+  end?: string;
+  /**
+   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and while continues it.
+   */
+  while?: string;
+  captures?: Captures<NameT>;
+  beginCaptures?: Captures<NameT>;
+  endCaptures?: Captures<NameT>;
+  whileCaptures?: Captures<NameT>;
+  /**
+   * applies to the region between the begin and end matches
+   */
+  patterns?: Pattern<NameT>[];
+  applyEndPatternLast?: number;
+  [k: string]: unknown;
+}
+/**
+ * allows you to assign attributes to the captures of the match pattern. Using the captures key for a begin/end rule is short-hand for giving both beginCaptures and endCaptures with same values.
+ */
+export interface Captures<NameT extends string> {
+  /**
+   * This interface was referenced by `Captures`'s JSON-Schema definition
+   * via the `patternProperty` "^[0-9]+$".
+   *
+   * This interface was referenced by `Captures1`'s JSON-Schema definition
+   * via the `patternProperty` "^[0-9]+$".
+   *
+   * This interface was referenced by `Captures2`'s JSON-Schema definition
+   * via the `patternProperty` "^[0-9]+$".
+   *
+   * This interface was referenced by `Captures3`'s JSON-Schema definition
+   * via the `patternProperty` "^[0-9]+$".
+   */
+  [k: string]: {
+    name?: NameT;
+    patterns?: Pattern<NameT>[];
+  };
+}
+
 export type Name =
   | string
   | (
@@ -143,84 +225,3 @@ export type Name =
     | "variable.other"
     | "variable.parameter"
   );
-
-export interface Repository<NameT extends string> {
-  [k: string]: Pattern<NameT>;
-}
-
-export interface Grammar<NameT extends string> {
-  patterns: Pattern<NameT>[];
-  /**
-   * a dictionary (i.e. key/value pairs) of rules which can be included from other places in the grammar. The key is the name of the rule and the value is the actual rule. Further explanation (and example) follow with the description of the include rule key.
-   */
-  repository?: Repository<NameT>;
-  [k: string]: unknown;
-}
-export interface Pattern<NameT extends string> {
-  comment?: string;
-  /**
-   * set this property to 1 to disable the current pattern
-   */
-  disabled?: number;
-  /**
-   * this allows you to reference a different language, recursively reference the grammar itself or a rule declared in this file’s repository.
-   */
-  include?: string;
-  /**
-   * a regular expression which is used to identify the portion of text to which the name should be assigned. Example: '\b(true|false)\b'.
-   */
-  match?: string;
-  /**
-   * the name which gets assigned to the portion matched. This is used for styling and scope-specific settings and actions, which means it should generally be derived from one of the standard names.
-   */
-  name?: NameT;
-  /**
-   * this key is similar to the name key but only assigns the name to the text between what is matched by the begin/end patterns.
-   */
-  contentName?: NameT;
-
-  /**
-   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and end is the pattern which ends the block. Captures from the begin pattern can be referenced in the end pattern by using normal regular expression back-references. This is often used with here-docs. A begin/end rule can have nested patterns using the patterns key.
-   */
-  begin?: string;
-  /**
-   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and end is the pattern which ends the block. Captures from the begin pattern can be referenced in the end pattern by using normal regular expression back-references. This is often used with here-docs. A begin/end rule can have nested patterns using the patterns key.
-   */
-  end?: string;
-  /**
-   * these keys allow matches which span several lines and must both be mutually exclusive with the match key. Each is a regular expression pattern. begin is the pattern that starts the block and while continues it.
-   */
-  while?: string;
-  captures?: Captures<NameT>;
-  beginCaptures?: Captures<NameT>;
-  endCaptures?: Captures<NameT>;
-  whileCaptures?: Captures<NameT>;
-  /**
-   * applies to the region between the begin and end matches
-   */
-  patterns?: Pattern<NameT>[];
-  applyEndPatternLast?: number;
-  [k: string]: unknown;
-}
-/**
- * allows you to assign attributes to the captures of the match pattern. Using the captures key for a begin/end rule is short-hand for giving both beginCaptures and endCaptures with same values.
- */
-export interface Captures<NameT extends string> {
-  /**
-   * This interface was referenced by `Captures`'s JSON-Schema definition
-   * via the `patternProperty` "^[0-9]+$".
-   *
-   * This interface was referenced by `Captures1`'s JSON-Schema definition
-   * via the `patternProperty` "^[0-9]+$".
-   *
-   * This interface was referenced by `Captures2`'s JSON-Schema definition
-   * via the `patternProperty` "^[0-9]+$".
-   *
-   * This interface was referenced by `Captures3`'s JSON-Schema definition
-   * via the `patternProperty` "^[0-9]+$".
-   */
-  [k: string]: {
-    name?: Name;
-    patterns?: Pattern<NameT>[];
-  };
-}
