@@ -1,2 +1,4 @@
+# configuration for ast-grep (https://ast-grep.github.io/)
+# see: ast-grep/README.md
 ruleDirs:
 - ./ast-grep
