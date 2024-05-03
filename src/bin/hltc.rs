@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::{
     fs,
     io::{self, Read},
@@ -25,6 +25,21 @@ __hw_breakpoint:
 
 ";
 
+#[derive(Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum ArgArch {
+    RV64I,
+    RV32I,
+}
+
+impl Into<Arch> for ArgArch {
+    fn into(self) -> Arch {
+        match self {
+            ArgArch::RV64I => Arch::RV64I,
+            ArgArch::RV32I => Arch::RV32I,
+        }
+    }
+}
+
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
 pub struct Args {
@@ -33,8 +48,8 @@ pub struct Args {
     debug: bool,
 
     /// add debug prelude
-    #[arg(short, long, default_value_t = Arch::RV64I)]
-    arch: Arch,
+    #[arg(short, long, default_value_t = Arch::ArgArch)]
+    arch: ArgArch,
 
     /// file to compile, defaults to stdin
     file: Option<PathBuf>,
@@ -54,7 +69,7 @@ fn main() {
     let mut type_interp = TypeInterpreter::new(decl);
     let type_tree = type_interp.eval_ast(parse_result.ast);
 
-    let mut compiler = Compiler::new(args.arch);
+    let mut compiler = Compiler::new(args.arch.into());
     let result = compiler.eval_ast(&type_tree);
     println!(".text\n{}", result.buffer.get_text());
 
